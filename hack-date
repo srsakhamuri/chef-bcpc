@@ -1,0 +1,18 @@
+#!/bin/bash
+
+hash -r
+
+usage(){
+    ret=${1:-0}
+cat <<EoF
+${0##*/} nodename
+EoF
+    exit ${ret}
+}
+
+if [ $# -lt 1 ] ; then usage ; fi
+nodename="$1"
+d="$(date)"
+
+key=~/.ssh/id_rsa.bcpc
+ssh -ostricthostkeychecking=no -l root -i ${key} ${nodename} "date -s '$d'"
