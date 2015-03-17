@@ -6,4 +6,4 @@ if [ $# -gt 1 ] ; then exit 1 ; fi
 name="$1"
 VBoxManage controlvm $name poweroff
 VBoxManage snapshot $name restorecurrent
-VBoxManage startvm $name
+VBoxManage startvm --type headless $name
