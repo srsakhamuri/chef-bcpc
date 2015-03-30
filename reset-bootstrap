@@ -2,7 +2,7 @@
 
 hash -r
 
-for s in bcpc-vm{1..3}.local.lan ; do
+for s in bcpc-vm{1..3}.{local.lan,bcpc.example.com} ; do
     for t in client node ; do
         eval "knife $t delete -y $s &" 2>/dev/null
     done
