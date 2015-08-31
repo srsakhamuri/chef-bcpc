@@ -9,6 +9,9 @@ export PATH=$DIR:$PATH
 vagrant_dir=$DIR/../bootstrap/vagrant_scripts
 pushd "${vagrant_dir}"
 
-vagrant ssh -c 'cd chef-bcpc && knife cookbook upload -o cookbooks bcpc' bootstrap
+vagrant ssh -c 'cd chef-bcpc && knife role from file roles/*.json &&
+  echo environments/Test-Laptop-Vagrant.json | xargs -tn1 knife environment from file &&
+  knife cookbook upload -o cookbooks bcpc' bootstrap
 vagrant ssh -c 'sudo -i chef-client' bootstrap
-vagrant status | awk '/running/{ if ($1 ~ /^vm/) print $1 }' | xargs -tn1 -J % vagrant ssh -c 'sudo -i chef-client' % -- -t
+vagrant status | awk '/running/{ if ($1 ~ /^vm/) print $1 }' | \
+  xargs -tn1 -J % vagrant ssh -c 'sudo -i chef-client' % -- -t
