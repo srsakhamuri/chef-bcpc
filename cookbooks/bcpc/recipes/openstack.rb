@@ -20,19 +20,31 @@
 include_recipe "bcpc::default"
 include_recipe "bcpc::packages-openstack"
 
-bash 'clean-old-pyc-files' do
-  code 'find /usr/lib/python2.7/dist-packages -name \*.pyc -delete'
-  action :nothing
-end
+# python-nova is used as the canary package because it's pretty fundamental
+min_version = \
+  if is_liberty?
+    '2:12.0.5'
+  elsif is_mitaka?
+    '2:13.1.2'
+  else
+    raise "You are attempting to install an unsupported OpenStack version."
+  end
 
-# python-nova will be used as the canary package to determine whether at least
-# 12.0.5 (Liberty) is being installed
 ruby_block 'evaluate-version-eligibility' do
   block do
-    minimum_nova_version = Mixlib::ShellOut.new("dpkg --compare-versions $(apt-cache show --no-all-versions python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:12.0.5")
+    minimum_nova_version = Mixlib::ShellOut.new("dpkg --compare-versions $(apt-cache show --no-all-versions python-nova | egrep '^Version:' | awk '{ print $NF }') ge #{min_version}")
     cmd_result = minimum_nova_version.run_command
-    fail('You must install OpenStack Liberty 12.0.5 or better. Earlier versions are not supported.') if cmd_result.error?
+    fail("You must install OpenStack #{node['bcpc']['openstack_release']} #{min_version} or better. Earlier versions are not supported.") if cmd_result.error?
   end
+end
+
+# are we performing an upgrade? (don't check if it's a fresh install)
+upgrade_check = Mixlib::ShellOut.new("if dpkg -s python-nova >/dev/null 2>&1; then dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt $(apt-cache policy python-nova | grep Candidate | awk '{ print $NF }'); else exit 1; fi")
+upgrade_check.run_command
+
+file '/usr/local/etc/openstack_upgrade' do
+  action :create
+  not_if { upgrade_check.error? }
 end
 
 %w{ python-novaclient
@@ -51,6 +63,12 @@ end
     package pkg do
         action :upgrade
     end
+end
+
+# remove cliff-tablib from Mitaka and beyond because it collides with built-in formatters
+package 'cliff-tablib' do
+  action :remove
+  not_if { is_liberty? }
 end
 
 %w{control_openstack hup_openstack logwatch}.each do |script|

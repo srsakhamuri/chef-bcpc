@@ -22,6 +22,14 @@ require 'base64'
 require 'thread'
 require 'ipaddr'
 
+def is_liberty?
+  node['bcpc']['openstack_release'] == 'liberty'
+end
+
+def is_mitaka?
+  node['bcpc']['openstack_release'] == 'mitaka'
+end
+
 # this method deals in strings even though API versions are numbers because
 # some API versions are integers and others are floats and it would be bad
 # if Ruby decided to report an API version as something like 1.10000000006584
@@ -48,6 +56,12 @@ def get_api_version(service, uri_type='public')
     else
       fail "Could not derive API version for #{service_str} from #{uri_type_str} URI, please inspect service catalog"
     end
+  end
+
+  # Mitaka Horizon does not like if the version given is 2.1, just say 2
+  # and let the client determine microversion
+   if service_str == 'compute' && api_version_list[0][0].start_with?('2')
+    return '2'
   end
 
   api_version_list[0][0]

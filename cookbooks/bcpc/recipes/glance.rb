@@ -31,7 +31,6 @@ end
 %w{glance glance-api glance-registry}.each do |pkg|
   package pkg do
     action :upgrade
-    notifies :run, 'bash[clean-old-pyc-files]', :immediately
   end
 end
 
@@ -104,12 +103,12 @@ ruby_block "glance-database-creation" do
     not_if { system "MYSQL_PWD=#{get_config('mysql-root-password')} mysql -uroot -e 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \"#{node['bcpc']['dbname']['glance']}\"'|grep \"#{node['bcpc']['dbname']['glance']}\" >/dev/null" }
 end
 
-ruby_block 'update-glance-db-schema-for-liberty' do
+ruby_block 'update-glance-db-schema' do
   block do
     self.notifies :run, "bash[glance-database-sync]", :immediately
     self.resolve_notification_references
   end
-  only_if { ::File.exist?('/usr/local/etc/kilo_to_liberty_upgrade') }
+  only_if { ::File.exist?('/usr/local/etc/openstack_upgrade') }
 end
 
 bash "glance-database-sync" do
@@ -162,9 +161,7 @@ cookbook_file "/tmp/cirros-0.3.4-x86_64-disk.img" do
     mode 00444
 end
 
-package "qemu-utils" do
-    action :upgrade
-end
+package "qemu-utils"
 
 bash "glance-cirros-image" do
     user "root"
