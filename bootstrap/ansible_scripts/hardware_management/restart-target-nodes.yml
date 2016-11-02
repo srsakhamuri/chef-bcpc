@@ -33,24 +33,26 @@
       default: "no"
       private: no
   tasks:
-  - fail: msg="Acknowledgement not received, exiting"
-    when: reboot_confirm != "YES"
-    tags:
-      - always
+    - fail: msg="Acknowledgement not received, exiting"
+      when: reboot_confirm != "YES"
+      tags:
+        - always
 
-- hosts: "{{ control_headnode }}"
-  become: yes
-  gather_facts: no
-  serial: 1
-  tasks:
+    - set_fact: control_headnode={{ groups['headnodes'][0] }}
+      when: control_headnode is not defined
+
     - name: Set noout
       command: ceph osd set noout
+      delegate_to: "{{ control_headnode }}"
 
 - hosts: "{{ target }}"
   become: yes
   gather_facts: no
   serial: "{{ serial|default(1) }}"
   tasks:
+    - set_fact: control_headnode={{ groups['headnodes'][0] }}
+      when: control_headnode is not defined
+
     - name: Get running instances on hypervisor
       command: virsh list --state-running --uuid
       register: running_instances_raw
@@ -169,10 +171,15 @@
     - name: Wait 30 seconds for OpenStack services to settle
       command: sleep 30
 
-- hosts: "{{ control_headnode }}"
+- hosts: bootstraps
   become: yes
   gather_facts: no
   serial: 1
   tasks:
+    - set_fact: control_headnode={{ groups['headnodes'][0] }}
+      when: control_headnode is not defined
+
     - name: Unset noout
       command: ceph osd unset noout
+      delegate_to: "{{ control_headnode }}"
+
