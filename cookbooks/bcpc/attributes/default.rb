@@ -357,6 +357,7 @@ default['bcpc']['nova']['scheduler_default_filters'] = %w(
   AvailabilityZoneFilter
   CoreFilter
   RamFilter
+  DiskFilter
   ComputeFilter
   ComputeCapabilitiesFilter
   NUMATopologyFilter
