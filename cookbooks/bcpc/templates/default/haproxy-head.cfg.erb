@@ -142,16 +142,6 @@ listen heat-api-cfn
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8000 check inter 5s rise 1 fall 1" %>
 <% end -%>
 
-listen ceilometer-api
-  bind <%=node['bcpc']['management']['vip']%>:8777 <%= (node['bcpc']['protocol']['ceilometer'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
-  balance source
-  option tcplog
-  option httpchk GET /
-  http-check expect status 401
-<% @servers.each do |server| -%>
-  <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8777 check inter 5s rise 1 fall 1" %>
-<% end -%>
-
 listen novnc
   bind <%=node['bcpc']['management']['vip']%>:6080 ssl crt /etc/haproxy/haproxy.pem
   balance source

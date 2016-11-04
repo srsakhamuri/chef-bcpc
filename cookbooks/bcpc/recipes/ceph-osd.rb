@@ -1,3 +1,22 @@
+#
+# Cookbook Name:: bcpc
+# Recipe:: ceph-osd
+
+# Copyright 2016, Bloomberg Finance L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 include_recipe "bcpc::ceph-work"
 
 %w{ssd hdd}.each do |type|
@@ -45,10 +64,4 @@ service 'ceph-osd-renice' do
   action [:enable, :start]
   restart_command 'service ceph-osd-renice restart'
   not_if { get_head_nodes.include?(node) }
-end
-
-# this resource is to clean up leftovers from the CephFS resources that used to be here
-bash "clean-up-cephfs-mountpoint" do
-  code "sed -i 's/^-- \\/mnt fuse\\.ceph-fuse rw,nosuid,nodev,noexec,noatime,noauto 0 2$//g' /etc/fstab"
-  only_if { system "grep -q -e '^-- \\/mnt fuse\\.ceph-fuse rw,nosuid,nodev,noexec,noatime,noauto 0 2$' /etc/fstab" }
 end

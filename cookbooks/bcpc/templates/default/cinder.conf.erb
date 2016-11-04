@@ -17,8 +17,8 @@ debug = <%= node['bcpc']['cinder']['debug'] %>
 auth_strategy = keystone
 state_path = /var/lib/cinder
 logdir=/var/log/cinder
-# v1 API is being removed in Liberty
-enable_v1_api=<%= is_kilo? %>
+
+enable_v1_api=false
 enable_v2_api=true
 
 # Bind to mgt IP only
@@ -38,18 +38,6 @@ glance_api_version=2
 
 # Volume driver settings for RBD
 enabled_backends=<%= node['bcpc']['ceph']['enabled_pools'].map {|type| type.upcase}.join(",") %>
-
-# Ceilometer metrics
-#control_exchange = cinder
-#notification_driver = cinder.openstack.common.notifier.rpc_notifier
-
-<%# default quotas in Liberty are set exclusively with cinder quota-class-update %>
-<% if is_kilo? %>
-# Quotas
-<% node['bcpc']['cinder']['quota'].each do | key, value| %>
-quota_<%=key%> = <%= value %>
-<% end %>
-<% end %>
 
 [oslo_messaging_rabbit]
 # Rabbit message queue settings

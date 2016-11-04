@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: bcpc
-# Recipe:: ceph-mon
+# Recipe:: ceph-head
 #
 # Copyright 2015, Bloomberg Finance L.P.
 #
@@ -124,39 +124,6 @@ bash "set-ceph-crush-tunables" do
     end
 end
 
-# Remove MDS in a later pull request... Wait_for_pg_create uses mdmap so it will need to change...
-#directory "/var/lib/ceph/mds/ceph-#{node['hostname']}" do
-#    user "root"
-#    group "root"
-#    mode 00755
-#end
-
-#bash "initialize-ceph-mds-config" do
-#    code <<-EOH
-#        ceph --name mon. --keyring /var/lib/ceph/mon/ceph-#{node['hostname']}/keyring \
-#            auth get-or-create-key mds.#{node['hostname']} \
-#            mon 'allow *' \
-#            osd 'allow *' \
-#            mds 'allow' > /dev/null
-#    EOH
-#end
-
-#bash "write-mds-#{node['hostname']}-key" do
-#    code <<-EOH
-#        MDS_KEY=`ceph --name mon. --keyring /var/lib/ceph/mon/ceph-#{node['hostname']}/keyring auth get-or-create-key mds.#{node['hostname']}`
-#        ceph-authtool "/var/lib/ceph/mds/ceph-#{node['hostname']}/keyring" \
-#            --create-keyring \
-#            --name=mds.#{node['hostname']} \
-#            --add-key="$MDS_KEY"
-#    EOH
-#    not_if "test -f /var/lib/ceph/mds/ceph-#{node['hostname']}/keyring"
-#end
-
-#execute "ceph-mds-start" do
-#    command "initctl emit ceph-mds id='#{node['hostname']}'"
-#end
-# End MDS block
-
 template "/tmp/crush-map-additions.txt" do
     source "ceph-crush.erb"
     owner "root"
@@ -198,8 +165,6 @@ bash "create-rados-pool-#{node['bcpc']['ceph']['vms']['name']}" do
     EOH
     not_if "rados lspools | grep ^#{node['bcpc']['ceph']['vms']['name']}$"
 end
-#     notifies :run, "bash[wait-for-pgs-creating]", :immediately
-
 
 # Commented out 'data' and 'metadata' since the number of pools can impact pgs
 # data metadata - removed from loop below - After firefly data and metadata are no longer default pools

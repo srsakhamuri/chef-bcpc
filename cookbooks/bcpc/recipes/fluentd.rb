@@ -35,13 +35,6 @@ if node['bcpc']['enabled']['logging'] then
         action :purge
     end
 
-    bash "clean-up-old-fluentd" do
-        code <<-EOH
-          rm -rf /usr/lib/fluent
-        EOH
-        only_if 'test -d /usr/lib/fluent'
-    end
-
     # Run td-agent as root
     cookbook_file "/etc/default/td-agent" do
         source "td-agent-default"

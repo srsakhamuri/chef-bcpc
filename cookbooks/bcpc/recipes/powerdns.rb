@@ -43,11 +43,6 @@ if node['bcpc']['enabled']['dns'] then
       notifies :restart, "service[pdns]", :delayed
   end
 
-  # this old cron job needs to be removed because it wipes out the contents of the pdns.records table that are seeded by the new template
-  cron "powerdns_populate_records" do
-    action :delete
-  end
-
   ruby_block "powerdns-database-creation" do
     block do
       %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
