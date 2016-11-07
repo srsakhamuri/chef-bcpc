@@ -59,7 +59,6 @@ lrwxr-xr-x  1 user  staff  91 May 28 10:18 elasticsearch -> /usr/local/var/spool
 lrwxr-xr-x  1 user  staff  76 May 28 10:16 erlang -> /usr/local/var/spool/apt-mirror/mirror/packages.erlang-solutions.com/ubuntu/
 lrwxr-xr-x  1 user  staff  74 May 28 10:17 fluentd -> /usr/local/var/spool/apt-mirror/mirror/packages.treasure-data.com/precise/
 lrwxr-xr-x  1 user  staff  84 May 28 10:07 haproxy -> /usr/local/var/spool/apt-mirror/mirror/ppa.launchpad.net/vbernat/haproxy-1.5/ubuntu/
-lrwxr-xr-x  1 user  staff  65 May 28 10:17 hwraid -> /usr/local/var/spool/apt-mirror/mirror/hwraid.le-vert.net/ubuntu/
 lrwxr-xr-x  1 user  staff  60 May 28 10:17 mysql -> /usr/local/var/spool/apt-mirror/mirror/repo.percona.com/apt/
 lrwxr-xr-x  1 user  staff  81 May 28 10:17 openstack -> /usr/local/var/spool/apt-mirror/mirror/ubuntu-cloud.archive.canonical.com/ubuntu/
 lrwxr-xr-x  1 user  staff  63 May 28 10:08 rabbitmq -> /usr/local/var/spool/apt-mirror/mirror/www.rabbitmq.com/debian/
