@@ -476,6 +476,8 @@ default['bcpc']['system']['additional_reserved_ports'] = []
 default['bcpc']['system']['parameters']['kernel.pid_max'] = 4194303
 # Connection tracking table max size
 default['bcpc']['system']['parameters']['net.nf_conntrack_max'] = 262144
+# readhead value for all disks in the system, in kb
+default['bcpc']['system']['readahead_kb'] = 512
 
 ###########################################
 #
