@@ -8,10 +8,25 @@
 default['bcpc']['monitoring']['provider'] = false
 # VIP for monitoring services and agents
 default['bcpc']['monitoring']['vip'] = "10.17.1.16"
+# CIDR of monitoring endpoints outside of cluster.
+default['bcpc']['monitoring']['cidrs'] = ['10.17.1.0/24']
+# Agent TCP ports that monitoring servers need to reach
+default['bcpc']['monitoring']['agent_tcp_ports'] = [10050]
 # List of monitoring clients external to cluster that we are monitoring
 default['bcpc']['monitoring']['external_clients'] = []
 # Monitoring database settings
-default['bcpc']['monitoring']['mysql']['innodb_buffer_pool_size'] = nil
+default['bcpc']['monitoring']['mysql']['innodb_buffer_pool_size'] = '128M'
+default['bcpc']['monitoring']['mysql']['innodb_buffer_pool_instances'] = 1
+default['bcpc']['monitoring']['mysql']['thread_cache_size'] = nil
+default['bcpc']['monitoring']['mysql']['innodb_io_capacity'] = 200
+default['bcpc']['monitoring']['mysql']['innodb_log_buffer_size'] = '8M'
+default['bcpc']['monitoring']['mysql']['innodb_flush_method'] = 'O_DIRECT'
+default['bcpc']['monitoring']['mysql']['wsrep_slave_threads'] = 4
+# slow query log settings
+default['bcpc']['monitoring']['mysql']['slow_query_log'] = true
+default['bcpc']['monitoring']['mysql']['slow_query_log_file'] = '/var/log/mysql/slow.log'
+default['bcpc']['monitoring']['mysql']['long_query_time'] = 10
+default['bcpc']['monitoring']['mysql']['log_queries_not_using_indexes'] = false
 # Pagerduty integration
 default['bcpc']['monitoring']['pagerduty']['enabled'] = false
 # Pagerduty service key
@@ -51,6 +66,15 @@ default['bcpc']['graphite']['use_whitelist'] = {
 #
 ###########################################
 #
+# Handlers
+default['bcpc']['diamond']['handlers'] = {
+  'diamond.handler.graphitepickle.GraphitePickleHandler' => {
+    'host' => node['bcpc']['monitoring']['vip'],
+    'port' => 2014,
+    'batch' => 512,
+    'timeout' => 15
+  }
+}
 # CPU Collector parameters
 default['bcpc']['diamond']['collectors']['CPU']['normalize'] = 'True'
 default['bcpc']['diamond']['collectors']['CPU']['percore'] = 'False'

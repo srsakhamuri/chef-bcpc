@@ -43,25 +43,18 @@ def get_api_version(service, uri_type='public')
     fail "#{service_str} is not a valid service, please select from #{node['bcpc']['catalog'].keys.join('/')}"
   end
 
-  api_version_list = node['bcpc']['catalog'][service_str]['uris'][uri_type_str].scan(/^[^\d]*(\d+)/)
+  api_version_list = node['bcpc']['catalog'][service_str]['uris'][uri_type_str].scan(/(\d+(\.\d+)?)/)
 
   if api_version_list.empty?
-    # Glance URL should not include a version number, default to Glance API v1 for Kilo and v2 otherwise
+    # Glance URL should not include a version number, default to Glance API v2 in all cases
     if service_str == 'image'
-      return (is_kilo? ? '1' : '2')
+      return '2'
     else
       fail "Could not derive API version for #{service_str} from #{uri_type_str} URI, please inspect service catalog"
     end
   end
 
-  # special workarounds for certain fussy non-Glance APIs
-  if service_str == 'identity' and api_version_list[0][0] == "2"
-    return "2.0"
-  elsif service_str == 'compute' and api_version_list[0][0] == "1"
-    return "1.1"
-  else
-    return api_version_list[0][0]
-  end
+  api_version_list[0][0]
 end
 
 def is_vip?
@@ -120,14 +113,23 @@ def get_config(key)
 end
 
 def search_nodes(key, value)
+    filter = {
+      :filter_result => {
+        'ipaddress' => ['ipaddress'],
+        'hostname' => ['hostname'],
+        'fqdn' => ['fqdn'],
+        'bcpc' => ['bcpc'],
+        'roles' => ['roles']
+      }
+    }
     if key == "recipe"
-        results = search(:node, "recipes:bcpc\\:\\:#{value} AND chef_environment:#{node.chef_environment}")
+        results = search(:node, "recipes:bcpc\\:\\:#{value} AND chef_environment:#{node.chef_environment}", filter)
         results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
         if not results.include?(node) and node.run_list.expand(node.chef_environment).recipes.include?("bcpc::#{value}")
             results.push(node)
         end
     elsif key == "role"
-        results = search(:node, "#{key}:#{value} AND chef_environment:#{node.chef_environment}")
+        results = search(:node, "#{key}:#{value} AND chef_environment:#{node.chef_environment}", filter)
         results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
         if not results.include?(node) and node.run_list.expand(node.chef_environment).roles.include?(value)
             results.push(node)
@@ -140,7 +142,16 @@ def search_nodes(key, value)
 end
 
 def get_all_nodes
-    results = search(:node, "recipes:bcpc AND chef_environment:#{node.chef_environment}")
+    filter = {
+      :filter_result => {
+        'ipaddress' => ['ipaddress'],
+        'hostname' => ['hostname'],
+        'fqdn' => ['fqdn'],
+        'bcpc' => ['bcpc'],
+        'roles' => ['roles']
+      }
+    }
+    results = search(:node, "recipes:bcpc AND chef_environment:#{node.chef_environment}", filter)
     if results.any? { |x| x['hostname'] == node['hostname'] }
         results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     else
@@ -150,7 +161,16 @@ def get_all_nodes
 end
 
 def get_ceph_osd_nodes
-  results = search(:node, "recipes:bcpc\\:\\:ceph-osd AND chef_environment:#{node.chef_environment}")
+    filter = {
+      :filter_result => {
+        'ipaddress' => ['ipaddress'],
+        'hostname' => ['hostname'],
+        'fqdn' => ['fqdn'],
+        'bcpc' => ['bcpc'],
+        'roles' => ['roles']
+      }
+    }
+    results = search(:node, "recipes:bcpc\\:\\:ceph-osd AND chef_environment:#{node.chef_environment}", filter)
     if results.any? { |x| x['hostname'] == node['hostname'] }
         results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     else
@@ -160,7 +180,16 @@ def get_ceph_osd_nodes
 end
 
 def get_head_nodes
-    results = search(:node, "role:BCPC-Headnode AND chef_environment:#{node.chef_environment}")
+    filter = {
+      :filter_result => {
+        'ipaddress' => ['ipaddress'],
+        'hostname' => ['hostname'],
+        'fqdn' => ['fqdn'],
+        'bcpc' => ['bcpc'],
+        'roles' => ['roles']
+      }
+    }
+    results = search(:node, "role:BCPC-Headnode AND chef_environment:#{node.chef_environment}", filter)
     results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     if not results.include?(node) and node.run_list.roles.include?('BCPC-Headnode')
         results.push(node)
@@ -169,7 +198,16 @@ def get_head_nodes
 end
 
 def get_bootstrap_node
-    results = search(:node, "role:BCPC-Bootstrap AND chef_environment:#{node.chef_environment}")
+    filter = {
+      :filter_result => {
+        'ipaddress' => ['ipaddress'],
+        'hostname' => ['hostname'],
+        'fqdn' => ['fqdn'],
+        'bcpc' => ['bcpc'],
+        'roles' => ['roles']
+      }
+    }
+    results = search(:node, "role:BCPC-Bootstrap AND chef_environment:#{node.chef_environment}", filter)
     raise 'There is not exactly one bootstrap node found.' if results.size != 1
     results.first
 end

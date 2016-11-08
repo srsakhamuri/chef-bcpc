@@ -52,11 +52,14 @@ default['bcpc']['in_maintenance'] = false
 #  Flags to enable/disable BCPC cluster features
 #
 ###########################################
-# This will enable elasticsearch & kibana on head nodes and fluentd on all nodes
+# This will enable elasticsearch & kibana on monitoring nodes and fluentd on
+# all nodes
 default['bcpc']['enabled']['logging'] = true
-# This will enable graphite web and carbon on head nodes and diamond on all nodes
+# This will enable graphite web and carbon on monitoring nodes and diamond on
+# all nodes
 default['bcpc']['enabled']['metrics'] = true
-# This will enable zabbix server on head nodes and zabbix agent on all nodes
+# This will enable zabbix server on monitoring nodes and zabbix agent on all
+# nodes
 default['bcpc']['enabled']['monitoring'] = true
 # This will enable powerdns on head nodes
 default['bcpc']['enabled']['dns'] = true
@@ -298,6 +301,11 @@ default['bcpc']['keystone']['drivers']['trust'] = 'sql'
 default['bcpc']['keystone']['drivers']['notification'] = 'log'
 # token format
 default['bcpc']['keystone']['providers']['token'] = 'fernet'
+# enable automatic key rotation for Fernet tokens
+# (recommended but just in case you want it off)
+default['bcpc']['keystone']['rotate_fernet_tokens'] = true
+# rotate Fernet tokens after they reach this age (if enabled)
+default['bcpc']['keystone']['fernet_token_max_age_seconds'] = 7*24*60*60
 # Notifications format. See: http://docs.openstack.org/developer/keystone/event_notifications.html
 default['bcpc']['keystone']['notification_format'] = 'cadf'
 
@@ -318,6 +326,10 @@ default['bcpc']['ldap']['config'] = {}
 default['bcpc']['nova']['ram_allocation_ratio'] = 1.0
 default['bcpc']['nova']['reserved_host_memory_mb'] = 1024
 default['bcpc']['nova']['cpu_allocation_ratio'] = 2.0
+# CPU passthrough/masking configurations
+default['bcpc']['nova']['cpu_config']['cpu_mode'] = nil
+default['bcpc']['nova']['cpu_config']['cpu_model'] = nil
+default['bcpc']['nova']['cpu_config']['vcpu_pin_set'] = nil
 # select from between this many equally optimal hosts when launching an instance
 default['bcpc']['nova']['scheduler_host_subset_size'] = 3
 # maximum number of builds to allow the scheduler to run simultaneously
@@ -339,7 +351,20 @@ default['bcpc']['nova']['debug'] = false
 # Nova default log levels
 default['bcpc']['nova']['default_log_levels'] = nil
 # Nova scheduler default filters
-default['bcpc']['nova']['scheduler_default_filters'] = ['AggregateInstanceExtraSpecsFilter', 'RetryFilter', 'AvailabilityZoneFilter', 'RamFilter', 'ComputeFilter', 'ComputeCapabilitiesFilter', 'ImagePropertiesFilter', 'ServerGroupAntiAffinityFilter', 'ServerGroupAffinityFilter']
+default['bcpc']['nova']['scheduler_default_filters'] = %w(
+  AggregateInstanceExtraSpecsFilter
+  RetryFilter
+  AvailabilityZoneFilter
+  CoreFilter
+  RamFilter
+  DiskFilter
+  ComputeFilter
+  ComputeCapabilitiesFilter
+  NUMATopologyFilter
+  ImagePropertiesFilter
+  ServerGroupAntiAffinityFilter
+  ServerGroupAffinityFilter
+)
 
 # configure optional Nova notification system
 default['bcpc']['nova']['notifications']['enabled'] = false
@@ -397,6 +422,7 @@ default['bcpc']['cinder']['quota'] = {
 ###########################################
 # Verbose logging (level INFO)
 default['bcpc']['glance']['verbose'] = false
+default['bcpc']['glance']['debug'] = false
 default['bcpc']['glance']['workers'] = 5
 
 ###########################################
@@ -422,6 +448,20 @@ default['bcpc']['routemon']['numfixes'] = 0
 # If set to 0, max_connections for MySQL on heads will default to an
 # auto-calculated value.
 default['bcpc']['mysql-head']['max_connections'] = 0
+# for pools larger than 1GB, it is recommended to divide it into multiple
+# pools of at least 1GB in size each
+default['bcpc']['mysql-head']['innodb_buffer_pool_instances'] = 1
+default['bcpc']['mysql-head']['innodb_buffer_pool_size'] = '128M'
+default['bcpc']['mysql-head']['thread_cache_size'] = nil
+default['bcpc']['mysql-head']['innodb_io_capacity'] = 200
+default['bcpc']['mysql-head']['innodb_log_buffer_size'] = '8M'
+default['bcpc']['mysql-head']['innodb_flush_method'] = 'O_DIRECT'
+default['bcpc']['mysql-head']['wsrep_slave_threads'] = 4
+# slow query log settings
+default['bcpc']['mysql-head']['slow_query_log'] = true
+default['bcpc']['mysql-head']['slow_query_log_file'] = '/var/log/mysql/slow.log'
+default['bcpc']['mysql-head']['long_query_time'] = 10
+default['bcpc']['mysql-head']['log_queries_not_using_indexes'] = false
 
 ###########################################
 #
@@ -684,3 +724,11 @@ default['bcpc']['getty']['ttys'] = %w( ttyS0 ttyS1 )
 # VNC uses cluster domain name by default
 # for proxy base url. Set to 'true' to use vip
 default['bcpc']['vnc']['proxy_use_vip'] = false
+###########################################
+#
+#  Bootstrap tftpd settings
+#
+###########################################
+#
+# Address and port to listen
+default['bcpc']['tftpd']['address'] = ':69'

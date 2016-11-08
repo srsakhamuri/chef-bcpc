@@ -19,6 +19,12 @@
 include_recipe "bcpc::ceph-work"
 include_recipe "bcpc::nova-common"
 
+# see https://specs.openstack.org/openstack/nova-specs/specs/juno/implemented/virt-driver-numa-placement.html
+# for information about NUMA in OpenStack
+package 'numactl' do
+  action :upgrade
+end
+
 package "nova-compute-#{node['bcpc']['virt_type']}" do
   action :upgrade
   notifies :restart, 'service[nova-compute]', :immediately
@@ -287,5 +293,25 @@ bcpc_patch "nova-network-liberty-linux_net" do
   shasums_before_apply 'nova-network-liberty-linux_net-BEFORE.SHASUMS'
   shasums_after_apply  'nova-network-liberty-linux_net-AFTER.SHASUMS'
   notifies :restart, 'service[nova-network]', :immediately
-  only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:0"
+  only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:0 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:12.0.4"
+end
+
+bcpc_patch "nova-network-liberty-linux_net-12.0.4" do
+  patch_file           'nova-network-liberty-linux_net.patch'
+  patch_root_dir       '/usr/lib/python2.7/dist-packages'
+  shasums_before_apply 'nova-network-liberty-linux_net-12.0.4-BEFORE.SHASUMS'
+  shasums_after_apply  'nova-network-liberty-linux_net-12.0.4-AFTER.SHASUMS'
+  notifies :restart, 'service[nova-network]', :immediately
+  only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:12.0.4 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:13.0.0"
+end
+
+# fix bug 1608934 - Canonical backported a patch in 12.0.4 that broke
+# ephemeral LVM behavior, so detect and fix
+bcpc_patch "nova-virt-libvirt-imagebackend-12.0.4" do
+  patch_file           'nova-virt-libvirt-imagebackend.patch'
+  patch_root_dir       '/usr/lib/python2.7/dist-packages'
+  shasums_before_apply 'nova-virt-libvirt-imagebackend-BEFORE.SHASUMS'
+  shasums_after_apply  'nova-virt-libvirt-imagebackend-AFTER.SHASUMS'
+  notifies :restart, 'service[nova-compute]', :immediately
+  only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:12.0.4-0ubuntu1~cloud1 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:13.0.0"
 end

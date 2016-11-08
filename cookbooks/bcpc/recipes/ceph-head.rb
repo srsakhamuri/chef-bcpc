@@ -76,20 +76,25 @@ ruby_block "wait-for-mon-quorum" do
     end
 end
 
-%w{get_monstatus if_leader if_not_leader if_quorum if_not_quorum}.each do |script|
-    template "/usr/local/bin/#{script}" do
-        source "ceph-#{script}.erb"
-        mode 0755
-        owner "root"
-        group "root"
-    end
+%w(quorum_status monstatus).each do |script|
+  template "/etc/sudoers.d/#{script}" do
+    source "sudoers-#{script}.erb"
+    mode 0440
+    owner 'root'
+    group 'root'
+  end
 end
 
-template "/etc/sudoers.d/monstatus" do
-    source "sudoers-monstatus.erb"
-    user "root"
-    group "root"
-    mode 00440
+%w(
+  get_quorum_status get_monstatus
+  if_leader if_not_leader if_quorum if_not_quorum
+).each do |script|
+  template "/usr/local/bin/#{script}" do
+    source "ceph-#{script}.erb"
+    mode 0755
+    owner 'root'
+    group 'root'
+  end
 end
 
 bash "initialize-ceph-admin-and-osd-config" do
@@ -110,6 +115,13 @@ bash "set-ceph-crush-tunables" do
         ceph --name mon. --keyring /var/lib/ceph/mon/ceph-#{node['hostname']}/keyring \
             osd crush tunables optimal
     EOH
+    # do not apply if any tunables have been modified from their defaults
+    not_if do
+      show_tunables = Mixlib::ShellOut.new('ceph osd crush show-tunables')
+      show_tunables.run_command
+      raise 'Could not check Ceph tunables' if show_tunables.error!
+      JSON.load(show_tunables.stdout) != node['bcpc']['ceph']['expected_tunables']
+    end
 end
 
 # Remove MDS in a later pull request... Wait_for_pg_create uses mdmap so it will need to change...
