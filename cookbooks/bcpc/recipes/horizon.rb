@@ -138,7 +138,6 @@ template "/usr/share/openstack-dashboard/openstack_dashboard/conf/cinder_policy.
     owner "root"
     group "root"
     mode 00644
-    notifies :restart, "service[apache2]", :delayed
     variables(:policy => JSON.pretty_generate(node['bcpc']['cinder']['policy']))
 end
 
@@ -147,7 +146,6 @@ template "/usr/share/openstack-dashboard/openstack_dashboard/conf/glance_policy.
     owner "root"
     group "root"
     mode 00644
-    notifies :restart, "service[apache2]", :delayed
     variables(:policy => JSON.pretty_generate(node['bcpc']['glance']['policy']))
 end
 
@@ -156,7 +154,6 @@ template "/usr/share/openstack-dashboard/openstack_dashboard/conf/heat_policy.js
     owner "root"
     group "root"
     mode 00644
-    notifies :restart, "service[apache2]", :delayed
     variables(:policy => JSON.pretty_generate(node['bcpc']['heat']['policy']))
 end
 
@@ -165,7 +162,6 @@ template "/usr/share/openstack-dashboard/openstack_dashboard/conf/keystone_polic
     owner "root"
     group "root"
     mode 00644
-    notifies :restart, "service[apache2]", :delayed
     variables(:policy => JSON.pretty_generate(node['bcpc']['keystone']['policy']))
 end
 
@@ -174,7 +170,6 @@ template "/usr/share/openstack-dashboard/openstack_dashboard/conf/nova_policy.js
     owner "root"
     group "root"
     mode 00644
-    notifies :restart, "service[apache2]", :delayed
     variables(:policy => JSON.pretty_generate(node['bcpc']['nova']['policy']))
 end
 
