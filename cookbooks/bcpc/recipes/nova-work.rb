@@ -40,7 +40,6 @@ end
         action [:enable, :start]
         subscribes :restart, "template[/etc/nova/nova.conf]", :delayed
         subscribes :restart, "template[/etc/nova/api-paste.ini]", :delayed
-        subscribes :restart, "template[/etc/nova/policy.json]", :delayed
     end
 end
 
