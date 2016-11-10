@@ -22,16 +22,6 @@ if node['bcpc']['enabled']['metrics']
   include_recipe 'bcpc::default'
   include_recipe 'bcpc::apache2'
 
-  # Remove Precise leftovers from Trusty builds
-  apt_preference 'python-django' do
-    action :remove
-  end
-  file '/etc/apt/apt.conf.d/00defaultrelease' do
-    action :delete
-  end
-  apt_repository 'trusty' do
-    action :remove
-  end
 
   # Setup MySQL client
   apt_repository 'percona' do

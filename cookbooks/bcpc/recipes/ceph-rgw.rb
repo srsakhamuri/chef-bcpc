@@ -16,12 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-#RGW Stuff
-#Note, currently rgw cannot use Keystone to auth S3 requests, only swift, so for the time being we'll have
-#to manually provision accounts for RGW in the radosgw-admin tool
-
-include_recipe "bcpc::apache2"
 include_recipe "bcpc::ceph-work"
 
 package "radosgw" do

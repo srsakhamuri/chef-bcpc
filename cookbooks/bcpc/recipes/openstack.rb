@@ -20,27 +20,18 @@
 include_recipe "bcpc::default"
 include_recipe "bcpc::packages-openstack"
 
-# are we performing an upgrade from Kilo to Liberty?
-kilo_to_liberty_upgrade_check = Mixlib::ShellOut.new("dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:12.0.0")
-kilo_to_liberty_upgrade_check.run_command
-if !kilo_to_liberty_upgrade_check.error? && node['bcpc']['openstack_release'] == 'liberty'
-  file '/usr/local/etc/kilo_to_liberty_upgrade' do
-    notifies :run, 'bash[clean-old-pyc-files]', :immediately
-  end
-end
-
 bash 'clean-old-pyc-files' do
   code 'find /usr/lib/python2.7/dist-packages -name \*.pyc -delete'
   action :nothing
 end
 
 # python-nova will be used as the canary package to determine whether at least
-# 2015.1.2 is being installed
+# 12.0.5 (Liberty) is being installed
 ruby_block 'evaluate-version-eligibility' do
   block do
-    minimum_nova_version = Mixlib::ShellOut.new("dpkg --compare-versions $(apt-cache show --no-all-versions python-nova | egrep '^Version:' | awk '{ print $NF }') ge 1:2015.1.2")
+    minimum_nova_version = Mixlib::ShellOut.new("dpkg --compare-versions $(apt-cache show --no-all-versions python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:12.0.5")
     cmd_result = minimum_nova_version.run_command
-    fail('You must install OpenStack Kilo 2015.1.2 or better. Earlier versions are not supported.') if cmd_result.error?
+    fail('You must install OpenStack Liberty 12.0.5 or better. Earlier versions are not supported.') if cmd_result.error?
   end
 end
 

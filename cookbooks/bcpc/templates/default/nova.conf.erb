@@ -85,9 +85,7 @@ default_floating_pool = <%= node['bcpc']['region_name'] %>
 
 # Nova Compute settings
 compute_driver=libvirt.LibvirtDriver
-<% unless is_kilo? %>
 compute_monitors = cpu.virt_driver
-<% end %>
 use_cow_images=True
 #snapshot_image_format=qcow2
 sync_power_state_interval=<%= node['bcpc']['nova']['sync_power_state_interval'] %>
@@ -106,13 +104,6 @@ image_service=nova.image.glance.GlanceImageService
 vpn_image_id=<%=get_config('glance-cloudpipe-uuid')%>
 use_project_ca=True
 cnt_vpn_clients=5
-
-# Ceilometer metrics
-#instance_usage_audit=True
-#instance_usage_audit_period=hour
-#notify_on_state_change=vm_and_task_state
-#notification_driver=nova.openstack.common.notifier.rpc_notifier
-#notification_driver=ceilometer.compute.nova_notifier
 
 # Misc other settings
 logdir=/var/log/nova
@@ -136,14 +127,10 @@ max_age = 28800
 until_refresh = 10
 
 # Nova VNC settings
-<%# Liberty and beyond uses a separate [vnc] section for some options %>
 novncproxy_host=<%=node['bcpc']['management']['ip']%>
-<% unless is_kilo? %>
+
 [vnc]
 enabled=True
-<% else %>
-novnc_enabled=True
-<% end %>
 ssl_only=false
 key=/etc/nova/ssl-bcpc.key
 cert=/etc/nova/ssl-bcpc.pem
@@ -172,11 +159,9 @@ amqp_durable_queues=<%=node['bcpc']['rabbitmq']['durable_queues']%>
 connection=mysql://<%=get_config('mysql-nova-user')%>:<%=get_config('mysql-nova-password')%>@<%=node['bcpc']['management']['vip']%>/<%=node['bcpc']['dbname']['nova']%>
 idle_timeout=3600
 
-<% unless is_kilo? %>
 [api_database]
 connection=mysql://<%= get_config('mysql-nova-api-user') %>:<%= get_config('mysql-nova-api-password') %>@<%= node['bcpc']['management']['vip'] %>/<%= node['bcpc']['dbname']['nova_api'] %>
 idle_timeout=3600
-<% end %>
 
 [ssl]
 # ca_file = /etc/ssl/certs/ssl-bcpc.pem

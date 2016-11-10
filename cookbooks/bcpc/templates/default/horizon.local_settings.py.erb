@@ -65,20 +65,6 @@ OPENSTACK_API_VERSIONS = {
 # valid options would be "AUTO", "VNC", "SPICE" or "RDP"
 # CONSOLE_TYPE = "AUTO"
 
-<%# Horizon does not use a database in Liberty %>
-<% if is_kilo? %>
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': '<%=node['bcpc']['dbname']['horizon']%>',
-        'USER': '<%=get_config('mysql-horizon-user')%>',
-        'PASSWORD': '<%=get_config('mysql-horizon-password')%>',
-        'HOST': '<%=node['bcpc']['management']['vip']%>',
-        'default-character-set': 'utf8'
-    },
-}
-<% end %>
-
 # Default OpenStack Dashboard configuration.
 HORIZON_CONFIG = {
     # overrides module is in /usr/local/bcpc-horizon

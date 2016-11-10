@@ -29,13 +29,6 @@ ruby_block "initialize-horizon-config" do
     end
 end
 
-# this resource exists as a little trick to ensure the upgrade goes
-# smoothly even if the dashboard Apache configuration is in the old
-# place that blows up the postinst script
-file "/etc/apache2/conf-available/openstack-dashboard.conf" do
-  action :create_if_missing
-end
-
 # options specified to keep dpkg from complaining that the config file exists already
 package "openstack-dashboard" do
   action :upgrade
@@ -48,23 +41,8 @@ bash 'clean-old-dashboard-pyc-files' do
   action :nothing
 end
 
-#  _   _  ____ _  __   __  ____   _  _____ ____ _   _
-# | | | |/ ___| | \ \ / / |  _ \ / \|_   _/ ___| | | |
-# | | | | |  _| |  \ V /  | |_) / _ \ | || |   | |_| |
-# | |_| | |_| | |___| |   |  __/ ___ \| || |___|  _  |
-#  \___/ \____|_____|_|   |_| /_/   \_\_| \____|_| |_|
-
 # this patch explicitly sets the Content-Length header when uploading files into
-# containers via Horizon (not upstreamed) - not needed for 2015.1.4 and beyond
-bcpc_patch 'horizon-swift-content-length-kilo' do
-  patch_file           'horizon-swift-content-length.patch'
-  patch_root_dir       '/usr/share/openstack-dashboard'
-  shasums_before_apply 'horizon-swift-content-length-kilo-BEFORE.SHASUMS'
-  shasums_after_apply  'horizon-swift-content-length-kilo-AFTER.SHASUMS'
-  notifies :restart, 'service[apache2]', :delayed
-  only_if "dpkg --compare-versions $(dpkg -s openstack-dashboard | egrep '^Version:' | awk '{ print $NF }') ge 1:2015.1.0 && dpkg --compare-versions $(dpkg -s openstack-dashboard | egrep '^Version:' | awk '{ print $NF }') lt 1:2015.1.4"
-end
-
+# containers via Horizon (not upstreamed)
 bcpc_patch 'horizon-swift-content-length-liberty' do
   patch_file           'horizon-swift-content-length.patch'
   patch_root_dir       '/usr/share/openstack-dashboard'
@@ -102,19 +80,6 @@ template "/etc/apache2/conf-available/openstack-dashboard.conf" do
     mode 00644
     notifies :restart, "service[apache2]", :delayed
     notifies :run, "bash[dpkg-reconfigure-openstack-dashboard]", :delayed
-end
-
-# we used to remove the Horizon config from conf-* and move it to sites-*
-# but this broke the package postinst, so it is now moved back and
-# these resources clean it up
-file "/etc/apache2/sites-enabled/openstack-dashboard.conf" do
-  action :delete
-  notifies :restart, "service[apache2]", :delayed
-end
-
-file "/etc/apache2/sites-available/openstack-dashboard.conf" do
-  action :delete
-  notifies :restart, "service[apache2]", :delayed
 end
 
 bash "apache-enable-openstack-dashboard" do
@@ -171,30 +136,6 @@ template "/usr/share/openstack-dashboard/openstack_dashboard/conf/nova_policy.js
     group "root"
     mode 00644
     variables(:policy => JSON.pretty_generate(node['bcpc']['nova']['policy']))
-end
-
-# Horizon does not have a database in Liberty
-if is_kilo?
-  ruby_block "horizon-database-creation" do
-      block do
-          %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
-              mysql -uroot -e "CREATE DATABASE #{node['bcpc']['dbname']['horizon']};"
-              mysql -uroot -e "GRANT ALL ON #{node['bcpc']['dbname']['horizon']}.* TO '#{get_config('mysql-horizon-user')}'@'%' IDENTIFIED BY '#{get_config('mysql-horizon-password')}';"
-              mysql -uroot -e "GRANT ALL ON #{node['bcpc']['dbname']['horizon']}.* TO '#{get_config('mysql-horizon-user')}'@'localhost' IDENTIFIED BY '#{get_config('mysql-horizon-password')}';"
-              mysql -uroot -e "FLUSH PRIVILEGES;"
-          ]
-          self.notifies :run, "bash[horizon-database-sync]", :immediately
-          self.resolve_notification_references
-      end
-      not_if { system "MYSQL_PWD=#{get_config('mysql-root-password')} mysql -uroot -e 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \"#{node['bcpc']['dbname']['horizon']}\"'|grep \"#{node['bcpc']['dbname']['horizon']}\" >/dev/null" }
-  end
-
-  bash "horizon-database-sync" do
-      action :nothing
-      user "root"
-      code "/usr/share/openstack-dashboard/manage.py syncdb --noinput"
-      notifies :restart, "service[apache2]", :immediately
-  end
 end
 
 # needed to regenerate the static assets for the dashboard
