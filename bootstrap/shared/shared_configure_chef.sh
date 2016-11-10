@@ -36,6 +36,10 @@ else
     CHEF_CLIENT_INSTALL_CMD="sudo dpkg -i \$(find $FILECACHE_MOUNT_POINT/ -name chef_\*deb -not -name \*downloaded | tail -1)"
 fi
 unset debpath
+
+# Remove configuration management software that might be preinstalled in the box
+do_on_node vm-bootstrap "sudo dpkg -P puppet chef"
+
 do_on_node vm-bootstrap "$CHEF_SERVER_INSTALL_CMD \
   && sudo sh -c \"echo nginx[\'non_ssl_port\'] = 4000 > /etc/opscode/chef-server.rb\" \
   && sudo chef-server-ctl reconfigure \
@@ -83,6 +87,8 @@ do_on_node vm-bootstrap "$KNIFE cookbook upload -a \
 # install and bootstrap Chef on cluster nodes
 i=1
 for vm in $vms $mon_vms; do
+  # Remove configuration management software that might be preinstalled in the box
+  do_on_node $vm "sudo dpkg -P puppet chef"
   # Try to install a specific version, or just the latest
   if [[ -z "$CHEF_CLIENT_DEB" ]]; then
     echo "Installing latest chef-client found in $vm:$FILECACHE_MOUNT_POINT"
