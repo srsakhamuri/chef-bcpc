@@ -2708,7 +2708,7 @@
             <items>
                 <item>
                     <name>Ephemeral device health</name>
-                    <type>0</type>
+                    <type>2</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
@@ -2717,7 +2717,7 @@
                     <history>3</history>
                     <trends>30</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units/>
                     <delta>0</delta>
@@ -4236,7 +4236,17 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template App Ephemeral Node:ephemeral.health.last()}&lt;&gt;0</expression>
+            <expression>{Template App Ephemeral Node:ephemeral.health.sum(#3)}&gt;30</expression>
+            <name>Ephemeral disk high latency</name>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description>Ephemeral disk high latency detected</description>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
+            <expression>{Template App Ephemeral Node:ephemeral.health.sum(#3)}&lt;-1 or {Template App Ephemeral Node:ephemeral.health.nodata(300)}=1</expression>
             <name>Ephemeral disk failure</name>
             <url/>
             <status>0</status>

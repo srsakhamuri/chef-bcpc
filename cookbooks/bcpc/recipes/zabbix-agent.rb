@@ -76,19 +76,10 @@ if node['bcpc']['enabled']['monitoring'] then
         notifies :restart, "service[zabbix-agent]", :immediately
     end
 
-    # it would be preferable to include this with the software-raid recipe
-    # but is here in order to avoid duplicating work that this recipe does in
-    # the software-raid recipe
-    template "/etc/zabbix/zabbix_agentd.d/userparameter_ephemeral.conf" do
-      source "zabbix_agentd_userparameters_ephemeral.conf.erb"
-      owner node['bcpc']['zabbix']['user']
-      group "root"
-      mode 00600
-      variables(
-        :ephemeral_vg_name => node['bcpc']['nova']['ephemeral_vg_name']
-      )
-      only_if { node['bcpc']['software_raid']['enabled'] }
-      notifies :restart, "service[zabbix-agent]", :immediately
+    # Deprecated by cron-invoked check
+    file '/etc/zabbix/zabbix_agentd.d/userparameter_ephemeral.conf' do
+      action :delete
+      notifies :restart, 'service[zabbix-agent]', :delayed
     end
 
     template "/etc/zabbix/zabbix_agentd.d/userparameter_bootstrap.conf" do
