@@ -625,6 +625,7 @@ default['bcpc']['flavors'] = {
     }
   }
 }
+default['bcpc']['flavor_access'] = { }
 
 ###########################################
 #
