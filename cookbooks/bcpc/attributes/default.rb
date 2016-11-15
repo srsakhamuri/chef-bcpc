@@ -75,8 +75,10 @@ default['bcpc']['enabled']['always_update_package_lists'] = true
 default['bcpc']['enabled']['keepalived_checks'] = true
 # This will enable the networking test scripts
 default['bcpc']['enabled']['network_tests'] = true
-# This will enable using TPM-based hwrngd
+# This will enable TPM features
 default['bcpc']['enabled']['tpm'] = false
+# This will enable using a hardware RNG
+default['bcpc']['enabled']['hwrng'] = false
 # This will block VMs from talking to the management network
 default['bcpc']['enabled']['secure_fixed_networks'] = true
 # Toggle to enable/disable swap memory
@@ -447,6 +449,8 @@ default['bcpc']['system']['parameters']['kernel.pid_max'] = 4194303
 default['bcpc']['system']['parameters']['net.nf_conntrack_max'] = 262144
 # readhead value for all disks in the system, in kb
 default['bcpc']['system']['readahead_kb'] = 512
+# set to HWRNG source or leave as nil for rng-tools autodetect
+default['bcpc']['system']['hwrng_source'] = nil
 
 ###########################################
 #
