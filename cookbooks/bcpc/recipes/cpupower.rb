@@ -17,28 +17,29 @@
 # limitations under the License.
 #
 
-# CPU frequency governor utils
-template "/etc/default/cpufrequtils" do
-  source "cpufrequtils.erb"
-  owner "root"
-  group "root"
-  mode 00644
-  notifies :restart, "service[cpufrequtils]", :delayed
+package "cpufrequtils" do
+  action :remove
 end
 
-package "cpufrequtils"
+if node['bcpc']['hardware']['powersave']
+  service 'ondemand' do
+    action [:start, :enable]
+  end
+else
+  service 'ondemand' do
+    action [:stop, :disable]
+  end
 
-# this service conflicts with the bcpc_cpupower provider, so ensure it is off
-service "cpufrequtils" do
-  action [:disable, :stop]
-end
-
-bcpc_cpupower "cpu governor" do
-  governor                      node['bcpc']['cpupower']['governor']
-  ondemand_ignore_nice_load     node['bcpc']['cpupower']['ondemand_ignore_nice_load']
-  ondemand_io_is_busy           node['bcpc']['cpupower']['ondemand_io_is_busy']
-  ondemand_powersave_bias       node['bcpc']['cpupower']['ondemand_powersave_bias']
-  ondemand_sampling_down_factor node['bcpc']['cpupower']['ondemand_sampling_down_factor']
-  ondemand_sampling_rate        node['bcpc']['cpupower']['ondemand_sampling_rate']
-  ondemand_up_threshold         node['bcpc']['cpupower']['ondemand_up_threshold']
+  # on VirtualBox there are no scaling governors, so exit peacefully
+  bash 'enable CPU performance mode' do
+    code <<-EOH
+      if [ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]
+      then
+        for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+        do
+          echo performance > $CPUFREQ
+        done
+      fi
+    EOH
+  end
 end

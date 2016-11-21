@@ -456,22 +456,8 @@ default['bcpc']['system']['readahead_kb'] = 512
 #
 # Select desired I/O scheduler to be applied at startup (deadline, noop, cfq)
 default['bcpc']['hardware']['io_scheduler'] = 'deadline'
-
-###########################################
-#
-# CPU governor settings
-#
-###########################################
-#
-# Available options: conservative, ondemand, userspace, powersave, performance
-# Review documentation at https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt
-default['bcpc']['cpupower']['governor'] = "ondemand"
-default['bcpc']['cpupower']['ondemand_ignore_nice_load'] = nil
-default['bcpc']['cpupower']['ondemand_io_is_busy'] = nil
-default['bcpc']['cpupower']['ondemand_powersave_bias'] = nil
-default['bcpc']['cpupower']['ondemand_sampling_down_factor'] = nil
-default['bcpc']['cpupower']['ondemand_sampling_rate'] = nil
-default['bcpc']['cpupower']['ondemand_up_threshold'] = nil
+# Enable power-saving CPU scaling governor (ondemand <3.19, powersave >=3.19)
+default['bcpc']['hardware']['powersave'] = false
 
 ###########################################
 #
