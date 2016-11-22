@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: bcpc
-# Recipe:: zabbix-server
+# Recipe:: zabbix_server
 #
-# Copyright 2015, Bloomberg Finance L.P.
+# Copyright 2016, Bloomberg Finance L.P.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,20 @@ if node['bcpc']['enabled']['monitoring'] then
             make_config('zabbix-guest-user', "guest")
             make_config('zabbix-guest-password', secure_password)
         end
+    end
+
+    # Enable PHP for zabbix-server
+    %w( php5 libapache2-mod-php5 ).each do |pkg|
+      package pkg do
+        action :upgrade
+      end
+    end
+
+    bash 'apache-enable-php5' do
+      user 'root'
+      code 'a2enmod php5'
+      not_if 'test -r /etc/apache2/mods-enabled/php5.load'
+      notifies :restart, 'service[apache2]', :delayed
     end
 
     # Package is a soft dependency of zabbix-server

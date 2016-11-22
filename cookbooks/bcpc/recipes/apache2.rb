@@ -2,7 +2,7 @@
 # Cookbook Name:: bcpc
 # Recipe:: apache2
 #
-# Copyright 2013, Bloomberg Finance L.P.
+# Copyright 2016, Bloomberg Finance L.P.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,19 +17,24 @@
 # limitations under the License.
 #
 
-%w{apache2 libapache2-mod-fastcgi libapache2-mod-wsgi libapache2-mod-php5}.each do |pkg|
+%w{apache2 libapache2-mod-fastcgi libapache2-mod-wsgi}.each do |pkg|
     package pkg do
         action :upgrade
     end
 end
 
-%w{ssl wsgi php5 proxy_http rewrite cache cache_disk}.each do |mod|
+%w{ssl wsgi proxy_http rewrite cache cache_disk}.each do |mod|
     bash "apache-enable-#{mod}" do
         user "root"
         code "a2enmod #{mod}"
         not_if "test -r /etc/apache2/mods-enabled/#{mod}.load"
         notifies :restart, "service[apache2]", :delayed
     end
+end
+
+# Exclude php packages
+package 'php5-common' do
+  action :purge
 end
 
 %w{python}.each do |mod|
