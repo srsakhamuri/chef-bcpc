@@ -19,7 +19,7 @@
 
 include_recipe "bcpc::checks-common"
 
-%w{ rgw mysql }.each do |cc|
+%w{ rgw mysql apache }.each do |cc|
     template  "/usr/local/etc/checks/#{cc}.yml" do
         source "checks/#{cc}.yml.erb"
         owner "root"
@@ -33,6 +33,19 @@ include_recipe "bcpc::checks-common"
         mode "00755"
     end
 end
+
+# remove float_ips check from head nodes (compute instances are not
+# scheduled on head nodes)
+%w( float_ips ).each do |cc|
+  file "/usr/local/etc/checks/#{cc}.yml" do
+    action :delete
+  end
+
+  file "/usr/local/bin/checks/#{cc}" do
+    action :delete
+  end
+end
+
 
 if node['bcpc']['enabled']['monitoring'] then
     %w{ nova rgw }.each do |cc|
