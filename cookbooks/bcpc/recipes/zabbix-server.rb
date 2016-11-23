@@ -198,16 +198,12 @@ if node['bcpc']['enabled']['monitoring'] then
         action :upgrade
     end
 
-    cookbook_file "/tmp/zabbix_linux_active_template.xml" do
-        source "zabbix_linux_active_template.xml"
-        owner "root"
+    %w( linux_active bcpc s3 ).each do |zt|
+      cookbook_file "/tmp/zabbix_#{zt}_template.xml" do
+        source "zabbix_#{zt}_template.xml"
+        owner 'root'
         mode 00644
-    end
-
-    cookbook_file "/tmp/zabbix_bcpc_templates.xml" do
-        source "zabbix_bcpc_templates.xml"
-        owner "root"
-        mode 00644
+      end
     end
 
     cookbook_file "/usr/local/bin/zabbix_config" do
@@ -314,6 +310,14 @@ if node['bcpc']['enabled']['monitoring'] then
         hour '0'
         user 'zabbix'
         command "/usr/local/bin/zabbix-mysql-partition-maintenance-all >/dev/null 2>&1"
+    end
+
+    # External scripts
+    cookbook_file '/usr/lib/zabbix/externalscripts/s3test.sh' do
+      source 'zabbix_s3test.sh'
+      owner 'zabbix'
+      group 'zabbix'
+      mode 00755
     end
 
 end

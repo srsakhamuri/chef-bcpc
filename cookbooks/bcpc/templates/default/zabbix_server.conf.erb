@@ -280,7 +280,7 @@ ListenIP=<%=node['bcpc']['monitoring']['vip']%>
 # Mandatory: no
 # Range: 128K-2G
 # Default:
-# CacheSize=8M
+CacheSize=<%= node['bcpc']['zabbix']['server_cachesize'] %>
 
 ### Option: CacheUpdateFrequency
 #   How often Zabbix will perform update of configuration cache, in seconds.
@@ -398,7 +398,7 @@ AlertScriptsPath=/usr/lib/zabbix/alertscripts
 #
 # Mandatory: no
 # Default:
-# ExternalScripts=${datadir}/zabbix/externalscripts
+ExternalScripts=/usr/lib/zabbix/externalscripts
 
 ### Option: FpingLocation
 #   Location of fping.
@@ -406,7 +406,7 @@ AlertScriptsPath=/usr/lib/zabbix/alertscripts
 #
 # Mandatory: no
 # Default:
-# FpingLocation=/usr/sbin/fping
+FpingLocation=/usr/bin/fping
 
 ### Option: Fping6Location
 #   Location of fping6.
@@ -415,7 +415,7 @@ AlertScriptsPath=/usr/lib/zabbix/alertscripts
 #
 # Mandatory: no
 # Default:
-# Fping6Location=/usr/sbin/fping6
+Fping6Location=/usr/bin/fping6
 
 ### Option: SSHKeyLocation
 #   Location of public and private keys for SSH checks and actions
