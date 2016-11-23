@@ -18,7 +18,7 @@
 #
 
 package "cpufrequtils" do
-  action :remove
+  action :purge
 end
 
 if node['bcpc']['hardware']['powersave']
