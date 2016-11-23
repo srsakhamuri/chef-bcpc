@@ -32,9 +32,14 @@ end
     end
 end
 
-# Exclude php packages
+# Remove PHP packages from non-monitoring nodes
 package 'php5-common' do
   action :purge
+  not_if do
+    search_nodes('role', 'BCPC-Alerting').include?(node) ||
+    search_nodes('role', 'BCPC-Logging').include?(node) ||
+    search_nodes('role', 'BCPC-Metrics').include?(node)
+  end
 end
 
 %w{python}.each do |mod|
