@@ -43,8 +43,15 @@ end
     end
 end
 
+cookbook_file '/usr/local/bin/wait_for_api.sh' do
+  source 'wait_for_api.sh'
+  owner  'root'
+  group  'root'
+  mode   '00755'
+end
+
 service "nova-api" do
-    restart_command "service nova-api restart; sleep 5"
+    restart_command "service nova-api restart; /usr/local/bin/wait_for_api.sh 169.254.169.254:8775"
 end
 
 %w{novnc pm-utils memcached sysfsutils}.each do |pkg|
