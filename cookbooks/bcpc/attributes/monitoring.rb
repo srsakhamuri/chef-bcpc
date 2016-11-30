@@ -59,6 +59,8 @@ default['bcpc']['graphite']['use_whitelist'] = {
   'whitelist' => [],
   'blacklist' => []
 }
+# Number of copies of metrics to store. The default (1) implies no redundancy.
+default['bcpc']['graphite']['replication_factor'] = 1
 
 ###########################################
 #

@@ -78,7 +78,7 @@ if node['bcpc']['enabled']['metrics']
     mode 00644
     variables(
       :servers => search_nodes('recipe', 'graphite'),
-      :min_quorum => search_nodes('recipe', 'graphite').length / 2 + 1
+      :replication_factor => node['bcpc']['graphite']['replication_factor']
     )
     notifies :restart, 'service[carbon-cache]', :delayed
     notifies :restart, 'service[carbon-relay]', :delayed
