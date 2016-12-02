@@ -17,13 +17,13 @@
 # limitations under the License.
 #
 
+# this recipe still gets included by head nodes so escape out if
+# running on a head node
+return if get_head_nodes.include?(node)
+
 include_recipe "bcpc::checks-common"
 
-# Apache2 is not required on work nodes but the roles require further
-# refactoring before it can be removed
-include_recipe "bcpc::apache2"
-
-%w{ float_ips apache }.each do |cc|
+%w{ float_ips }.each do |cc|
   template  "/usr/local/etc/checks/#{cc}.yml" do
     source "checks/#{cc}.yml.erb"
     owner "root"
@@ -35,5 +35,28 @@ include_recipe "bcpc::apache2"
     source "checks/#{cc}"
     owner "root"
     mode "00755"
+  end
+end
+
+# Apache2 is now removed from work nodes, clean up the checks
+# and stop Apache on currently deployed workers
+%w( apache ).each do |cc|
+  file "/usr/local/etc/checks/#{cc}.yml" do
+    action :delete
+  end
+
+  file "/usr/local/bin/checks/#{cc}" do
+    action :delete
+  end
+end
+
+# co-opting this recipe to remove Apache from work nodes
+service 'apache2' do
+  action [:stop, :disable]
+end
+
+%w(apache2 libapache2-mod-fastcgi libapache2-mod-wsgi).each do |pkg|
+  package pkg do
+    action :purge
   end
 end
