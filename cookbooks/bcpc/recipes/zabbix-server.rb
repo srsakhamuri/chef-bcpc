@@ -220,7 +220,7 @@ if node['bcpc']['enabled']['monitoring'] then
         block do
             # Ensures no proxy is ever used locally
             %x[export no_proxy="#{node['bcpc']['management']['ip']}";
-               zabbix_config http://#{node['bcpc']['management']['ip']}:7777/ #{get_config('zabbix-admin-user')} #{get_config('zabbix-admin-password')}
+               if_monitoring_vip zabbix_config http://#{node['bcpc']['management']['ip']}:7777/ #{get_config('zabbix-admin-user')} #{get_config('zabbix-admin-password')}
             ]
         end
     end
