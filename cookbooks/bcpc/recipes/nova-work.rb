@@ -23,16 +23,29 @@ package "nova-compute-#{node['bcpc']['virt_type']}" do
     action :upgrade
 end
 
-%w{nova-api nova-network nova-compute nova-novncproxy}.each do |pkg|
+%w{nova-api nova-compute nova-network nova-novncproxy}.each do |pkg|
     package pkg do
         action :upgrade
     end
     service pkg do
         action [:enable, :start]
+        restart_command "service #{pkg} stop; sleep 5; service #{pkg} start"
         subscribes :restart, "template[/etc/nova/nova.conf]", :delayed
         subscribes :restart, "template[/etc/nova/api-paste.ini]", :delayed
         subscribes :restart, "template[/etc/nova/policy.json]", :delayed
     end
+end
+
+template '/etc/init/nova-compute.conf' do
+  source 'nova-compute-upstart.conf.erb'
+  owner  'root'
+  group  'root'
+  mode   '00644'
+  variables(
+    nofile_soft_limit: node['bcpc']['nova']['compute']['limits']['nofile']['soft'],
+    nofile_hard_limit: node['bcpc']['nova']['compute']['limits']['nofile']['hard']
+  )
+  notifies :restart, 'service[nova-compute]', :immediately
 end
 
 service "nova-api" do

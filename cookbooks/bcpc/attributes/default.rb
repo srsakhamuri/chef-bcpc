@@ -425,6 +425,11 @@ default['bcpc']['nova']['max_concurrent_builds'] = 4
 default['bcpc']['nova']['workers'] = 5
 # Patch toggle for https://github.com/bloomberg/chef-bcpc/pull/493
 default['bcpc']['nova']['live_migration_patch'] = false
+# set soft/hard ulimits in upstart unit file for nova-compute
+# as number of OSDs in cluster increases, soft limit needs to increase to avoid
+# nova-compute deadlocks
+default['bcpc']['nova']['compute']['limits']['nofile']['soft'] = 1024
+default['bcpc']['nova']['compute']['limits']['nofile']['hard'] = 4096
 # frequency of syncing power states between hypervisor and database
 default['bcpc']['nova']['sync_power_state_interval'] = 600
 # automatically restart guests that were running when hypervisor was rebooted
