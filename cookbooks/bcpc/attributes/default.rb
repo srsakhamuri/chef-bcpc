@@ -313,6 +313,11 @@ default['bcpc']['nova']['max_concurrent_builds'] = 4
 # "workers" parameters in nova are set to number of CPUs
 # available by default. This provides an override.
 default['bcpc']['nova']['workers'] = 5
+# set soft/hard ulimits in upstart unit file for nova-compute
+# as number of OSDs in cluster increases, soft limit needs to increase to avoid
+# nova-compute deadlocks
+default['bcpc']['nova']['compute']['limits']['nofile']['soft'] = 1024
+default['bcpc']['nova']['compute']['limits']['nofile']['hard'] = 4096
 # frequency of syncing power states between hypervisor and database
 default['bcpc']['nova']['sync_power_state_interval'] = 600
 # automatically restart guests that were running when hypervisor was rebooted
