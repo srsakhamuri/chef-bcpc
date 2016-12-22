@@ -160,7 +160,7 @@ bcpc_patch 'horizon-openrc-api-versions' do
   patch_root_dir       '/usr/share/openstack-dashboard'
   shasums_before_apply 'horizon-openrc-api-versions-BEFORE.SHASUMS'
   shasums_after_apply  'horizon-openrc-api-versions-AFTER.SHASUMS'
-  notifies :reload, 'service[apache2]', :immediately
+  notifies :restart, 'service[apache2]', :immediately
 end
 
 # fix upstream bug 1593751 - broken LDAP groups in Horizon
@@ -169,7 +169,7 @@ bcpc_patch 'horizon-ldap-groups' do
   patch_root_dir       '/usr/share/openstack-dashboard'
   shasums_before_apply 'horizon-ldap-groups-BEFORE.SHASUMS'
   shasums_after_apply  'horizon-ldap-groups-AFTER.SHASUMS'
-  notifies :reload, 'service[apache2]', :delayed
+  notifies :restart, 'service[apache2]', :delayed
 end
 
 # update openrc.sh template to provide additional environment variables and user domain

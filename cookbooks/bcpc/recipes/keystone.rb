@@ -313,14 +313,14 @@ template "/etc/apache2/sites-available/wsgi-keystone.conf" do
     :processes => node['bcpc']['keystone']['wsgi']['processes'],
     :threads   => node['bcpc']['keystone']['wsgi']['threads']
   )
-  notifies :reload, "service[apache2]", :immediately
+  notifies :restart, "service[apache2]", :immediately
 end
 
 bash "a2ensite-enable-wsgi-keystone" do
   user     "root"
   code     "a2ensite wsgi-keystone"
   not_if   "test -r /etc/apache2/sites-enabled/wsgi-keystone.conf"
-  notifies :reload, "service[apache2]", :immediately
+  notifies :restart, "service[apache2]", :immediately
 end
 
 ruby_block "keystone-database-creation" do
