@@ -120,6 +120,14 @@
       tags:
         - stopstart
 
+    - name: Lock stopped instances on the server
+      shell: ". /root/adminrc && nova lock {{ item }} && sleep 2"
+      with_items: "{{ running_instances }}"
+      when: item != ""
+      delegate_to: "{{ control_headnode }}"
+      tags:
+        - stopstart
+
     - name: Reboot hypervisor
       command: /sbin/reboot
       async: false
@@ -136,6 +144,14 @@
     - name: Rechef node
       command: chef-client
       when: chef_after_reboot_internal
+
+    - name: Unlock stopped instances on the server
+      shell: ". /root/adminrc && nova unlock {{ item }} && sleep 2"
+      with_items: "{{ running_instances }}"
+      when: item != ""
+      delegate_to: "{{ control_headnode }}"
+      tags:
+        - stopstart
 
     - name: nova start instances on hypervisor
       shell: ". /root/adminrc && nova start {{ item }} && sleep 15"
