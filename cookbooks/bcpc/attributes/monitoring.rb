@@ -122,6 +122,12 @@ default['bcpc']['zabbix']['php_settings'] = {
 default['bcpc']['zabbix']['severity'] = 63
 # Timeout for Zabbix agentd
 default['bcpc']['zabbix']['agentd_timeout'] = 10
+# Zabbix cache sizes
+default['bcpc']['zabbix']['server_cachesize'] = '16M'
+default['bcpc']['zabbix']['server_historycachesize'] = '8M'
+default['bcpc']['zabbix']['server_trendcachesize'] = '16M'
+default['bcpc']['zabbix']['server_historytextcachesize'] = '16M'
+default['bcpc']['zabbix']['server_valuecachesize'] = '8M'
 # Timeout for Zabbix server. It is slightly higher than agentd to better detect
 # cause of timeout.
 default['bcpc']['zabbix']['server_timeout'] = node['bcpc']['zabbix']['agentd_timeout'] + 1
