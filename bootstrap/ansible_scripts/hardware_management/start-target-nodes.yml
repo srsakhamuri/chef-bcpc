@@ -199,8 +199,14 @@
       tags:
         - always
 
+    - set_fact: manage_noout=True
+      when: manage_noout is not defined
+      tags:
+        - always
+
     - name: Unset noout
       command: ceph osd unset noout
       delegate_to: "{{ control_headnode }}"
+      when: manage_noout
       tags:
         - always
