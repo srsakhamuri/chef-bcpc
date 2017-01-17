@@ -33,7 +33,8 @@ template '/etc/memcached.conf' do
   group    'root'
   mode     00644
   variables(
-    verbose: node['bcpc']['memcached']['debug']
+    connections: node['bcpc']['memcached']['connections'],
+    verbose:     node['bcpc']['memcached']['debug']
   )
   notifies :restart, 'service[memcached]', :immediate
 end

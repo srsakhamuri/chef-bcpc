@@ -219,6 +219,16 @@ default['bcpc']['protocol']['nova'] = "https"
 default['bcpc']['protocol']['cinder'] = "https"
 default['bcpc']['protocol']['heat'] = "https"
 
+###########################################
+#
+#  Memcached Settings
+#
+###########################################
+#
+# Enable memcached double verbose logging.
+default['bcpc']['memcached']['debug'] = false
+# Set number of memcached connections.
+default['bcpc']['memcached']['connections'] = 10240
 
 ###########################################
 #
@@ -242,8 +252,6 @@ default['bcpc']['keystone']['log_file'] = '/var/log/keystone/keystone.log'
 default['bcpc']['keystone']['enable_caching'] = true
 # Enable debug logging (also caching debug logging).
 default['bcpc']['keystone']['debug'] = false
-# Enable memcached double verbose logging.
-default['bcpc']['memcached']['debug'] = false
 # Enable verbose logging.
 default['bcpc']['keystone']['verbose'] = false
 # Set the timeout for how long we will wait for Keystone to become operational
