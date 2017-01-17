@@ -137,6 +137,7 @@
       with_items: "{{ running_instances }}"
       when: item != ""
       delegate_to: "{{ control_headnode }}"
+      ignore_errors: true
       tags:
         - stopstart
 
@@ -170,6 +171,7 @@
       with_items: "{{ running_instances }}"
       when: item != ""
       delegate_to: "{{ control_headnode }}"
+      ignore_errors: true
       tags:
         - stopstart
 
