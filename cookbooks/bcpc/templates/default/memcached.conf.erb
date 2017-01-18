@@ -39,7 +39,7 @@ logfile /var/log/memcached.log
 -l <%=node['bcpc']['management']['ip']%>
 
 # Limit the number of simultaneous incoming connections. The daemon default is 1024
-# -c 1024
+-c <%= @connections %>
 
 # Lock down all paged memory. Consult with the README and homepage before you do this
 # -k
