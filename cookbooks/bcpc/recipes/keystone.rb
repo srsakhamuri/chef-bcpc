@@ -61,7 +61,6 @@ end
   package pkg do
     action :upgrade
     notifies :restart, "service[apache2]", :immediately
-    not_if { is_kilo? }
   end
 end
 
@@ -314,14 +313,14 @@ template "/etc/apache2/sites-available/wsgi-keystone.conf" do
     :processes => node['bcpc']['keystone']['wsgi']['processes'],
     :threads   => node['bcpc']['keystone']['wsgi']['threads']
   )
-  notifies :reload, "service[apache2]", :immediately
+  notifies :restart, "service[apache2]", :immediately
 end
 
 bash "a2ensite-enable-wsgi-keystone" do
   user     "root"
   code     "a2ensite wsgi-keystone"
   not_if   "test -r /etc/apache2/sites-enabled/wsgi-keystone.conf"
-  notifies :reload, "service[apache2]", :immediately
+  notifies :restart, "service[apache2]", :immediately
 end
 
 ruby_block "keystone-database-creation" do
@@ -442,56 +441,26 @@ node['bcpc']['catalog'].each do |svc, svcprops|
       end
     end
     not_if {
-      #puts 'starting not_if block'
       svc_endpoints_raw = execute_in_keystone_admin_context('openstack endpoint list -f json')
       begin
-        #puts "\nsvc_endpoints_raw: #{svc_endpoints_raw}"
         svc_endpoints = JSON.parse(svc_endpoints_raw)
-        #puts "\nsvc_endpoints: #{svc_endpoints}"
         next if svc_endpoints.empty?
-        # get the endpoint ID here
         svcs = svc_endpoints.select { |k| k['Service Type'] == svc }
-        #puts "\nsvcs: #{svcs}"
         next if svcs.empty?
 
-        # openstack endpoint list output completely changes between Kilo and Liberty, because OpenStack
-        if is_kilo?
-          endpoint_id = svcs[0]['ID']
-          #puts "\n#{endpoint_id}"
-          endpoint_urls_raw = execute_in_keystone_admin_context("openstack endpoint show #{endpoint_id} -f json")
-          endpoint_urls = JSON.parse(endpoint_urls_raw)
-          #puts "\nendpoint_urls: #{endpoint_urls}"
-
-          # nil is a dodge to avoid issues when standing a service up during a fresh install
-          adminurl_raw = endpoint_urls.select { |v| v if v['Field'] == 'adminurl' } || nil
-          adminurl = adminurl_raw.empty? ? nil : adminurl_raw[0]['Value']
-          internalurl_raw = endpoint_urls.select { |v| v if v['Field'] == 'internalurl' } || nil
-          internalurl = internalurl_raw.empty? ? nil : internalurl_raw[0]['Value']
-          publicurl_raw = endpoint_urls.select { |v| v if v['Field'] == 'publicurl' } || nil
-          publicurl = publicurl_raw.empty? ? nil : publicurl_raw[0]['Value']
-        else
-          adminurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'admin' }
-          adminurl = adminurl_raw.empty? ? nil : adminurl_raw[0]['URL']
-          internalurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'internal' }
-          internalurl = internalurl_raw.empty? ? nil : internalurl_raw[0]['URL']
-          publicurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'public' }
-          publicurl = publicurl_raw.empty? ? nil : publicurl_raw[0]['URL']
-        end
-
-        #puts "\n"
-        #puts "Comparing #{adminurl} to #{generate_service_catalog_uri(svcprops, 'admin')}"
-        #puts "Comparing #{internalurl} to #{generate_service_catalog_uri(svcprops, 'internal')}"
-        #puts "Comparing #{publicurl} to #{generate_service_catalog_uri(svcprops, 'public')}"
+        adminurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'admin' }
+        adminurl = adminurl_raw.empty? ? nil : adminurl_raw[0]['URL']
+        internalurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'internal' }
+        internalurl = internalurl_raw.empty? ? nil : internalurl_raw[0]['URL']
+        publicurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'public' }
+        publicurl = publicurl_raw.empty? ? nil : publicurl_raw[0]['URL']
 
         adminurl_match = adminurl.nil? ? true : (adminurl == generate_service_catalog_uri(svcprops, 'admin'))
         internalurl_match = internalurl.nil? ? true : (internalurl == generate_service_catalog_uri(svcprops, 'internal'))
         publicurl_match = publicurl.nil? ? true : (publicurl == generate_service_catalog_uri(svcprops, 'public'))
 
-        #puts 'ending not_if block successfully'
-
         adminurl_match && internalurl_match && publicurl_match
       rescue JSON::ParserError
-        #puts 'failing out of not_if block'
         false
       end
     }

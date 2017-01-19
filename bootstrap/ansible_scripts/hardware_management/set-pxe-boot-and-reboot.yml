@@ -25,11 +25,15 @@
       command: ipmitool -H {{ ipmi_address }} -I lanplus -U {{ ipmi_username }} -P {{ ipmi_password }} chassis bootdev pxe
       delegate_to: "{{ groups['bootstraps'][0] }}"
       when: hardware_type != "Virtual"
+      tags:
+        - ipmi
 
     - name: Issue chassis power reset command to node
       command: ipmitool -H {{ ipmi_address }} -I lanplus -U {{ ipmi_username }} -P {{ ipmi_password }} chassis power reset
       delegate_to: "{{ groups['bootstraps'][0] }}"
       when: hardware_type != "Virtual"
+      tags:
+        - ipmi
 
     - name: Issue VBoxManage reboot command to virtual node
       local_action: command VBoxManage controlvm {{ inventory_hostname }} reset

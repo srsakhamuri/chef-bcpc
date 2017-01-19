@@ -1,6 +1,25 @@
+#
+# Cookbook Name:: bcpc
+# Recipe:: checks-head
+#
+# Copyright 2016, Bloomberg Finance L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 include_recipe "bcpc::checks-common"
 
-%w{ rgw mysql }.each do |cc|
+%w{ rgw mysql apache }.each do |cc|
     template  "/usr/local/etc/checks/#{cc}.yml" do
         source "checks/#{cc}.yml.erb"
         owner "root"
@@ -14,6 +33,19 @@ include_recipe "bcpc::checks-common"
         mode "00755"
     end
 end
+
+# remove float_ips check from head nodes (compute instances are not
+# scheduled on head nodes)
+%w( float_ips ).each do |cc|
+  file "/usr/local/etc/checks/#{cc}.yml" do
+    action :delete
+  end
+
+  file "/usr/local/bin/checks/#{cc}" do
+    action :delete
+  end
+end
+
 
 if node['bcpc']['enabled']['monitoring'] then
     %w{ nova rgw }.each do |cc|

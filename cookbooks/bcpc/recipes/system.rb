@@ -76,6 +76,13 @@ execute "reload-sysctl" do
     command "sysctl -p /etc/sysctl.d/70-bcpc.conf"
 end
 
+template "/etc/udev/rules.d/99-readahead.rules" do
+    source "readahead-udev.rules.erb"
+    owner "root"
+    group "root"
+    mode 00644
+end
+
 ruby_block "set-nf_conntrack-hashsize" do
     block do
         %x[ echo $((#{node['bcpc']['system']['parameters']['net.nf_conntrack_max']}/8)) > /sys/module/nf_conntrack/parameters/hashsize ]

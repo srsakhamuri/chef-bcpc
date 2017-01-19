@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: bcpc
-# Recipe:: zabbix-server
+# Recipe:: zabbix_server
 #
-# Copyright 2015, Bloomberg Finance L.P.
+# Copyright 2016, Bloomberg Finance L.P.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,22 +33,18 @@ if node['bcpc']['enabled']['monitoring'] then
         end
     end
 
-    # this script removes the old manually compiled Zabbix server installation
-    # (being a bit lazy and assuming the presence of the old server binary signals everything
-    # is still there)
-    bash "clean-up-old-zabbix-server" do
-        code <<-EOH
-          service zabbix-server stop
-          rm -f /usr/local/etc/zabbix_server.conf
-          rm -f /usr/local/sbin/zabbix_server
-          rm -f /usr/local/share/man/man8/zabbix_server.8
-          rm -rf /usr/local/share/zabbix
-          rm -rf /usr/local/etc/zabbix_server.conf.d
-          rm -f /tmp/zabbix-server.tar.gz
-          rm -f /etc/init/zabbix-server.conf
-          killall zabbix_server || true
-        EOH
-        only_if 'test -f /usr/local/sbin/zabbix_server'
+    # Enable PHP for zabbix-server
+    %w( php5 libapache2-mod-php5 ).each do |pkg|
+      package pkg do
+        action :upgrade
+      end
+    end
+
+    bash 'apache-enable-php5' do
+      user 'root'
+      code 'a2enmod php5'
+      not_if 'test -r /etc/apache2/mods-enabled/php5.load'
+      notifies :restart, 'service[apache2]', :delayed
     end
 
     # Package is a soft dependency of zabbix-server
@@ -202,16 +198,12 @@ if node['bcpc']['enabled']['monitoring'] then
         action :upgrade
     end
 
-    cookbook_file "/tmp/zabbix_linux_active_template.xml" do
-        source "zabbix_linux_active_template.xml"
-        owner "root"
+    %w( linux_active bcpc s3 ).each do |zt|
+      cookbook_file "/tmp/zabbix_#{zt}_template.xml" do
+        source "zabbix_#{zt}_template.xml"
+        owner 'root'
         mode 00644
-    end
-
-    cookbook_file "/tmp/zabbix_bcpc_templates.xml" do
-        source "zabbix_bcpc_templates.xml"
-        owner "root"
-        mode 00644
+      end
     end
 
     cookbook_file "/usr/local/bin/zabbix_config" do
@@ -224,7 +216,7 @@ if node['bcpc']['enabled']['monitoring'] then
         block do
             # Ensures no proxy is ever used locally
             %x[export no_proxy="#{node['bcpc']['management']['ip']}";
-               zabbix_config http://#{node['bcpc']['management']['ip']}:7777/ #{get_config('zabbix-admin-user')} #{get_config('zabbix-admin-password')}
+               if_monitoring_vip zabbix_config http://#{node['bcpc']['management']['ip']}:7777/ #{get_config('zabbix-admin-user')} #{get_config('zabbix-admin-password')}
             ]
         end
     end
@@ -318,6 +310,14 @@ if node['bcpc']['enabled']['monitoring'] then
         hour '0'
         user 'zabbix'
         command "/usr/local/bin/zabbix-mysql-partition-maintenance-all >/dev/null 2>&1"
+    end
+
+    # External scripts
+    cookbook_file '/usr/lib/zabbix/externalscripts/s3test.sh' do
+      source 'zabbix_s3test.sh'
+      owner 'zabbix'
+      group 'zabbix'
+      mode 00755
     end
 
 end

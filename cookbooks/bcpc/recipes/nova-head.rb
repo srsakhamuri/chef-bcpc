@@ -47,7 +47,6 @@ ruby_block "nova-api-database-creation" do
         self.resolve_notification_references
     end
     not_if { system "MYSQL_PWD=#{get_config('mysql-root-password')} mysql -uroot -e 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \"#{node['bcpc']['dbname']['nova_api']}\"'|grep \"#{node['bcpc']['dbname']['nova_api']}\" >/dev/null" }
-    only_if { !is_kilo? }
 end
 
 ruby_block 'update-nova-db-schema-for-liberty' do

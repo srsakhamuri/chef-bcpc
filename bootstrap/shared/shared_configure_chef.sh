@@ -36,6 +36,14 @@ else
     CHEF_CLIENT_INSTALL_CMD="sudo dpkg -i \$(find $FILECACHE_MOUNT_POINT/ -name chef_\*deb -not -name \*downloaded | tail -1)"
 fi
 unset debpath
+
+# Remove configuration management software that might be preinstalled in the box
+echo "Removing pre-installed Puppet and Chef..."
+
+do_on_node vm-bootstrap "sudo dpkg -P puppet chef"
+
+echo "Installing Chef server..."
+
 do_on_node vm-bootstrap "$CHEF_SERVER_INSTALL_CMD \
   && sudo sh -c \"echo nginx[\'non_ssl_port\'] = 4000 > /etc/opscode/chef-server.rb\" \
   && sudo chef-server-ctl reconfigure \
@@ -45,6 +53,8 @@ do_on_node vm-bootstrap "$CHEF_SERVER_INSTALL_CMD \
   && $CHEF_CLIENT_INSTALL_CMD"
 
 # configure knife on the bootstrap node and perform a knife bootstrap to create the bootstrap node in Chef
+echo "Configuring Knife on bootstrap node..."
+
 do_on_node vm-bootstrap "mkdir -p \$HOME/.chef && echo -e \"chef_server_url 'https://bcpc-vm-bootstrap.$BCPC_HYPERVISOR_DOMAIN/organizations/bcpc'\\\nvalidation_client_name 'bcpc-validator'\\\nvalidation_key '/etc/opscode/bcpc-validator.pem'\\\nnode_name 'admin'\\\nclient_key '/etc/opscode/admin.pem'\\\nknife['editor'] = 'vim'\\\ncookbook_path [ \\\"#{ENV['HOME']}/chef-bcpc/cookbooks\\\" ]\" > \$HOME/.chef/knife.rb \
   && $KNIFE ssl fetch \
   && $KNIFE bootstrap -x vagrant -P vagrant --sudo 10.0.100.3"
@@ -62,13 +72,17 @@ fi
 
 # install the knife-acl plugin into embedded knife, rsync the Chef repository into the non-root user
 # (vagrant)'s home directory, and add the dependency cookbooks from the file cache
-do_on_node vm-bootstrap "sudo /opt/opscode/embedded/bin/gem install $FILECACHE_MOUNT_POINT/knife-acl-1.0.2.gem \
+echo "Installing knife-acl plugin..."
+
+do_on_node vm-bootstrap "sudo /opt/opscode/embedded/bin/gem install -l $FILECACHE_MOUNT_POINT/knife-acl-1.0.2.gem \
   && rsync -a $REPO_MOUNT_POINT/* \$HOME/chef-bcpc \
   && cp $FILECACHE_MOUNT_POINT/cookbooks/*.tar.gz \$HOME/chef-bcpc/cookbooks \
   && cd \$HOME/chef-bcpc/cookbooks && ls -1 *.tar.gz | xargs -I% tar xvzf %"
 
 # build binaries before uploading the bcpc cookbook
 # (this step will change later but using the existing build_bins script for now)
+echo "Building binaries..."
+
 do_on_node vm-bootstrap "sudo apt-get update \
   && cd \$HOME/chef-bcpc \
   && sudo bash -c 'export FILECACHE_MOUNT_POINT=$FILECACHE_MOUNT_POINT \
@@ -81,8 +95,12 @@ do_on_node vm-bootstrap "$KNIFE cookbook upload -a \
   && cd \$HOME/chef-bcpc/environments && $KNIFE environment from file $BOOTSTRAP_CHEF_ENV.json"
 
 # install and bootstrap Chef on cluster nodes
+echo "Installing Chef client on cluster nodes..."
+
 i=1
 for vm in $vms $mon_vms; do
+  # Remove configuration management software that might be preinstalled in the box
+  do_on_node $vm "sudo dpkg -P puppet chef"
   # Try to install a specific version, or just the latest
   if [[ -z "$CHEF_CLIENT_DEB" ]]; then
     echo "Installing latest chef-client found in $vm:$FILECACHE_MOUNT_POINT"
@@ -98,6 +116,9 @@ for vm in vm-bootstrap $vms $mon_vms; do
   ENVIRONMENT_SET="$ENVIRONMENT_SET $KNIFE node environment set bcpc-$vm.$BCPC_HYPERVISOR_DOMAIN $BOOTSTRAP_CHEF_ENV && "
 done
 ENVIRONMENT_SET="$ENVIRONMENT_SET :"
+
+echo "Setting Chef environment and roles on cluster nodes..."
+
 do_on_node vm-bootstrap $ENVIRONMENT_SET
 
 do_on_node vm-bootstrap "$KNIFE node run_list set bcpc-vm-bootstrap.$BCPC_HYPERVISOR_DOMAIN 'role[BCPC-Hardware-Virtual],role[BCPC-Bootstrap]' \
@@ -111,6 +132,9 @@ for vm in vm-bootstrap vm1 $mon_vms; do
   ADMIN_SET="$ADMIN_SET $KNIFE group add client bcpc-$vm.$BCPC_HYPERVISOR_DOMAIN admins && "
 done
 ADMIN_SET="$ADMIN_SET :"
+
+echo "Setting admin privileges for head and monitoring nodes..."
+
 do_on_node vm-bootstrap $ADMIN_SET
 
 # Clustered monitoring setup (>1 mon VM) requires completely initialized node attributes for chef to run
@@ -123,6 +147,7 @@ if [[ $BOOTSTRAP_CHEF_DO_CONVERGE -eq 0 ]]; then
   echo "BOOTSTRAP_CHEF_DO_CONVERGE is set to 0, skipping automatic convergence."
   exit 0
 else
+  echo "Cheffing cluster nodes..."
   # run Chef on each node
   do_on_node vm-bootstrap "sudo chef-client"
   for vm in $vms; do

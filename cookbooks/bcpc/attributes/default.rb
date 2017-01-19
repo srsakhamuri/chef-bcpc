@@ -26,8 +26,6 @@ default['bcpc']['region_name'] = node.chef_environment
 default['bcpc']['cluster_domain'] = "bcpc.example.com"
 # Hypervisor domain (domain used by actual machines)
 default['bcpc']['hypervisor_domain'] = "hypervisor-bcpc.example.com"
-# Key if Cobalt+VMS is to be used
-default['bcpc']['vms_key'] = nil
 # custom SSL certificate (specify filename).
 # certificate files should be stored under 'files/default' directory
 default['bcpc']['ssl_certificate'] = nil
@@ -77,8 +75,10 @@ default['bcpc']['enabled']['always_update_package_lists'] = true
 default['bcpc']['enabled']['keepalived_checks'] = true
 # This will enable the networking test scripts
 default['bcpc']['enabled']['network_tests'] = true
-# This will enable using TPM-based hwrngd
+# This will enable TPM features
 default['bcpc']['enabled']['tpm'] = false
+# This will enable using a hardware RNG
+default['bcpc']['enabled']['hwrng'] = false
 # This will block VMs from talking to the management network
 default['bcpc']['enabled']['secure_fixed_networks'] = true
 # Toggle to enable/disable swap memory
@@ -130,7 +130,7 @@ default['bcpc']['management']['interface-parent'] = nil
 # list of TCP ports that should be open on the management interface
 # (generally stuff served via HAProxy)
 default['bcpc']['management']['firewall_tcp_ports'] = [
-  80,443,8088,7480,5000,35357,9292,8776,8773,8774,8004,8000,8777,6080
+  80,443,8088,7480,5000,35357,9292,8776,8773,8774,8004,8000,6080
 ]
 
 default['bcpc']['metadata']['ip'] = "169.254.169.254"
@@ -175,33 +175,12 @@ default['bcpc']['repos']['rabbitmq'] = "http://www.rabbitmq.com/debian"
 default['bcpc']['repos']['mysql'] = "http://repo.percona.com/apt"
 default['bcpc']['repos']['haproxy'] = "http://ppa.launchpad.net/vbernat/haproxy-1.5/ubuntu"
 default['bcpc']['repos']['openstack'] = "http://ubuntu-cloud.archive.canonical.com/ubuntu"
-default['bcpc']['repos']['hwraid'] = "http://hwraid.le-vert.net/ubuntu"
 default['bcpc']['repos']['fluentd'] = "http://packages.treasure-data.com/2/ubuntu/#{node['lsb']['codename']}"
-default['bcpc']['repos']['gridcentric'] = "http://downloads.gridcentric.com/packages/%s/%s/ubuntu"
 default['bcpc']['repos']['elasticsearch'] = "http://packages.elasticsearch.org/elasticsearch/1.5/debian"
 default['bcpc']['repos']['kibana'] = "http://packages.elasticsearch.org/kibana/4.1/debian"
 default['bcpc']['repos']['erlang'] = "http://packages.erlang-solutions.com/ubuntu"
 default['bcpc']['repos']['ceph'] = "http://download.ceph.com/debian-hammer"
 default['bcpc']['repos']['zabbix'] = "http://repo.zabbix.com/zabbix/2.4/ubuntu"
-
-###########################################
-#
-# [Optional] If using apt-mirror to pull down repos, we use these settings.
-#
-###########################################
-# Note - us.archive.ubuntu.com tends to rate-limit pretty hard.
-# If you are on East Coast US, we recommend Columbia University in env file:
-# "mirror" : {
-#  "ubuntu": "mirror.cc.columbia.edu/pub/linux/ubuntu/archive"
-# }
-# For a complete list of Ubuntu mirrors, please see:
-# https://launchpad.net/ubuntu/+archivemirrors
-default['bcpc']['mirror']['ubuntu'] = "us.archive.ubuntu.com/ubuntu"
-default['bcpc']['mirror']['ubuntu-dist'] = ['trusty']
-default['bcpc']['mirror']['ceph-dist'] = ['hammer']
-default['bcpc']['mirror']['os-dist'] = ['kilo']
-default['bcpc']['mirror']['elasticsearch-dist'] = '1.5'
-default['bcpc']['mirror']['kibana-dist'] = '4.1'
 
 ###########################################
 #
@@ -215,7 +194,6 @@ default['bcpc']['dbname']['glance'] = "glance"
 default['bcpc']['dbname']['horizon'] = "horizon"
 default['bcpc']['dbname']['keystone'] = "keystone"
 default['bcpc']['dbname']['heat'] = "heat"
-default['bcpc']['dbname']['ceilometer'] = "ceilometer"
 default['bcpc']['dbname']['graphite'] = "graphite"
 default['bcpc']['dbname']['pdns'] = "pdns"
 default['bcpc']['dbname']['zabbix'] = "zabbix"
@@ -241,6 +219,16 @@ default['bcpc']['protocol']['nova'] = "https"
 default['bcpc']['protocol']['cinder'] = "https"
 default['bcpc']['protocol']['heat'] = "https"
 
+###########################################
+#
+#  Memcached Settings
+#
+###########################################
+#
+# Enable memcached double verbose logging.
+default['bcpc']['memcached']['debug'] = false
+# Set number of memcached connections.
+default['bcpc']['memcached']['connections'] = 10240
 
 ###########################################
 #
@@ -260,15 +248,10 @@ default['bcpc']['horizon']['disable_panels'] = ['containers']
 #
 # Default log file
 default['bcpc']['keystone']['log_file'] = '/var/log/keystone/keystone.log'
-# Eventlet server is deprecated in Kilo, so by default we
-# serve Keystone via Apache now.
-default['bcpc']['keystone']['eventlet_server'] = false
 # Turn caching via memcached on or off.
 default['bcpc']['keystone']['enable_caching'] = true
 # Enable debug logging (also caching debug logging).
 default['bcpc']['keystone']['debug'] = false
-# Enable memcached double verbose logging.
-default['bcpc']['memcached']['debug'] = false
 # Enable verbose logging.
 default['bcpc']['keystone']['verbose'] = false
 # Set the timeout for how long we will wait for Keystone to become operational
@@ -338,8 +321,11 @@ default['bcpc']['nova']['max_concurrent_builds'] = 4
 # "workers" parameters in nova are set to number of CPUs
 # available by default. This provides an override.
 default['bcpc']['nova']['workers'] = 5
-# Patch toggle for https://github.com/bloomberg/chef-bcpc/pull/493
-default['bcpc']['nova']['live_migration_patch'] = false
+# set soft/hard ulimits in upstart unit file for nova-compute
+# as number of OSDs in cluster increases, soft limit needs to increase to avoid
+# nova-compute deadlocks
+default['bcpc']['nova']['compute']['limits']['nofile']['soft'] = 1024
+default['bcpc']['nova']['compute']['limits']['nofile']['hard'] = 4096
 # frequency of syncing power states between hypervisor and database
 default['bcpc']['nova']['sync_power_state_interval'] = 600
 # automatically restart guests that were running when hypervisor was rebooted
@@ -406,8 +392,6 @@ default['bcpc']['cinder']['debug'] = false
 default['bcpc']['cinder']['workers'] = 5
 default['bcpc']['cinder']['allow_az_fallback'] = true
 default['bcpc']['cinder']['rbd_flatten_volume_from_snapshot'] = true
-# NOTE: rbd_max_clone_depth is not honored in Kilo
-# see https://bugs.launchpad.net/cinder/+bug/1477706
 default['bcpc']['cinder']['rbd_max_clone_depth'] = 5
 default['bcpc']['cinder']['quota'] = {
   "volumes" => -1,
@@ -476,6 +460,10 @@ default['bcpc']['system']['additional_reserved_ports'] = []
 default['bcpc']['system']['parameters']['kernel.pid_max'] = 4194303
 # Connection tracking table max size
 default['bcpc']['system']['parameters']['net.nf_conntrack_max'] = 262144
+# readhead value for all disks in the system, in kb
+default['bcpc']['system']['readahead_kb'] = 512
+# set to HWRNG source or leave as nil for rng-tools autodetect
+default['bcpc']['system']['hwrng_source'] = nil
 
 ###########################################
 #
@@ -485,22 +473,8 @@ default['bcpc']['system']['parameters']['net.nf_conntrack_max'] = 262144
 #
 # Select desired I/O scheduler to be applied at startup (deadline, noop, cfq)
 default['bcpc']['hardware']['io_scheduler'] = 'deadline'
-
-###########################################
-#
-# CPU governor settings
-#
-###########################################
-#
-# Available options: conservative, ondemand, userspace, powersave, performance
-# Review documentation at https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt
-default['bcpc']['cpupower']['governor'] = "ondemand"
-default['bcpc']['cpupower']['ondemand_ignore_nice_load'] = nil
-default['bcpc']['cpupower']['ondemand_io_is_busy'] = nil
-default['bcpc']['cpupower']['ondemand_powersave_bias'] = nil
-default['bcpc']['cpupower']['ondemand_sampling_down_factor'] = nil
-default['bcpc']['cpupower']['ondemand_sampling_rate'] = nil
-default['bcpc']['cpupower']['ondemand_up_threshold'] = nil
+# Enable power-saving CPU scaling governor (ondemand <3.19, powersave >=3.19)
+default['bcpc']['hardware']['powersave'] = false
 
 ###########################################
 #
@@ -654,6 +628,7 @@ default['bcpc']['flavors'] = {
     }
   }
 }
+default['bcpc']['flavor_access'] = { }
 
 ###########################################
 #
@@ -715,6 +690,7 @@ default['bcpc']['quota'] = {
 #
 ###########################################
 default['bcpc']['getty']['ttys'] = %w( ttyS0 ttyS1 )
+
 ###########################################
 #
 #  VNC settings
@@ -724,6 +700,7 @@ default['bcpc']['getty']['ttys'] = %w( ttyS0 ttyS1 )
 # VNC uses cluster domain name by default
 # for proxy base url. Set to 'true' to use vip
 default['bcpc']['vnc']['proxy_use_vip'] = false
+
 ###########################################
 #
 #  Bootstrap tftpd settings

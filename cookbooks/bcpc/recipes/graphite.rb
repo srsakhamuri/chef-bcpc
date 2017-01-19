@@ -22,16 +22,6 @@ if node['bcpc']['enabled']['metrics']
   include_recipe 'bcpc::default'
   include_recipe 'bcpc::apache2'
 
-  # Remove Precise leftovers from Trusty builds
-  apt_preference 'python-django' do
-    action :remove
-  end
-  file '/etc/apt/apt.conf.d/00defaultrelease' do
-    action :delete
-  end
-  apt_repository 'trusty' do
-    action :remove
-  end
 
   # Setup MySQL client
   apt_repository 'percona' do
@@ -88,7 +78,7 @@ if node['bcpc']['enabled']['metrics']
     mode 00644
     variables(
       :servers => search_nodes('recipe', 'graphite'),
-      :min_quorum => search_nodes('recipe', 'graphite').length / 2 + 1
+      :replication_factor => node['bcpc']['graphite']['replication_factor']
     )
     notifies :restart, 'service[carbon-cache]', :delayed
     notifies :restart, 'service[carbon-relay]', :delayed

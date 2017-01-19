@@ -21,30 +21,6 @@ if node['bcpc']['enabled']['monitoring'] then
     include_recipe "bcpc::default"
     include_recipe "bcpc::packages-zabbix"
 
-    # this script removes the old manually compiled Zabbix agent installation
-    # (being a bit lazy and assuming the presence of the old agent binary signals everything
-    # is still there)
-    bash "clean-up-old-zabbix-agent" do
-        code <<-EOH
-          service zabbix-agent stop
-          rm -f /tmp/zabbix_agentd.pid
-          rm -f /usr/local/etc/zabbix_agent.conf
-          rm -f /usr/local/etc/zabbix_agentd.conf
-          rm -f /usr/local/sbin/zabbix_agent
-          rm -f /usr/local/sbin/zabbix_agentd
-          rm -f /usr/local/share/man/man1/zabbix_get.1
-          rm -f /usr/local/share/man/man1/zabbix_sender.1
-          rm -f /usr/local/share/man/man8/zabbix_agentd.8
-          rm -f /usr/local/bin/zabbix_get
-          rm -f /usr/local/bin/zabbix_sender
-          rm -rf /usr/local/etc/zabbix_agentd.conf.d
-          rm -rf /usr/local/etc/zabbix_agent.conf.d
-          rm -f /tmp/zabbix-agent.tar.gz
-          rm -f /etc/init/zabbix-agent.conf
-        EOH
-        only_if 'test -f /usr/local/sbin/zabbix_agentd'
-    end
-
     %w{zabbix-agent zabbix-get zabbix-sender}.each do |zabbix_package|
       package zabbix_package do
         action :upgrade
@@ -100,19 +76,10 @@ if node['bcpc']['enabled']['monitoring'] then
         notifies :restart, "service[zabbix-agent]", :immediately
     end
 
-    # it would be preferable to include this with the software-raid recipe
-    # but is here in order to avoid duplicating work that this recipe does in
-    # the software-raid recipe
-    template "/etc/zabbix/zabbix_agentd.d/userparameter_ephemeral.conf" do
-      source "zabbix_agentd_userparameters_ephemeral.conf.erb"
-      owner node['bcpc']['zabbix']['user']
-      group "root"
-      mode 00600
-      variables(
-        :ephemeral_vg_name => node['bcpc']['nova']['ephemeral_vg_name']
-      )
-      only_if { node['bcpc']['software_raid']['enabled'] }
-      notifies :restart, "service[zabbix-agent]", :immediately
+    # Deprecated by cron-invoked check
+    file '/etc/zabbix/zabbix_agentd.d/userparameter_ephemeral.conf' do
+      action :delete
+      notifies :restart, 'service[zabbix-agent]', :delayed
     end
 
     template "/etc/zabbix/zabbix_agentd.d/userparameter_bootstrap.conf" do

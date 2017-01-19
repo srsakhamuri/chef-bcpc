@@ -31,9 +31,9 @@
       "role[BCPC-Compute]",
       "recipe[bcpc::checks-head]",
       "recipe[bcpc::flavors]",
+      "recipe[bcpc::flavor_access]",
       "recipe[bcpc::rgw-quota]",
-      "recipe[bcpc::os-quota]",
-      "recipe[bcpc::kilo-to-liberty-upgrade-cleanup]"
+      "recipe[bcpc::os-quota]"
     ],
     "description": "A highly-available head node in a BCPC cluster",
     "chef_type": "role",

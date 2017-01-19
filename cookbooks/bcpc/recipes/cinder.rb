@@ -39,7 +39,7 @@ end
     action :upgrade
     notifies :run, 'bash[clean-old-pyc-files]', :immediately
   end
-  
+
   service pkg do
     action [:enable, :start]
   end
@@ -47,38 +47,6 @@ end
 
 service "cinder-api" do
     restart_command "service cinder-api restart; sleep 5"
-end
-
-#  _   _  ____ _  __   __  ____   _  _____ ____ _   _
-# | | | |/ ___| | \ \ / / |  _ \ / \|_   _/ ___| | | |
-# | | | | |  _| |  \ V /  | |_) / _ \ | || |   | |_| |
-# | |_| | |_| | |___| |   |  __/ ___ \| || |___|  _  |
-#  \___/ \____|_____|_|   |_| /_/   \_\_| \____|_| |_|
-# this patch resolves BCPC issue #798 - upstreamed as #1489575 (note that
-# the upstream patch has a different form because it applied to Liberty and
-# not to Kilo)
-bcpc_patch "cinder-az-fallback-2015.1.2-and-beyond" do
-  patch_file 'cinder-az-fallback-2015.1.2.patch'
-  patch_root_dir '/usr/lib/python2.7/dist-packages'
-  shasums_before_apply 'cinder-az-fallback-2015.1.2.patch.BEFORE.SHASUMS'
-  shasums_after_apply 'cinder-az-fallback-2015.1.2.patch.AFTER.SHASUMS'
-  notifies :restart, 'service[cinder-api]', :immediately
-  notifies :restart, 'service[cinder-volume]', :immediately
-  notifies :restart, 'service[cinder-scheduler]', :immediately
-  only_if "dpkg --compare-versions $(dpkg -s python-cinder | egrep '^Version:' | awk '{ print $NF }') ge 1:2015.1.2 && dpkg --compare-versions $(dpkg -s python-cinder | egrep '^Version:' | awk '{ print $NF }') lt 2:7.0"
-end
-
-# Deal with quota update commands (applies to cinderclient < 1.3.1)
-# upstream bug #1423884
-bcpc_patch "fix-quota-class-update" do
-    patch_file              'fix-quota-class-update.patch'
-    patch_root_dir          '/usr/lib/python2.7/dist-packages'
-    shasums_before_apply    'fix-quota-class-update.patch.BEFORE.SHASUMS'
-    shasums_after_apply     'fix-quota-class-update.patch.AFTER.SHASUMS'
-    notifies :restart, "service[cinder-api]", :immediately
-    notifies :restart, "service[cinder-volume]", :immediately
-    notifies :restart, "service[cinder-scheduler]", :immediately
-    only_if "dpkg --compare-versions $(dpkg -s python-cinderclient | egrep '^Version:' | awk '{ print $NF }') lt 1:1.3.1"
 end
 
 template "/etc/cinder/cinder.conf" do
@@ -188,8 +156,6 @@ node['bcpc']['cinder']['quota'].each do |k, v|
       cinder quota-class-update --#{k} #{v} default
     EOH
   end
-  # figure this out later
-  #not_if ". /root/adminrc; cinder quota-class-show
 end
 
 service "tgt" do

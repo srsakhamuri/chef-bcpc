@@ -22,10 +22,6 @@ require 'base64'
 require 'thread'
 require 'ipaddr'
 
-def is_kilo?
-  return node['bcpc']['openstack_release'] == 'kilo'
-end
-
 # this method deals in strings even though API versions are numbers because
 # some API versions are integers and others are floats and it would be bad
 # if Ruby decided to report an API version as something like 1.10000000006584

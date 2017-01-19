@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: bcpc
-# Recipe:: software-raid
+# Recipe:: software_raid
 #
 # Copyright 2015, Bloomberg Finance L.P.
 #
@@ -52,15 +52,21 @@ if node['bcpc']['software_raid']['enabled']
     mode   00755
   end
 
-  # allows Zabbix to sudo to run the above script (LVM commands must run as root)
-  template '/etc/sudoers.d/zabbix_sudoers' do
-    source 'sudoers-zabbix.erb'
-    owner  'root'
-    group  'root'
-    mode   00440
-    variables(
-      :ephemeral_vg_name => node['bcpc']['nova']['ephemeral_vg_name']
-    )
+  # Deprecated - check will run as root via cron
+  file '/etc/sudoers.d/zabbix_sudoers' do
+    action :delete
+  end
+
+  cron_cmd = "zabbix_sender -c /etc/zabbix/zabbix_agentd.conf \
+             --key ephemeral.health \
+             --value \
+             `/usr/local/bin/ephemeral_functional_test.sh nova_disk 2>&1`"
+  cron 'check_ephemeral_functional' do
+    home '/var/lib/zabbix'
+    user 'root'
+    minute '*/2'
+    path '/usr/local/bin:/usr/bin:/bin'
+    command cron_cmd
   end
 
   mdadm node['bcpc']['software_raid']['md_device'] do
