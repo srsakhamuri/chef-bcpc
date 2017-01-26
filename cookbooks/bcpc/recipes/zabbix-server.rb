@@ -227,6 +227,11 @@ if node['bcpc']['enabled']['monitoring'] then
       end
     end
 
+    bcpc_zbx_autoreg 'BCPC-DisklessWorknode' do
+      action :create
+      template ['BCPC-Worknode']
+    end
+
     %w( Metrics Logging ).each do |mon_role|
       bcpc_zbx_autoreg "BCPC-#{mon_role}" do
         action :create
