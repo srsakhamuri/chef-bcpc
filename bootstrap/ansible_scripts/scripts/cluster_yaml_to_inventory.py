@@ -35,6 +35,7 @@ ipmi_password={{ cluster_ipmi_password }}
 {{ cluster_name }}-headnodes
 {{ cluster_name }}-worknodes
 {{ cluster_name }}-ephemeral-worknodes
+{{ cluster_name }}-diskless-worknodes
 
 [{{ cluster_name }}-worknodes]
 {% for item in worknodes|dictsort %}
@@ -56,6 +57,24 @@ ipmi_password={{ cluster_ipmi_password }}
 
 [{{ cluster_name }}-ephemeral-worknodes]
 {% for item in eworknodes|dictsort %}
+{% set node = item[0] + " ansible_ssh_host=" + item[1].ip_address %}
+{% if item[1].ipmi_address %}
+{% set node = node + " ipmi_address=" + item[1].ipmi_address %}
+{% if not cluster_ipmi_username %}
+{% set node = node + " ipmi_username=" + item[1].ipmi_username %}
+{% endif %}
+{% if not cluster_ipmi_password %}
+{% set node = node + " ipmi_password=" + item[1].ipmi_password %}
+{% endif %}
+{% endif %}
+{% if not cluster_hardware_type %}
+{% set node = node + " hardware_type=" + item[1].hardware_type %}
+{% endif %}
+{{ node }}
+{% endfor %}
+
+[{{ cluster_name }}-diskless-worknodes]
+{% for item in dworknodes|dictsort %}
 {% set node = item[0] + " ansible_ssh_host=" + item[1].ip_address %}
 {% if item[1].ipmi_address %}
 {% set node = node + " ipmi_address=" + item[1].ipmi_address %}
@@ -152,6 +171,9 @@ ephemeral-worknodes
 [ephemeral-worknodes:children]
 {{ cluster_name }}-ephemeral-worknodes
 
+[diskless-worknodes:children]
+{{ cluster_name }}-diskless-worknodes
+
 {% for group_space in group_map|dictsort %}
 {% set group_space_key = group_space[0] %}
 {% for group_set in group_space[1]|dictsort %}
@@ -227,6 +249,7 @@ def render_inventory(path, ssh_user, opts={}):
     headnodes = {}
     worknodes = {}
     eworknodes = {}
+    dworknodes = {}
     cluster_hardware_type = None
     cluster_ipmi_username = None
     cluster_ipmi_password = None
@@ -245,6 +268,8 @@ def render_inventory(path, ssh_user, opts={}):
             worknodes[node] = cluster['nodes'][node]
         elif cluster['nodes'][node]['role'] == 'work-ephemeral':
             eworknodes[node] = cluster['nodes'][node]
+        elif cluster['nodes'][node]['role'] == 'work-diskless':
+            dworknodes[node] = cluster['nodes'][node]
         # Do the grouping here
         for group_name, group_params in g_opts.iteritems():
             if group_name not in group_map:
@@ -284,6 +309,7 @@ def render_inventory(path, ssh_user, opts={}):
         'headnodes': headnodes,
         'worknodes': worknodes,
         'eworknodes': eworknodes,
+        'dworknodes': dworknodes,
         'group_map': group_map,
         'group_opts_map': g_opts
     }
