@@ -4545,5 +4545,15 @@
             <type>0</type>
             <dependencies/>
         </trigger>
+        <trigger>
+            <expression>{BCPC-Headnode:net.vip_holder.diff()}&gt;0</expression>
+            <name>VIP jump detected</name>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description>VIP jump on head node detected</description>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
     </triggers>
 </zabbix_export>
