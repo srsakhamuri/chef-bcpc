@@ -38,13 +38,19 @@ ruby_block 'evaluate-version-eligibility' do
   end
 end
 
-# are we performing an upgrade? (don't check if it's a fresh install)
-upgrade_check = Mixlib::ShellOut.new("if dpkg -s python-nova >/dev/null 2>&1; then dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt $(apt-cache policy python-nova | grep Candidate | awk '{ print $NF }'); else exit 1; fi")
-upgrade_check.run_command
-
-file '/usr/local/etc/openstack_upgrade' do
-  action :create
-  not_if { upgrade_check.error? }
+ruby_block 'set-upgrade-flag-file' do
+  block do
+    upgrade_flag_file = '/usr/local/etc/openstack_upgrade'
+    upgrade_check = Mixlib::ShellOut.new("if dpkg -s python-nova >/dev/null 2>&1; then dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt $(apt-cache policy python-nova | grep Candidate | awk '{ print $NF }'); else exit 2; fi")
+    upgrade_check.run_command
+    # exit status 1 means comparison failed, exit status 2 means something weird happened
+    # (probably shouldn't ever see exit status 2)
+    if upgrade_check.error?
+      ::File.unlink(upgrade_flag_file) if ::File.exist?(upgrade_flag_file)
+    else
+      FileUtils.touch(upgrade_flag_file)
+    end
+  end
 end
 
 %w{ python-novaclient
