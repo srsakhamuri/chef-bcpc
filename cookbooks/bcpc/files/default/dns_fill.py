@@ -11,6 +11,7 @@ import keystoneclient
 from keystoneclient import exceptions as kc_exceptions
 import MySQLdb as mdb
 import re
+import subprocess
 import syslog
 
 
@@ -137,6 +138,20 @@ class dns_popper(object):
                 syslog.LOG_ERROR,
                 "DB changes failed: %d: %s" % (e.args[0], e.args[1]))
 
+    def update_zone(self):
+        try:
+            cmd = subprocess.Popen(['/usr/local/bin/dns-update-zone.sh',
+                                   self.config['domain']])
+            cmd.communicate()
+        except subprocess.CalledProcessError, e:
+            syslog.syslog(
+                syslog.LOG_ERROR,
+                "Unable to update zone %s" % self.config['domain'])
+        else:
+            syslog.syslog(
+                syslog.LOG_INFO,
+                "Updated zone %s " % self.config['domain'])
+
 
 def make_rfc1123_compliant(name):
     """
@@ -200,6 +215,7 @@ def c_run(args):
     nova_rows = dnsp.generate_records_from_vms()
     db_rows = dnsp.get_records_from_db()
     dnsp.update_db(db_rows, nova_rows)
+    dnsp.update_zone()
 
 
 def c_dump(args):
