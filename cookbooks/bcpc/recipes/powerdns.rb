@@ -114,10 +114,11 @@ if node['bcpc']['enabled']['dns'] then
     }
   end
 
-  reverse_fixed_zone = node['bcpc']['fixed']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['fixed']['cidr'])
+  reverse_fixed_zone = node['bcpc']['fixed']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['fixed']['cidr']).first
   reverse_float_zone = node['bcpc']['floating']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['floating']['cidr'])
   management_zone = calc_reverse_dns_zone(node['bcpc']['management']['cidr'])
 
+  # Reverse fixed zone is assumed to be classful.
   ruby_block "powerdns-table-domains-reverse-fixed-zone" do
     block do
       %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
@@ -132,32 +133,36 @@ if node['bcpc']['enabled']['dns'] then
     }
   end
 
-  ruby_block "powerdns-table-domains-reverse-float-zone" do
-    block do
-      %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
-          mysql -uroot #{node['bcpc']['dbname']['pdns']} <<-EOH
-          INSERT INTO domains (name, type) values ('#{ reverse_float_zone }', 'NATIVE');
-      ]
-      self.notifies :restart, resources(:service => "pdns"), :delayed
-      self.resolve_notification_references
+  reverse_float_zone.each do |zone|
+    ruby_block "powerdns-table-domains-reverse-float-zone-#{zone}" do
+      block do
+        %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
+            mysql -uroot #{node['bcpc']['dbname']['pdns']} <<-EOH
+            INSERT INTO domains (name, type) values ('#{zone}', 'NATIVE');
+        ]
+        self.notifies :restart, resources(:service => "pdns"), :delayed
+        self.resolve_notification_references
+      end
+      only_if {
+        %x[ MYSQL_PWD=#{get_config('mysql-root-password')} mysql -B --skip-column-names -uroot -e 'SELECT count(*) FROM pdns.domains WHERE name = \"#{zone}\"' ].to_i.zero?
+      }
     end
-    only_if {
-      %x[ MYSQL_PWD=#{get_config('mysql-root-password')} mysql -B --skip-column-names -uroot -e 'SELECT count(*) FROM pdns.domains WHERE name = \"#{ reverse_float_zone }\"' ].to_i.zero?
-    }
   end
 
-  ruby_block "powerdns-table-domains-management-zone" do
-    block do
-      %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
-          mysql -uroot #{node['bcpc']['dbname']['pdns']} <<-EOH
-          INSERT INTO domains (name, type) values ('#{management_zone}', 'NATIVE');
-      ]
-      self.notifies :restart, resources(:service => "pdns"), :delayed
-      self.resolve_notification_references
+  management_zone.each do |zone|
+    ruby_block "powerdns-table-domains-management-zone-#{zone}" do
+      block do
+        %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
+            mysql -uroot #{node['bcpc']['dbname']['pdns']} <<-EOH
+            INSERT INTO domains (name, type) values ('#{zone}', 'NATIVE');
+        ]
+        self.notifies :restart, resources(:service => "pdns"), :delayed
+        self.resolve_notification_references
+      end
+      only_if {
+        %x[ MYSQL_PWD=#{get_config('mysql-root-password')} mysql -B --skip-column-names -uroot -e 'SELECT count(*) FROM pdns.domains WHERE name = \"#{zone}\"' ].to_i.zero?
+      }
     end
-    only_if {
-      %x[ MYSQL_PWD=#{get_config('mysql-root-password')} mysql -B --skip-column-names -uroot -e 'SELECT count(*) FROM pdns.domains WHERE name = \"#{ management_zone }\"' ].to_i.zero?
-    }
   end
 
   ruby_block "powerdns-function-ip4_to_ptr_name" do
@@ -178,6 +183,40 @@ if node['bcpc']['enabled']['dns'] then
       self.notifies :restart, resources(:service => "pdns"), :delayed
     end
     not_if { system "MYSQL_PWD=#{get_config('mysql-root-password')} mysql -uroot -e 'SELECT name FROM mysql.proc WHERE name = \"ip4_to_ptr_name\" AND db = \"#{node['bcpc']['dbname']['pdns']}\";' \"#{node['bcpc']['dbname']['pdns']}\" | grep -q \"ip4_to_ptr_name\" >/dev/null" }
+  end
+
+  # MySQL function to determine the DNS zone a PTR belongs to.
+  ruby_block 'powerdns-function-get_ptr_domain' do
+    block do
+      %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
+          mysql -uroot #{node['bcpc']['dbname']['pdns']} <<-EOH
+          delimiter //
+          CREATE FUNCTION get_ptr_domain(
+          ptr VARCHAR(64) CHARACTER SET latin1,
+          octets TINYINT(1))
+          RETURNS INT
+          COMMENT 'Returns the domain ID the PTR belongs to'
+          DETERMINISTIC
+          BEGIN
+            DECLARE domain_id INT(11);
+            SELECT id FROM pdns.domains
+            WHERE
+            name = (SELECT SUBSTRING_INDEX(
+                    SUBSTRING_INDEX(ptr, '.', 6), '.', -6+octets))
+                    INTO domain_id;
+            RETURN domain_id;
+          END//
+      ]
+      self.notifies :restart, resources(:service => 'pdns'), :delayed
+    end
+    not_if {
+      system "MYSQL_PWD=#{get_config('mysql-root-password')} \
+              mysql -uroot -e 'SELECT name FROM mysql.proc
+              WHERE name = \"get_ptr_domain\"
+              AND db = \"#{node['bcpc']['dbname']['pdns']}\";' \
+              \"#{node['bcpc']['dbname']['pdns']}\" \
+              | grep -q get_ptr_domain >/dev/null"
+    }
   end
 
   ruby_block "powerdns-function-dns-name" do
@@ -237,6 +276,11 @@ if node['bcpc']['enabled']['dns'] then
   # fixed IPs require the nova schema to be present in MySQL, so that has been moved to its own template and recipe
   float_records_file = "/tmp/powerdns_generate_float_records.sql"
 
+  # Determine the number of right-most octets to drop for addresses to help
+  # find the reverse DNS zone name one is part of.
+  mgmt_octets = calc_octets_to_drop(node['bcpc']['management']['cidr'])
+  float_octets = calc_octets_to_drop(node['bcpc']['floating']['cidr'])
+
   template float_records_file do
     source "powerdns_generate_float_records.sql.erb"
     owner "root"
@@ -251,9 +295,11 @@ if node['bcpc']['enabled']['dns'] then
       :floating_vip        => node['bcpc']['floating']['vip'],
       :management_vip      => node['bcpc']['management']['vip'],
       :monitoring_vip      => node['bcpc']['monitoring']['vip'],
-      :reverse_fixed_zone  => (node['bcpc']['fixed']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['fixed']['cidr'])),
-      :reverse_float_zone  => (node['bcpc']['floating']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['floating']['cidr'])),
-      :management_zone     => calc_reverse_dns_zone(node['bcpc']['management']['cidr'])
+      :reverse_fixed_zone  => reverse_fixed_zone,
+      :reverse_float_zone  => reverse_float_zone,
+      :management_zone     => management_zone,
+      :mgmt_octets         => mgmt_octets,
+      :float_octets        => float_octets
     })
     notifies :run, 'ruby_block[powerdns-load-float-records]', :immediately
   end

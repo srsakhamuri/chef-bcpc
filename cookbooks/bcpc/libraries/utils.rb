@@ -21,6 +21,7 @@ require 'openssl'
 require 'base64'
 require 'thread'
 require 'ipaddr'
+require 'ipaddress'
 
 # this method deals in strings even though API versions are numbers because
 # some API versions are integers and others are floats and it would be bad
@@ -292,28 +293,23 @@ def ceph_keygen()
     Base64.encode64(key).strip
 end
 
-# requires cidr in form '1.2.3.0/24', where 1.2.3.0 is a dotted quad ip4 address
-# and 24 is a number of netmask bits (e.g. 8, 16, 24)
+def calc_octets_to_drop(cidr)
+  cidr = IPAddress(cidr)
+  prefix = cidr.prefix.to_i
+  prefix = 24 if prefix != 8 && prefix != 16
+  4 - prefix / 8 # octets to drop
+end
+
+# Generates an array of classful reverse DNS zone(s) by dividing provided CIDR
+# (min /24) in the form of '1.2.3.0/24'.
 def calc_reverse_dns_zone(cidr)
-
-    # Validate and parse cidr as an IP
-    cidr_ip = IPAddr.new(cidr) # Will throw exception if cidr is bad.
-
-    # Pull out the netmask and throw an error if we can't find it.
-    netmask = cidr.split('/')[1].to_i
-    raise ("Couldn't find netmask portion of CIDR in #{cidr}.") unless netmask > 0  # nil.to_i == 0, "".to_i == 0  Should always be one of [8,16,24]
-
-    # Knock off leading quads in the reversed IP as specified by the netmask.  (24 ==> Remove one quad, 16 ==> remove two quads, etc)
-    # So for example: 192.168.100.0, we'd expect the following input/output:
-    # Netmask:   8  => 192.in-addr.arpa         (3 quads removed)
-    #           16  => 168.192.in-addr.arpa     (2 quads removed)
-    #           24  => 100.168.192.in-addr.arpa (1 quad removed)
-
-    reverse_ip = cidr_ip.reverse   # adds .in-addr.arpa automatically
-    (4 - (netmask.to_i/8)).times { reverse_ip = reverse_ip.split('.')[1..-1].join('.') } # drop off element 0 each time through
-
-    return reverse_ip
-
+  cidr = IPAddress(cidr)
+  prefix = cidr.prefix.to_i
+  prefix = 24 if prefix != 8 && prefix != 16
+  subnets = cidr.subnet(prefix)
+  octets = 4 - prefix / 8 # octets to drop
+  subnets.map {
+    |x| x.reverse.to_s.split('.')[octets, x.reverse.length].join('.') }
 end
 
 # We do not have net/ping, so just call out to system and check err value.
