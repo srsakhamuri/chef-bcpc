@@ -306,7 +306,7 @@ def calc_reverse_dns_zone(cidr)
   cidr = IPAddress(cidr)
   prefix = cidr.prefix.to_i
   prefix = 24 if prefix != 8 && prefix != 16
-  subnets = cidr.subnet(prefix) # array of /24 subnets
+  subnets = cidr.subnet(prefix)
   octets = 4 - prefix / 8 # octets to drop
   subnets.map {
     |x| x.reverse.to_s.split('.')[octets, x.reverse.length].join('.') }
