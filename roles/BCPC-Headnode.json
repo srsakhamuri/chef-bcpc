@@ -26,7 +26,7 @@
       "recipe[bcpc::cinder]",
       "recipe[bcpc::nova-head]",
       "recipe[bcpc::powerdns-nova]",
-      "recipe[bcpc::powerdns-zone-update]",
+      "recipe[bcpc::powerdns_zone_update]",
       "recipe[bcpc::heat]",
       "recipe[bcpc::horizon]",
       "role[BCPC-Compute]",
