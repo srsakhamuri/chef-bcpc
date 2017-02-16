@@ -33,7 +33,7 @@ directory "/etc/mysql/conf.d" do
 end
 
 template "/etc/mysql/my.cnf" do
-    source "my.cnf.erb"
+    source "mysql-common.my.cnf.erb"
     mode 00644
     notifies :restart, "service[mysql]", :immediately
 end
