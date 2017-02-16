@@ -34,7 +34,8 @@
       "recipe[bcpc::flavor_access]",
       "recipe[bcpc::rgw-quota]",
       "recipe[bcpc::os-quota]",
-      "recipe[bcpc::upgrade-cleanup]"
+      "recipe[bcpc::upgrade-cleanup]",
+      "recipe[bcpc::extra-headnode]"
     ],
     "description": "A highly-available head node in a BCPC cluster",
     "chef_type": "role",
