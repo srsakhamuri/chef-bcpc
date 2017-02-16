@@ -101,6 +101,38 @@ template '/etc/logrotate.d/mysql_slow_query' do
   )
 end
 
+template '/root/.my.cnf' do
+  source 'mysql-shell.my.cnf.erb'
+  mode   00600
+  owner  'root'
+  group  'root'
+  sensitive true
+  variables(
+    lazy {
+      {
+        :host         => node['bcpc']['management']['vip'],
+        :user_key     => 'mysql-root-user',
+        :password_key => 'mysql-root-password'
+      }
+    }
+  )
+end
+
+vifs_cleanup_script = '/usr/local/bin/vifs_cleanup.sh'
+cookbook_file vifs_cleanup_script do
+  source 'vifs_cleanup.sh'
+  mode   '00755'
+  owner  'root'
+  group  'root'
+end
+
+cron 'vifs-cleanup-daily' do
+  home    '/root'
+  user    'root'
+  minute  '0'
+  hour    '3'
+  command "/usr/local/bin/if_vip #{vifs_cleanup_script}"
+end
 
 template '/usr/local/bin/mysql_slow_query_check.sh' do
   source 'mysql_slow_query_check.sh.erb'
