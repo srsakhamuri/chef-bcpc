@@ -33,7 +33,8 @@
       "recipe[bcpc::flavors]",
       "recipe[bcpc::flavor_access]",
       "recipe[bcpc::rgw-quota]",
-      "recipe[bcpc::os-quota]"
+      "recipe[bcpc::os-quota]",
+      "recipe[bcpc::upgrade-cleanup]"
     ],
     "description": "A highly-available head node in a BCPC cluster",
     "chef_type": "role",

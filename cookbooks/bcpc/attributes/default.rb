@@ -182,6 +182,7 @@ default['bcpc']['repos']['kibana'] = "http://packages.elasticsearch.org/kibana/4
 default['bcpc']['repos']['erlang'] = "http://packages.erlang-solutions.com/ubuntu"
 default['bcpc']['repos']['ceph'] = "http://download.ceph.com/debian-hammer"
 default['bcpc']['repos']['zabbix'] = "http://repo.zabbix.com/zabbix/2.4/ubuntu"
+default['bcpc']['repos']['mitaka-staging'] = "http://ppa.launchpad.net/ubuntu-cloud-archive/mitaka-staging/ubuntu"
 
 ###########################################
 #
@@ -505,7 +506,7 @@ default['bcpc']['bootstrap']['mirror_path'] = "/ubuntu"
 #
 # Package versions
 # None needed at this time
-default['bcpc']['rally']['user'] = 'ubuntu'
+default['bcpc']['rally']['user'] = 'root'
 
 ###########################################
 #

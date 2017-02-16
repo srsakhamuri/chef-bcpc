@@ -1,13 +1,24 @@
+<%
+    def endpoint_hostname
+        "openstack.#{node['bcpc']['cluster_domain']}"
+    end
+    @url_scheme = node['bcpc']['protocol']['keystone']
+%>
 {
     "type": "ExistingCloud",
-    "auth_url": "<%=node['bcpc']['protocol']['keystone']%>://<%=node['bcpc']['management']['vip']%>:5000/v2.0/",
-    "region_name": "<%=node['bcpc']['region_name']%>",
+    "auth_url": "<%=@url_scheme%>://<%=endpoint_hostname%>:5000/<%=@api_version%>/",
+    "region_name": "<%=@region_name%>",
     "endpoint_type": "public",
+    <% if @api_version == "v2.0" %>
+    "endpoint": "<%=@url_scheme%>://<%=endpoint_hostname%>:35357/<%=@api_version%>/",
+    <% end %>
     "admin": {
-        "username": '<%=get_config('keystone-admin-user')%>',
-        "password": '<%=get_config('keystone-admin-password')%>',
-        "tenant_name": "<%=node['bcpc']['admin_tenant']%>"
+        "username": "<%=@username%>",
+        "password": "<%=@password%>",
+        "project_name": "<%=@project_name%>",
+        "user_domain_name": "default",
+        "project_domain_name": "default"
     },
-    "https_insecure": False,
-    "https_cacert": "/etc/ssl/certs/ssl-bcpc.pem",
+    "https_insecure": false,
+    "https_cacert": "/usr/local/share/ca-certificates/ssl-bcpc.crt"
 }
