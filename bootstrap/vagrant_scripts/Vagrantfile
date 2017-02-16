@@ -56,6 +56,7 @@ unless ENV['BOOTSTRAP_ADDITIONAL_CACERTS_DIR'].nil? or ENV['BOOTSTRAP_ADDITIONAL
   cacerts_dir = Dir.new(ENV['BOOTSTRAP_ADDITIONAL_CACERTS_DIR'])
   files_in_cacerts_dir = cacerts_dir.entries.select{|e| not ['.', '..'].include? e}
   files_in_cacerts_dir.each do |f|
+    next if File.directory?(File.join(cacerts_dir, f))
     begin
       unless f.end_with? '.crt'
         fail "All files in #{ENV['BOOTSTRAP_ADDITIONAL_CACERTS_DIR']} must end in .crt due to update-ca-certificates restrictions."
