@@ -5,13 +5,6 @@
 ################################################
 
 [DEFAULT]
-#
-
-debug = false
-verbose = false
-use_syslog = false
-use_stderr = false
-
 # If you want logging then uncomment log_file and optionally log_dir and then the next rally run will start logging.
 
 #
@@ -24,7 +17,7 @@ use_stderr = false
 
 # Print more verbose output (set logging level to INFO instead of
 # default WARNING level). (boolean value)
-#verbose = false
+verbose = false
 
 # The name of a logging configuration file. This file is appended to
 # any existing logging configuration files. For details about logging
@@ -103,10 +96,7 @@ use_stderr = false
 #
 # From rally
 #
-rally_debug = false
-https_insecure = false
-https_cacert = /etc/ssl/certs/ssl-bcpc.pem
-
+https_cacert = /usr/local/share/ca-certificates/ssl-bcpc.crt
 
 # Print debugging output only for Rally. Off-site components stay
 # quiet. (boolean value)
@@ -121,10 +111,6 @@ https_cacert = /etc/ssl/certs/ssl-bcpc.pem
 
 # Use SSL for all OpenStack API interfaces (boolean value)
 #https_insecure = false
-
-# Path to CA server cetrificate for SSL (string value)
-#https_cacert = /etc/ssl/certs/ssl-bcpc.pem
-
 
 [benchmark]
 
