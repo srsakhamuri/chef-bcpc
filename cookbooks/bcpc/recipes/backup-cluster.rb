@@ -72,7 +72,7 @@ directory backup_dest do
 end
 
 template '/root/.my.main.cnf' do
-  source 'mysql-backup.my.cnf.erb'
+  source 'mysql-shell.my.cnf.erb'
   mode   00600
   owner  'root'
   group  'root'
@@ -88,7 +88,7 @@ template '/root/.my.main.cnf' do
 end
 
 template '/root/.my.monitoring.cnf' do
-  source 'mysql-backup.my.cnf.erb'
+  source 'mysql-shell.my.cnf.erb'
   mode   00600
   owner  'root'
   group  'root'

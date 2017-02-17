@@ -127,10 +127,11 @@ default['bcpc']['management']['interface'] = nil
 # if 'interface' is a VLAN interface, specifying a parent allows MTUs
 # to be set properly
 default['bcpc']['management']['interface-parent'] = nil
-# list of TCP ports that should be open on the management interface
+# list of extra TCP ports that should be open on the management interface
 # (generally stuff served via HAProxy)
+# some ports are hardcoded - see bcpc-firewall.erb template
 default['bcpc']['management']['firewall_tcp_ports'] = [
-  80,443,8088,7480,5000,35357,9292,8776,8773,8774,8004,8000,6080
+  8088,7480,35357,8004,8000
 ]
 
 default['bcpc']['metadata']['ip'] = "169.254.169.254"
@@ -181,6 +182,7 @@ default['bcpc']['repos']['kibana'] = "http://packages.elasticsearch.org/kibana/4
 default['bcpc']['repos']['erlang'] = "http://packages.erlang-solutions.com/ubuntu"
 default['bcpc']['repos']['ceph'] = "http://download.ceph.com/debian-hammer"
 default['bcpc']['repos']['zabbix'] = "http://repo.zabbix.com/zabbix/2.4/ubuntu"
+default['bcpc']['repos']['mitaka-staging'] = "http://ppa.launchpad.net/ubuntu-cloud-archive/mitaka-staging/ubuntu"
 
 ###########################################
 #
@@ -504,7 +506,7 @@ default['bcpc']['bootstrap']['mirror_path'] = "/ubuntu"
 #
 # Package versions
 # None needed at this time
-default['bcpc']['rally']['user'] = 'ubuntu'
+default['bcpc']['rally']['user'] = 'root'
 
 ###########################################
 #
