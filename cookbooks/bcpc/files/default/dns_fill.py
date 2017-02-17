@@ -62,7 +62,7 @@ class dns_popper(object):
             "FROM nova.instances i "
             "JOIN nova.fixed_ips f ON i.uuid = f.instance_uuid "
             "JOIN nova.floating_ips n ON f.id = n.fixed_ip_id "
-            "WHERE i.vm_state = 'active' AND i.project_id IS NOT NULL")
+            "WHERE i.deleted = 0 AND i.project_id IS NOT NULL")
         servers = c.fetchall()
 
         rc = []
