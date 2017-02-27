@@ -399,14 +399,6 @@ def openstack_json_to_hash(input)
   }
 end
 
-def join_aggregate_action
-  node['bcpc']['in_maintenance'] ? :depart : :member
-end
-
-def maintenance_action
-  node['bcpc']['in_maintenance'] ? :member : :depart
-end
-
 def generate_service_catalog_uri(svcprops, access_level)
   "#{node['bcpc']['protocol'][svcprops['project']]}://openstack.#{node['bcpc']['cluster_domain']}:#{svcprops['ports'][access_level]}/#{svcprops['uris'][access_level]}"
 end
