@@ -12,9 +12,6 @@
 #qpid_username=admin
 #qpid_password=<%=get_config('rabbitmq-password')%>
 
-# memcached settings
-memcached_servers=<%=@servers.map{|x| x['bcpc']['management']['ip'] + ":11211"}.join(",")%>
-
 # Nova API settings
 auth_strategy=keystone
 api_paste_config=/etc/nova/api-paste.ini
@@ -30,20 +27,13 @@ metadata_host=169.254.169.254
 metadata_workers=<%=node['bcpc']['nova']['workers']%>
 dmz_cidr=169.254.169.254/32
 <% if @servers.include?(node) -%>
-enabled_apis=ec2,osapi_compute,metadata
+enabled_apis=osapi_compute,metadata
 <% else -%>
 enabled_apis=metadata
 <% end %>
 <% if not node["bcpc"]["vendordata_driver"].nil? %>
 vendordata_driver = <%=node["bcpc"]["vendordata_driver"] %>
 <% end %>
-
-# EC2 compatibility API settings
-ec2_listen = <%= node['bcpc']['management']['ip'] %>
-ec2_host = <%= node['bcpc']['management']['vip'] %>
-ec2_workers = <%= node['bcpc']['nova']['workers'] %>
-ec2_private_dns_show_ip = True
-keystone_ec2_url = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:<%= node['bcpc']['catalog']['identity']['ports']['public'] %>/<%= node['bcpc']['catalog']['identity']['uris']['public'] %>/ec2tokens
 
 <% if node['bcpc']['nova']['notifications']['enabled'] %>
 # Nova notification settings
@@ -84,10 +74,9 @@ use_project_ca=True
 cnt_vpn_clients=5
 
 # Misc other settings
-logdir=/var/log/nova
+log-dir=/var/log/nova
 state_path=/var/lib/nova
 rootwrap_config=/etc/nova/rootwrap.conf
-verbose=<%= node['bcpc']['nova']['verbose'] %>
 debug=<%= node['bcpc']['nova']['debug'] %>
 <% if not node['bcpc']['nova']['default_log_levels'].nil? %>
 default_log_levels="<%= node['bcpc']['nova']['default_log_levels'] %>"
@@ -161,6 +150,7 @@ enabled=True
 ssl_only=false
 key=/etc/nova/ssl-bcpc.key
 cert=/etc/nova/ssl-bcpc.pem
+novncproxy_host=<%=node['bcpc']['management']['ip']%>
 <% if node['bcpc']['vnc']['proxy_use_vip'] %>
 novncproxy_base_url=https://<%=node['bcpc']['management']['vip']%>:6080/vnc_auto.html
 <% else %>
@@ -199,13 +189,10 @@ idle_timeout=3600
 
 # Keystone settings
 [keystone_authtoken]
-# cafile = /etc/ssl/certs/ssl-bcpc.pem
-auth_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:5000/<%= node['bcpc']['catalog']['identity']['uris']['internal'] %>/
-identity_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:35357
-auth_version = <%= node['bcpc']['catalog']['identity']['uris']['internal'] %>
-admin_tenant_name = <%=node['bcpc']['admin_tenant']%>
-admin_user = <%=get_config('keystone-admin-user')%>
-admin_password = <%=get_config('keystone-admin-password')%>
+<% snippet = 'keystone/keystone_authtoken.snippet.erb' %>
+<%# add the node for chef nonsense... see https://github.com/chef/chef/issues/1506 %>
+<% vars = @partials[snippet]['variables'].merge({node: @node}) %>
+<%= render snippet, :variables => vars %>
 signing_dir = /var/lib/nova
 memcached_servers=<%=@servers.map{|x| x['bcpc']['management']['ip'] + ":11211"}.join(",")%>
 memcache_pool_conn_get_timeout=1

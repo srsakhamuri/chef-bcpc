@@ -32,6 +32,7 @@ ruby_block "initialize-nova-config" do
         make_config('mysql-nova-password', secure_password)
         make_config('mysql-nova-api-user', "nova_api")
         make_config('mysql-nova-api-password', secure_password)
+        make_config('keystone-nova-password', secure_password)
         make_config('glance-cloudpipe-uuid', %x[uuidgen -r].strip)
     end
 end
@@ -45,17 +46,25 @@ package "qemu-system-common" do
 end
 
 template "/etc/nova/nova.conf" do
-    source "nova.conf.erb"
+    source "nova/nova.conf.erb"
     owner "nova"
     group "nova"
-    mode 00600
+    mode "0600"
     variables(
       lazy {
         {
+          :servers => get_head_nodes,
           :dns_servers => node['bcpc']['dns_servers'],
           :fixed_reverse_zone => \
             calc_reverse_dns_zone(node['bcpc']['fixed']['cidr']).first,
-          :servers => get_head_nodes
+          :partials => {
+            "keystone/keystone_authtoken.snippet.erb" => {
+              "variables" => {
+                username: node['bcpc']['nova']['user'],
+                password: get_config('keystone-nova-password')
+              }
+            }
+          }
         }
       }
     )
