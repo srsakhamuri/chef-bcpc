@@ -33,3 +33,10 @@ node['bcpc']['flavors'].each do |name, flavor|
     extra_specs flavor["extra_specs"]
   end
 end
+
+# delete default OpenStack flavors (superseded by generic1 class)
+%w(m1.tiny m1.small m1.medium m1.large m1.xlarge).each do |flavor|
+  bcpc_osflavor flavor do
+    action :delete
+  end
+end
