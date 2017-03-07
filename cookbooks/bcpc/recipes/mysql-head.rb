@@ -118,20 +118,26 @@ template '/root/.my.cnf' do
   )
 end
 
-vifs_cleanup_script = '/usr/local/bin/vifs_cleanup.sh'
-cookbook_file vifs_cleanup_script do
-  source 'vifs_cleanup.sh'
+
+# vifs-cleanup cron job removed (replaced by db_cleanup below)
+cron 'vifs-cleanup-daily' do
+  action :delete
+end
+
+db_cleanup_script = '/usr/local/bin/db_cleanup.sh'
+cookbook_file db_cleanup_script do
+  source 'db_cleanup.sh'
   mode   '00755'
   owner  'root'
   group  'root'
 end
 
-cron 'vifs-cleanup-daily' do
+cron 'db-cleanup-daily' do
   home    '/root'
   user    'root'
   minute  '0'
   hour    '3'
-  command "/usr/local/bin/if_vip #{vifs_cleanup_script}"
+  command "/usr/local/bin/if_vip #{db_cleanup_script}"
 end
 
 template '/usr/local/bin/mysql_slow_query_check.sh' do
