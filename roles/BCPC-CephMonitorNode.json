@@ -6,6 +6,7 @@
   "name": "BCPC-CephMonitorNode",
   "run_list": [
     "role[BCPC-Base]",
-    "recipe[bcpc::ceph-head]"
+    "recipe[bcpc::ceph-head]",
+    "recipe[bcpc::tpm]"
   ]
 }
