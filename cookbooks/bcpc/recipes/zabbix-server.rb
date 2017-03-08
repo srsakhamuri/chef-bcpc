@@ -227,6 +227,18 @@ if node['bcpc']['enabled']['monitoring'] then
       end
     end
 
+    bcpc_zbx_autoreg 'BCPC-CephOSDNode' do
+      action :create
+      template ['Template App Ceph Node', 'Template OS Linux-active']
+      hostgroup ['BCPC-CephOSDNode']
+    end
+
+    bcpc_zbx_autoreg 'BCPC-CephMonitorNode' do
+      action :create
+      template ['Template App Ceph Mon', 'Template OS Linux-active']
+      hostgroup ['BCPC-CephMonitorNode']
+    end
+
     bcpc_zbx_autoreg 'BCPC-DisklessWorknode' do
       action :create
       template ['BCPC-Worknode']
