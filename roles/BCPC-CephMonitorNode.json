@@ -7,6 +7,9 @@
   "run_list": [
     "role[BCPC-Base]",
     "recipe[bcpc::ceph-head]",
-    "recipe[bcpc::tpm]"
+    "recipe[bcpc::tpm]",
+    "recipe[bcpc::diamond]",
+    "recipe[bcpc::fluentd]",
+    "recipe[bcpc::zabbix-agent]"
   ]
 }
