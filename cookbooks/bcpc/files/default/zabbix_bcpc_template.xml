@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2016-10-13T19:17:01Z</date>
+    <date>2017-03-09T22:02:59Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -20,6 +20,9 @@
             <applications>
                 <application>
                     <name>Chef</name>
+                </application>
+                <application>
+                    <name>Processes</name>
                 </application>
             </applications>
             <items>
@@ -162,53 +165,13 @@
                     <name>MySQL</name>
                 </application>
                 <application>
+                    <name>Network interfaces</name>
+                </application>
+                <application>
                     <name>RabbitMQ</name>
                 </application>
             </applications>
             <items>
-                <item>
-                    <name>VIP Holder</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <multiplier>0</multiplier>
-                    <snmp_oid/>
-                    <key>net.vip_holder</key>
-                    <delay>90</delay>
-                    <history>3</history>
-                    <trends>3</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <delta>0</delta>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <formula>1</formula>
-                    <delay_flex/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <data_type>3</data_type>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>Check if host is VIP holder</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Network interfaces</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                </item>
                 <item>
                     <name>Ceph Health</name>
                     <type>0</type>
@@ -2266,6 +2229,49 @@
                     <valuemap/>
                     <logtimefmt/>
                 </item>
+                <item>
+                    <name>VIP Holder</name>
+                    <type>0</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>net.vip_holder</key>
+                    <delay>90</delay>
+                    <history>3</history>
+                    <trends>3</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>3</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description>Check if host is VIP holder</description>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Network interfaces</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
             </items>
             <discovery_rules/>
             <macros/>
@@ -2348,6 +2354,49 @@
                     <privatekey/>
                     <port/>
                     <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Ceph</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>Ceph Leader</name>
+                    <type>0</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>ceph.leader</key>
+                    <delay>90</delay>
+                    <history>3</history>
+                    <trends>3</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>3</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description>True if host is Ceph monitor leader</description>
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
@@ -3055,7 +3104,17 @@
                     <name>Templates</name>
                 </group>
             </groups>
-            <applications/>
+            <applications>
+                <application>
+                    <name>Network interfaces</name>
+                </application>
+                <application>
+                    <name>Performance</name>
+                </application>
+                <application>
+                    <name>Processes</name>
+                </application>
+            </applications>
             <items>
                 <item>
                     <name>IP Route: MGMT</name>
@@ -4156,16 +4215,6 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template App Ceph Mon:ceph.total.percent.last(0)}&gt;80</expression>
-            <name>Ceph Full</name>
-            <url/>
-            <status>0</status>
-            <priority>4</priority>
-            <description>Ceph File system in getting full</description>
-            <type>0</type>
-            <dependencies/>
-        </trigger>
-        <trigger>
             <expression>{BCPC-Headnode:ceph.total.percent.last(0)}&gt;80</expression>
             <name>Ceph Full</name>
             <url/>
@@ -4176,12 +4225,12 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template App Ceph Mon:ceph.health.str(HEALTH_ERROR,#1)}=1</expression>
-            <name>Ceph Health Error</name>
+            <expression>{Template App Ceph Mon:ceph.total.percent.last(0)}&gt;80</expression>
+            <name>Ceph Full</name>
             <url/>
             <status>0</status>
             <priority>4</priority>
-            <description>Ceph Reporting health issues</description>
+            <description>Ceph File system in getting full</description>
             <type>0</type>
             <dependencies/>
         </trigger>
@@ -4196,7 +4245,17 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template App Ceph Mon:ceph.health.str(HEALTH_WARN,#1)}=1</expression>
+            <expression>{Template App Ceph Mon:ceph.health.str(HEALTH_ERR,#1)}=1</expression>
+            <name>Ceph Health Error</name>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description>Ceph Reporting health issues</description>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
+            <expression>{Template App Ceph Mon:ceph.leader.last()}=1 and {Template App Ceph Mon:ceph.health.str(HEALTH_WARN_non_blocked,#1)}=1</expression>
             <name>Ceph Health Warn</name>
             <url/>
             <status>0</status>
@@ -4208,6 +4267,16 @@
         <trigger>
             <expression>{BCPC-Headnode:net.vip_holder.last()}=1 and {BCPC-Headnode:ceph.health.str(HEALTH_WARN_non_blocked,#1)}=1</expression>
             <name>Ceph Health Warn</name>
+            <url/>
+            <status>0</status>
+            <priority>2</priority>
+            <description>Ceph Reporting health issues</description>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
+            <expression>{Template App Ceph Mon:ceph.leader.last()}=1 and {Template App Ceph Mon:ceph.health.str(HEALTH_WARN_blocked,#1)}=1</expression>
+            <name>Ceph Health Warn - Blocked Ops</name>
             <url/>
             <status>0</status>
             <priority>2</priority>
@@ -4236,22 +4305,22 @@
             <dependencies/>
         </trigger>
         <trigger>
-            <expression>{Template App Ephemeral Node:ephemeral.health.sum(#3)}&gt;30</expression>
-            <name>Ephemeral disk high latency</name>
-            <url/>
-            <status>0</status>
-            <priority>3</priority>
-            <description>Ephemeral disk high latency detected</description>
-            <type>0</type>
-            <dependencies/>
-        </trigger>
-        <trigger>
             <expression>{Template App Ephemeral Node:ephemeral.health.sum(#3)}&lt;-1 or {Template App Ephemeral Node:ephemeral.health.nodata(300)}=1</expression>
             <name>Ephemeral disk failure</name>
             <url/>
             <status>0</status>
             <priority>3</priority>
             <description>Ephemeral disk failure detected</description>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
+            <expression>{Template App Ephemeral Node:ephemeral.health.sum(#3)}&gt;30</expression>
+            <name>Ephemeral disk high latency</name>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description>Ephemeral disk high latency detected</description>
             <type>0</type>
             <dependencies/>
         </trigger>

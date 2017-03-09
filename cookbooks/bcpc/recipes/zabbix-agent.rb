@@ -76,6 +76,17 @@ if node['bcpc']['enabled']['monitoring'] then
         notifies :restart, "service[zabbix-agent]", :immediately
     end
 
+    template '/etc/zabbix/zabbix_agentd.d/userparameter_ceph.conf' do
+        source 'zabbix_agentd_userparameters_ceph.conf.erb'
+        owner node['bcpc']['zabbix']['user']
+        group 'root'
+        mode 00600
+        only_if do
+          search_nodes('role', 'BCPC-CephMonitorNode').include?(node)
+        end
+        notifies :restart, 'service[zabbix-agent]', :delayed
+    end
+
     # Deprecated by cron-invoked check
     file '/etc/zabbix/zabbix_agentd.d/userparameter_ephemeral.conf' do
       action :delete
