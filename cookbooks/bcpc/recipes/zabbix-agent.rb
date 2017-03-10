@@ -121,18 +121,13 @@ if node['bcpc']['enabled']['monitoring'] then
         action :install
     end
 
-    template "/usr/local/bin/zabbix_bucket_stats" do
-        source "zabbix_bucket_stats.erb"
-        owner "root"
-        group "root"
-        mode "00755"
+    file "/usr/local/bin/zabbix_bucket_stats" do
+        action :delete
         only_if do get_cached_head_node_names.include?(node['hostname']) end
     end
 
-    cookbook_file "/usr/local/bin/zabbix_discover_buckets" do
-        source "zabbix_discover_buckets"
-        owner "root"
-        mode "00755"
+    file "/usr/local/bin/zabbix_discover_buckets" do
+        action :delete
         only_if do get_cached_head_node_names.include?(node['hostname']) end
     end
 
