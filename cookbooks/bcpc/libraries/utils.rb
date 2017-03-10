@@ -181,7 +181,7 @@ def get_ceph_osd_nodes
         'roles' => ['roles']
       }
     }
-    results = search(:node, "roles:BCPC-CephOSDNode AND chef_environment:#{node.chef_environment}", filter)
+    results = search(:node, "roles:BCPC-CephOSD AND chef_environment:#{node.chef_environment}", filter)
     if results.any? { |x| x['hostname'] == node['hostname'] }
         results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     else
@@ -200,7 +200,7 @@ def get_ceph_mon_nodes
         'roles' => ['roles']
       }
     }
-    results = search(:node, "roles:BCPC-CephMonitorNode AND chef_environment:#{node.chef_environment}", filter)
+    results = search(:node, "roles:BCPC-CephMonitor AND chef_environment:#{node.chef_environment}", filter)
     if results.any? { |x| x['hostname'] == node['hostname'] }
         results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     else

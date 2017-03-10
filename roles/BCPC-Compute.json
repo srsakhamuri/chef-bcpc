@@ -3,7 +3,7 @@
     "json_class": "Chef::Role",
     "run_list": [
       "role[BCPC-Base]",
-      "role[BCPC-CephOSDNode]",
+      "role[BCPC-CephOSD]",
       "recipe[bcpc::nova-work]",
       "role[BCPC-Rgwnode]",
       "recipe[bcpc::diamond]",

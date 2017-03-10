@@ -5,7 +5,7 @@
   "name": "BCPC-CephOSDNode",
   "run_list": [
     "role[BCPC-Base]",
-    "recipe[bcpc::ceph-osd]",
+    "role[BCPC-CephOSD]",
     "recipe[bcpc::tpm]",
     "recipe[bcpc::diamond]",
     "recipe[bcpc::fluentd]",
