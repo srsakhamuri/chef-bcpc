@@ -85,6 +85,15 @@ template '/etc/ceph/ceph.conf' do
     )
 end
 
+# Intentionally does not trigger restart/reload of Ceph daemons. This is left
+# to operator to manage.
+template '/etc/default/ceph' do
+  source 'ceph-default.erb'
+  owner 'root'
+  group 'root'
+  mode 0644
+end
+
 directory "/var/run/ceph/" do
   owner "root"
   group "root"
