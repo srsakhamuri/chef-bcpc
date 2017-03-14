@@ -65,23 +65,27 @@ template "/etc/mysql/conf.d/wsrep.cnf" do
     source "wsrep.cnf.erb"
     mode 00644
     variables(
-        :max_connections => node['bcpc']['mysql-head']['max_connections'],
-        :servers => get_head_nodes,
-        :wsrep_cluster_name => node['bcpc']['region_name'],
-        :wsrep_port => 4567,
-        :galera_user_key => "mysql-galera-user",
-        :galera_pass_key => "mysql-galera-password",
-        :innodb_buffer_pool_size => node['bcpc']['mysql-head']['innodb_buffer_pool_size'],
-        :innodb_buffer_pool_instances => node['bcpc']['mysql-head']['innodb_buffer_pool_instances'],
-        :thread_cache_size => node['bcpc']['mysql-head']['thread_cache_size'],
-        :innodb_io_capacity => node['bcpc']['mysql-head']['innodb_io_capacity'],
-        :innodb_log_buffer_size => node['bcpc']['mysql-head']['innodb_log_buffer_size'],
-        :innodb_flush_method => node['bcpc']['mysql-head']['innodb_flush_method'],
-        :wsrep_slave_threads => node['bcpc']['mysql-head']['wsrep_slave_threads'],
-        :slow_query_log => node['bcpc']['mysql-head']['slow_query_log'],
-        :slow_query_log_file => node['bcpc']['mysql-head']['slow_query_log_file'],
-        :long_query_time => node['bcpc']['mysql-head']['long_query_time'],
-        :log_queries_not_using_indexes => node['bcpc']['mysql-head']['log_queries_not_using_indexes']
+      lazy {
+        {
+          :max_connections => node['bcpc']['mysql-head']['max_connections'],
+          :servers => get_head_nodes,
+          :wsrep_cluster_name => node['bcpc']['region_name'],
+          :wsrep_port => 4567,
+          :galera_user_key => "mysql-galera-user",
+          :galera_pass_key => "mysql-galera-password",
+          :innodb_buffer_pool_size => node['bcpc']['mysql-head']['innodb_buffer_pool_size'],
+          :innodb_buffer_pool_instances => node['bcpc']['mysql-head']['innodb_buffer_pool_instances'],
+          :thread_cache_size => node['bcpc']['mysql-head']['thread_cache_size'],
+          :innodb_io_capacity => node['bcpc']['mysql-head']['innodb_io_capacity'],
+          :innodb_log_buffer_size => node['bcpc']['mysql-head']['innodb_log_buffer_size'],
+          :innodb_flush_method => node['bcpc']['mysql-head']['innodb_flush_method'],
+          :wsrep_slave_threads => node['bcpc']['mysql-head']['wsrep_slave_threads'],
+          :slow_query_log => node['bcpc']['mysql-head']['slow_query_log'],
+          :slow_query_log_file => node['bcpc']['mysql-head']['slow_query_log_file'],
+          :long_query_time => node['bcpc']['mysql-head']['long_query_time'],
+          :log_queries_not_using_indexes => node['bcpc']['mysql-head']['log_queries_not_using_indexes']
+        }
+      }
     )
     notifies :restart, "service[mysql]", :immediately
 end

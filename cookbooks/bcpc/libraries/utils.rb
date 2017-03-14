@@ -163,11 +163,7 @@ def get_all_nodes
       }
     }
     results = search(:node, "recipes:bcpc AND chef_environment:#{node.chef_environment}", filter)
-    if results.any? { |x| x['hostname'] == node['hostname'] }
-        results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
-    else
-        results.push(node)
-    end
+    results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
 end
 
@@ -182,11 +178,7 @@ def get_ceph_osd_nodes
       }
     }
     results = search(:node, "roles:BCPC-CephOSD AND chef_environment:#{node.chef_environment}", filter)
-    if results.any? { |x| x['hostname'] == node['hostname'] }
-        results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
-    else
-        results.push(node)
-    end
+    results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
 end
 
@@ -201,11 +193,7 @@ def get_ceph_mon_nodes
       }
     }
     results = search(:node, "roles:BCPC-CephMonitor AND chef_environment:#{node.chef_environment}", filter)
-    if results.any? { |x| x['hostname'] == node['hostname'] }
-        results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
-    else
-        results.push(node)
-    end
+    results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
 end
 
@@ -225,6 +213,20 @@ def get_head_nodes
         results.push(node)
     end
     return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
+end
+
+def get_ceph_replica_count(pool)
+  replicas = [get_ceph_osd_nodes.length, node['bcpc']['ceph'][pool]['replicas']].min
+  replicas = 1 if replicas < 1
+  return replicas
+end
+
+def get_ceph_optimal_pg_count(pool)
+  power_of_2(
+    get_ceph_osd_nodes.length *
+    node['bcpc']['ceph']['pgs_per_node'] /
+    node['bcpc']['ceph'][pool]['replicas'] *
+    node['bcpc']['ceph'][pool]['portion'] / 100)
 end
 
 def get_bootstrap_node

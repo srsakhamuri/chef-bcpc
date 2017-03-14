@@ -61,23 +61,27 @@ template "/etc/mysql/conf.d/wsrep.cnf" do
     source "wsrep.cnf.erb"
     mode 00644
     variables(
-        :max_connections => [search_nodes("recipe", "mysql-monitoring").length*150, 200].max,
-        :servers => search_nodes("recipe", "mysql-monitoring"),
-        :wsrep_cluster_name => "#{node['bcpc']['region_name']}-Monitoring",
-        :wsrep_port => 4577,
-        :galera_user_key => "mysql-monitoring-galera-user",
-        :galera_pass_key => "mysql-monitoring-galera-password",
-        :innodb_buffer_pool_size => node['bcpc']['monitoring']['mysql']['innodb_buffer_pool_size'],
-        :innodb_buffer_pool_instances => node['bcpc']['monitoring']['mysql']['innodb_buffer_pool_instances'],
-        :thread_cache_size => node['bcpc']['monitoring']['mysql']['thread_cache_size'],
-        :innodb_io_capacity => node['bcpc']['monitoring']['mysql']['innodb_io_capacity'],
-        :innodb_log_buffer_size => node['bcpc']['monitoring']['mysql']['innodb_log_buffer_size'],
-        :innodb_flush_method => node['bcpc']['monitoring']['mysql']['innodb_flush_method'],
-        :wsrep_slave_threads => node['bcpc']['monitoring']['mysql']['wsrep_slave_threads'],
-        :slow_query_log => node['bcpc']['monitoring']['mysql']['slow_query_log'],
-        :slow_query_log_file => node['bcpc']['monitoring']['mysql']['slow_query_log_file'],
-        :long_query_time => node['bcpc']['monitoring']['mysql']['long_query_time'],
-        :log_queries_not_using_indexes => node['bcpc']['monitoring']['mysql']['log_queries_not_using_indexes']
+      lazy {
+        {
+          :max_connections => [search_nodes("recipe", "mysql-monitoring").length*150, 200].max,
+          :servers => search_nodes("recipe", "mysql-monitoring"),
+          :wsrep_cluster_name => "#{node['bcpc']['region_name']}-Monitoring",
+          :wsrep_port => 4577,
+          :galera_user_key => "mysql-monitoring-galera-user",
+          :galera_pass_key => "mysql-monitoring-galera-password",
+          :innodb_buffer_pool_size => node['bcpc']['monitoring']['mysql']['innodb_buffer_pool_size'],
+          :innodb_buffer_pool_instances => node['bcpc']['monitoring']['mysql']['innodb_buffer_pool_instances'],
+          :thread_cache_size => node['bcpc']['monitoring']['mysql']['thread_cache_size'],
+          :innodb_io_capacity => node['bcpc']['monitoring']['mysql']['innodb_io_capacity'],
+          :innodb_log_buffer_size => node['bcpc']['monitoring']['mysql']['innodb_log_buffer_size'],
+          :innodb_flush_method => node['bcpc']['monitoring']['mysql']['innodb_flush_method'],
+          :wsrep_slave_threads => node['bcpc']['monitoring']['mysql']['wsrep_slave_threads'],
+          :slow_query_log => node['bcpc']['monitoring']['mysql']['slow_query_log'],
+          :slow_query_log_file => node['bcpc']['monitoring']['mysql']['slow_query_log_file'],
+          :long_query_time => node['bcpc']['monitoring']['mysql']['long_query_time'],
+          :log_queries_not_using_indexes => node['bcpc']['monitoring']['mysql']['log_queries_not_using_indexes']
+        }
+      }
     )
     notifies :restart, "service[mysql]", :immediately
 end
@@ -103,7 +107,11 @@ template "/usr/local/etc/chk_mysql_quorum.sql" do
     owner "root"
     group "root"
     variables(
-        :min_quorum => search_nodes("recipe", "mysql-monitoring").length/2+1
+      lazy {
+        {
+          :min_quorum => search_nodes("recipe", "mysql-monitoring").length/2+1
+        }
+      }
     )
 end
 

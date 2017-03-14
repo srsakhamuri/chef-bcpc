@@ -83,6 +83,12 @@ end
         mode 0755
         owner "root"
         group "root"
-        variables(:servers => get_head_nodes)
+        variables(
+          lazy {
+            {
+              :servers => get_head_nodes
+            }
+          }
+        )
     end
 end

@@ -87,7 +87,13 @@ template "/etc/cinder/cinder.conf" do
     owner "cinder"
     group "cinder"
     mode 00600
-    variables(:servers => get_head_nodes)
+    variables(
+      lazy {
+        {
+          :servers => get_head_nodes
+        }
+      }
+    )
     notifies :restart, "service[cinder-api]", :immediately
     notifies :restart, "service[cinder-volume]", :immediately
     notifies :restart, "service[cinder-scheduler]", :immediately

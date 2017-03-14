@@ -65,8 +65,12 @@ if node['bcpc']['enabled']['logging'] then
         group "root"
         mode 00644
         variables(
-            :servers => search_nodes("recipe", "elasticsearch"),
-            :min_quorum => search_nodes("recipe", "elasticsearch").length/2 + 1
+          lazy {
+            {
+              :servers => search_nodes("recipe", "elasticsearch"),
+              :min_quorum => search_nodes("recipe", "elasticsearch").length/2 + 1
+            }
+          }
         )
         notifies :restart, "service[elasticsearch]", :immediately
     end
