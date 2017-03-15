@@ -58,13 +58,10 @@ if node['bcpc']['enabled']['monitoring'] then
         notifies :restart, "service[zabbix-agent]", :immediately
     end
 
-    template "/etc/zabbix/zabbix_agentd.d/zabbix-rgw.conf" do
-        source "zabbix_rgw.conf.erb"
-        owner node['bcpc']['zabbix']['user']
-        group "root"
-        mode 00600
-        only_if 'test -f /usr/bin/radosgw'
-        notifies :restart, "service[zabbix-agent]", :immediately
+    # Remove machine-level RGW check
+    file '/etc/zabbix/zabbix_agentd.d/zabbix-rgw.conf' do
+      action :delete
+      notifies :restart, 'service[zabbix-agent]', :delayed
     end
 
     template "/etc/zabbix/zabbix_agentd.d/userparameter_mysql.conf" do
@@ -74,6 +71,17 @@ if node['bcpc']['enabled']['monitoring'] then
         mode 00600
         only_if 'test -f /etc/mysql/debian.cnf'
         notifies :restart, "service[zabbix-agent]", :immediately
+    end
+
+    template '/etc/zabbix/zabbix_agentd.d/userparameter_ceph.conf' do
+        source 'zabbix_agentd_userparameters_ceph.conf.erb'
+        owner node['bcpc']['zabbix']['user']
+        group 'root'
+        mode 00600
+        only_if do
+          get_ceph_mon_nodes.include?(node)
+        end
+        notifies :restart, 'service[zabbix-agent]', :delayed
     end
 
     # Deprecated by cron-invoked check
@@ -110,18 +118,13 @@ if node['bcpc']['enabled']['monitoring'] then
         action :install
     end
 
-    template "/usr/local/bin/zabbix_bucket_stats" do
-        source "zabbix_bucket_stats.erb"
-        owner "root"
-        group "root"
-        mode "00755"
+    file "/usr/local/bin/zabbix_bucket_stats" do
+        action :delete
         only_if do get_cached_head_node_names.include?(node['hostname']) end
     end
 
-    cookbook_file "/usr/local/bin/zabbix_discover_buckets" do
-        source "zabbix_discover_buckets"
-        owner "root"
-        mode "00755"
+    file "/usr/local/bin/zabbix_discover_buckets" do
+        action :delete
         only_if do get_cached_head_node_names.include?(node['hostname']) end
     end
 

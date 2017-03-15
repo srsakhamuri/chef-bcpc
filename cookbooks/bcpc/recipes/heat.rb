@@ -49,7 +49,13 @@ if node['bcpc']['enabled']['heat']
       owner "heat"
       group "heat"
       mode 00600
-      variables(:servers => get_head_nodes)
+      variables(
+        lazy {
+          {
+            :servers => get_head_nodes
+          }
+        }
+      )
       notifies :restart, "service[heat-api]", :delayed
       notifies :restart, "service[heat-api-cfn]", :delayed
       notifies :restart, "service[heat-engine]", :delayed

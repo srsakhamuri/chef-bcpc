@@ -77,8 +77,12 @@ if node['bcpc']['enabled']['metrics']
     group 'root'
     mode 00644
     variables(
-      :servers => search_nodes('recipe', 'graphite'),
-      :replication_factor => node['bcpc']['graphite']['replication_factor']
+      lazy {
+        {
+          :servers => search_nodes('recipe', 'graphite'),
+          :replication_factor => node['bcpc']['graphite']['replication_factor']
+        }
+      }
     )
     notifies :restart, 'service[carbon-cache]', :delayed
     notifies :restart, 'service[carbon-relay]', :delayed
@@ -105,7 +109,13 @@ if node['bcpc']['enabled']['metrics']
     owner 'root'
     group 'root'
     mode 00644
-    variables(:servers => search_nodes('recipe', 'graphite'))
+    variables(
+      lazy {
+        {
+          :servers => search_nodes('recipe', 'graphite')
+        }
+      }
+    )
     notifies :restart, 'service[carbon-relay]', :delayed
   end
 
@@ -148,7 +158,13 @@ if node['bcpc']['enabled']['metrics']
     owner 'root'
     group 'root'
     mode 00644
-    variables(:servers => search_nodes('recipe', 'graphite'))
+    variables(
+      lazy {
+        {
+          :servers => search_nodes('recipe', 'graphite')
+        }
+      }
+    )
     notifies :restart, 'service[apache2]', :delayed
   end
 

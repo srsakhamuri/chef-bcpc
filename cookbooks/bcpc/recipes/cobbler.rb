@@ -62,7 +62,13 @@ node['bcpc']['cobbler']['kickstarts'].each do |kickstart|
   template "/var/lib/cobbler/kickstarts/#{kickstart}" do
     source "cobbler.#{kickstart}.erb"
     mode 00644
-    variables(:bootstrap_node => get_bootstrap_node)
+    variables(
+      lazy {
+        {
+          :bootstrap_node => get_bootstrap_node
+        }
+      }
+    )
   end
 end
 

@@ -120,7 +120,13 @@ template "/root/.ssh/known_hosts" do
     owner "root"
     group "root"
     mode 00644
-    variables(:servers => get_all_nodes)
+    variables(
+      lazy {
+        {
+          :servers => get_all_nodes
+        }
+      }
+    )
 end
 
 template "/etc/ssl/certs/ssl-bcpc.pem" do
