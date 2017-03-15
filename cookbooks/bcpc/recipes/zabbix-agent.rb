@@ -79,7 +79,7 @@ if node['bcpc']['enabled']['monitoring'] then
         group 'root'
         mode 00600
         only_if do
-          search_nodes('role', 'BCPC-CephMonitorNode').include?(node)
+          get_ceph_mon_nodes.include?(node)
         end
         notifies :restart, 'service[zabbix-agent]', :delayed
     end
