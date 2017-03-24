@@ -5,26 +5,26 @@
 load_configs
 
 [ -n "$SHARED_PROXY_SETUP" ] || {
-  REQUIRED_VARS=( BOOTSTRAP_HTTP_PROXY BOOTSTRAP_HTTPS_PROXY )
+  REQUIRED_VARS=( BOOTSTRAP_HTTP_PROXY_URL BOOTSTRAP_HTTPS_PROXY_URL )
   check_for_envvars ${REQUIRED_VARS[@]}
 
   set -e
 
-  if [ ! -z "$BOOTSTRAP_HTTP_PROXY" ]; then
-    export http_proxy=http://${BOOTSTRAP_HTTP_PROXY}
+  if [ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]; then
+    export http_proxy=${BOOTSTRAP_HTTP_PROXY_URL}
 
     curl -s --connect-timeout 10 http://www.google.com > /dev/null && true
     if [[ $? != 0 ]]; then
-      echo "Error: proxy $BOOTSTRAP_HTTP_PROXY non-functional for HTTP requests" >&2
+      echo "Error: proxy $BOOTSTRAP_HTTP_PROXY_URL non-functional for HTTP requests" >&2
       exit 1
     fi
   fi
 
-  if [ ! -z "$BOOTSTRAP_HTTPS_PROXY" ]; then
-    export https_proxy=https://${BOOTSTRAP_HTTPS_PROXY}
+  if [ ! -z "$BOOTSTRAP_HTTPS_PROXY_URL" ]; then
+    export https_proxy=${BOOTSTRAP_HTTPS_PROXY_URL}
     curl -s --connect-timeout 10 https://github.com > /dev/null && true
     if [[ $? != 0 ]]; then
-      echo "Error: proxy $BOOTSTRAP_HTTPS_PROXY non-functional for HTTPS requests" >&2
+      echo "Error: proxy $BOOTSTRAP_HTTPS_PROXY_URL non-functional for HTTPS requests" >&2
       exit 1
     fi
   fi

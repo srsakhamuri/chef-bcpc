@@ -2,7 +2,7 @@
 # Exit immediately if anything goes wrong, instead of making things worse.
 set -e
 
-if [[ ! -z $BOOTSTRAP_HTTP_PROXY ]] || [[ ! -z $BOOTSTRAP_HTTPS_PROXY ]] ; then
+if [[ ! -z $BOOTSTRAP_HTTP_PROXY_URL ]] || [[ ! -z $BOOTSTRAP_HTTPS_PROXY_URL ]] ; then
   echo "Testing configured proxies..."
   source $REPO_ROOT/bootstrap/shared/shared_proxy_setup.sh
 fi
