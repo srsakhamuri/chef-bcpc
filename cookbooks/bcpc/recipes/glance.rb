@@ -151,7 +151,7 @@ end
 (node['bcpc']['ceph']['pgp_auto_adjust'] ? %w{pg_num pgp_num} : %w{pg_num}).each do |pg|
   ruby_block "set-glance-rados-pool-#{pg}" do
     block do
-      %x(ceph osd pool set #{node['bcpc']['ceph']['images']['name']} #{pg} #{get_ceph_optimal_pg_count('images')}")
+      %x(ceph osd pool set #{node['bcpc']['ceph']['images']['name']} #{pg} #{get_ceph_optimal_pg_count('images')})
     end
     only_if { %x[ceph osd pool get #{node['bcpc']['ceph']['images']['name']} #{pg} | awk '{print $2}'].to_i < get_ceph_optimal_pg_count('images') }
     notifies :run, "bash[wait-for-pgs-creating]", :immediately
