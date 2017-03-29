@@ -7,6 +7,7 @@ Asks openstack about all the running instances that currently have floats
 then creates a CNAME record to point to the public-X.X.X.X username
 
 """
+import json
 import keystoneclient
 from keystoneclient import exceptions as kc_exceptions
 import MySQLdb as mdb
@@ -83,25 +84,33 @@ class dns_popper(object):
             sname = make_rfc1123_compliant(server[1])
             address = server[3]
 
+            float_name = ("public-" + str(address).replace(".", "-") + "." +
+                 self.config["domain"])
             dnsname = str(
                 ("%s.%s.%s" % (sname,  pname, self.config["domain"])).lower())
-            rc.append(
-                (dnsname,
-                 "CNAME",
-                 "public-" + str(address).replace(".", "-") + "." +
-                 self.config["domain"])
-                )
+            rc.append((dnsname, "CNAME", float_name))
+            project_info = {
+                'uuid': server[0],
+                'project': {
+                    'name': project.name[:40],
+                    'description': project.description[:40]
+                }
+            }
+            # PowerDNS requires \ and " to be escaped in TXT records
+            project_info_str = json.dumps(project_info)
+            project_info_str = project_info_str.replace('"', r'\"')
+            rc.append((float_name, "TXT", project_info_str))
 
         return rc
 
     def get_records_from_db(self):
         c = self.db_con.cursor()
         c.execute(
-            "SELECT name, content FROM records WHERE type='CNAME' "
-            "AND bcpc_record_type='DYNAMIC' AND content LIKE 'public-%';")
+            "SELECT name, type, content FROM records WHERE type IN "
+            "('CNAME', 'TXT') AND bcpc_record_type='DYNAMIC'")
         rows = []
         for row in c.fetchall():
-            rows.append((row[0], "CNAME", row[1]))
+            rows.append((row[0], row[1], row[2]))
         return rows
 
     def update_db(self, db_rows, nova_rows):
@@ -113,7 +122,7 @@ class dns_popper(object):
         try:
             if to_delete:
                 syslog.syslog(
-                    syslog.LOG_NOTICE, "Deleting %d CNAMEs from pdns" %
+                    syslog.LOG_NOTICE, "Deleting %d records from pdns" %
                     len(to_delete))
                 c.executemany(
                     "DELETE FROM records WHERE name=%s AND type=%s "
@@ -133,10 +142,12 @@ class dns_popper(object):
                       rec[2]) for rec in to_add])
             self.db_con.commit()
         except mdb.Error, e:
-            self.db_cnn.rollback()
-            syslog.syslog(
-                syslog.LOG_ERROR,
-                "DB changes failed: %d: %s" % (e.args[0], e.args[1]))
+            self.db_con.rollback()
+            msg = "DB changes failed: %d: %s" % (e.args[0], e.args[1])
+            syslog.syslog(syslog.LOG_ERR, msg)
+            sys.stderr.write(msg + "\n")
+            sys.stderr.flush()
+            sys.exit(1)
 
     def update_zone(self):
         try:
@@ -219,7 +230,6 @@ def c_run(args):
 
 
 def c_dump(args):
-    import json
     config = c_load_config(args.config)
     dnsp = dns_popper(config)
     nrec = dnsp.generate_records_from_vms()
