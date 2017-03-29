@@ -32,17 +32,32 @@ bcpc_host_aggregate availability_zone do
 end
 
 # join/leave compute aggregates and AZ depending on maintenance flag
-node['bcpc']['aggregate_membership'].each do |name|
-  bcpc_host_aggregate name do
-    action join_aggregate_action
+if node['bcpc']['in_maintenance']
+  node['bcpc']['aggregate_membership'].each do |name|
+    bcpc_host_aggregate name do
+      action :depart
+    end
   end
-end
 
-bcpc_host_aggregate availability_zone do
-  action join_aggregate_action
-end
+  bcpc_host_aggregate availability_zone do
+    action :depart
+  end
 
-# join/leave maintenance aggregate if maintenance flag is se
-bcpc_host_aggregate 'maintenance' do
-  action maintenance_action
+  bcpc_host_aggregate 'maintenance' do
+    action :member
+  end
+else
+  bcpc_host_aggregate 'maintenance' do
+    action :depart
+  end
+
+  bcpc_host_aggregate availability_zone do
+    action :member
+  end
+
+  node['bcpc']['aggregate_membership'].each do |name|
+    bcpc_host_aggregate name do
+      action :member
+    end
+  end
 end
