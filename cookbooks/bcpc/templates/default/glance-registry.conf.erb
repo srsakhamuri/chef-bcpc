@@ -128,7 +128,7 @@ connection = mysql://<%=get_config('mysql-glance-user')%>:<%=get_config('mysql-g
 # (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_pool_size
 # Deprecated group/name - [DATABASE]/sql_max_pool_size
-#max_pool_size = <None>
+max_pool_size=<%= node['bcpc']['glance']['database']['max_pool_size'] %>
 
 # Maximum db connection retries during startup. (setting -1
 # implies an infinite retry count) (integer value)
@@ -146,7 +146,7 @@ connection = mysql://<%=get_config('mysql-glance-user')%>:<%=get_config('mysql-g
 # (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_overflow
 # Deprecated group/name - [DATABASE]/sqlalchemy_max_overflow
-#max_overflow = <None>
+max_overflow=<%= node['bcpc']['glance']['database']['max_overflow'] %>
 
 # Verbosity of SQL debugging information. 0=None,
 # 100=Everything (integer value)
