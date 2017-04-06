@@ -135,14 +135,14 @@ driver = <%= node['bcpc']['keystone']['drivers']['credential'] %>
 #sqlite_synchronous = true
 #backend = sqlalchemy
 connection = mysql://<%=get_config('mysql-keystone-user')%>:<%=get_config('mysql-keystone-password')%>@<%=@node["bcpc"]["management"]["vip"]%>/<%=@node['bcpc']['dbname']['keystone']%>
+max_overflow=<%= node['bcpc']['keystone']['database']['max_overflow'] %>
+max_pool_size=<%= node['bcpc']['keystone']['database']['max_pool_size'] %>
 #slave_connection = <None>
 #mysql_sql_mode = TRADITIONAL
 #idle_timeout = 3600
 #min_pool_size = 1
-#max_pool_size = <None>
 #max_retries = 10
 #retry_interval = 10
-#max_overflow = <None>
 #connection_debug = 0
 #connection_trace = false
 #pool_timeout = <None>
