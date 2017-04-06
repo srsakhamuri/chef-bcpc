@@ -49,7 +49,13 @@ template "/etc/glance/glance-api.conf" do
     owner "glance"
     group "glance"
     mode 00600
-    variables(:servers => get_head_nodes)
+    variables(
+      lazy {
+        {
+          :servers => get_head_nodes
+        }
+      }
+    )
     notifies :restart, "service[glance-api]", :delayed
     notifies :restart, "service[glance-registry]", :delayed
 end
@@ -122,36 +128,34 @@ end
 # Note, glance connects to ceph using client.glance, but we have already generated
 # the key for that in ceph-head.rb, so by now we should have it in /etc/ceph/ceph.client.glance.key
 
-bash "create-glance-rados-pool" do
-    user "root"
-    optimal = power_of_2(get_ceph_osd_nodes.length*node['bcpc']['ceph']['pgs_per_node']/node['bcpc']['ceph']['images']['replicas']*node['bcpc']['ceph']['images']['portion']/100)
-    code <<-EOH
-        ceph osd pool create #{node['bcpc']['ceph']['images']['name']} #{optimal}
-        ceph osd pool set #{node['bcpc']['ceph']['images']['name']} crush_ruleset #{(node['bcpc']['ceph']['images']['type']=="ssd") ? node['bcpc']['ceph']['ssd']['ruleset'] : node['bcpc']['ceph']['hdd']['ruleset']}
-    EOH
-    not_if "rados lspools | grep #{node['bcpc']['ceph']['images']['name']}"
-    notifies :run, "bash[wait-for-pgs-creating]", :immediately
+ruby_block "create-glance-rados-pool" do
+  block do
+    crush_ruleset = (node['bcpc']['ceph']['images']['type'] == "ssd") ? node['bcpc']['ceph']['ssd']['ruleset'] : node['bcpc']['ceph']['hdd']['ruleset']
+    %x(
+      ceph osd pool create #{node['bcpc']['ceph']['images']['name']} #{get_ceph_optimal_pg_count('images')};
+      ceph osd pool set #{node['bcpc']['ceph']['images']['name']} crush_ruleset #{crush_ruleset}
+    )
+  end
+  not_if "rados lspools | grep #{node['bcpc']['ceph']['images']['name']}"
+  notifies :run, "bash[wait-for-pgs-creating]", :immediately
 end
 
 
-bash "set-glance-rados-pool-replicas" do
-    user "root"
-    replicas = [search_nodes("recipe", "ceph-osd").length, node['bcpc']['ceph']['images']['replicas']].min
-    if replicas < 1; then
-        replicas = 1
-    end
-    code "ceph osd pool set #{node['bcpc']['ceph']['images']['name']} size #{replicas}"
-    not_if "ceph osd pool get #{node['bcpc']['ceph']['images']['name']} size | grep #{replicas}"
+ruby_block "set-glance-rados-pool-replicas" do
+  block do
+    %x(ceph osd pool set #{node['bcpc']['ceph']['images']['name']} size #{get_ceph_replica_count('images')})
+  end
+  not_if "ceph osd pool get #{node['bcpc']['ceph']['images']['name']} size | grep #{get_ceph_replica_count('images')}"
 end
 
 (node['bcpc']['ceph']['pgp_auto_adjust'] ? %w{pg_num pgp_num} : %w{pg_num}).each do |pg|
-    bash "set-glance-rados-pool-#{pg}" do
-        user "root"
-        optimal = power_of_2(get_ceph_osd_nodes.length*node['bcpc']['ceph']['pgs_per_node']/node['bcpc']['ceph']['images']['replicas']*node['bcpc']['ceph']['images']['portion']/100)
-        code "ceph osd pool set #{node['bcpc']['ceph']['images']['name']} #{pg} #{optimal}"
-        only_if { %x[ceph osd pool get #{node['bcpc']['ceph']['images']['name']} #{pg} | awk '{print $2}'].to_i < optimal }
-        notifies :run, "bash[wait-for-pgs-creating]", :immediately
+  ruby_block "set-glance-rados-pool-#{pg}" do
+    block do
+      %x(ceph osd pool set #{node['bcpc']['ceph']['images']['name']} #{pg} #{get_ceph_optimal_pg_count('images')})
     end
+    only_if { %x[ceph osd pool get #{node['bcpc']['ceph']['images']['name']} #{pg} | awk '{print $2}'].to_i < get_ceph_optimal_pg_count('images') }
+    notifies :run, "bash[wait-for-pgs-creating]", :immediately
+  end
 end
 
 cookbook_file "/tmp/cirros-0.3.4-x86_64-disk.img" do

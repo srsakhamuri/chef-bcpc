@@ -21,5 +21,11 @@ raise Chef::Application.fatal!("Chef reports reduced number of headnodes, see /e
 
 template "/etc/headnodes" do
     source "headnodes.erb"
-    variables(:servers => get_head_nodes)
+    variables(
+      lazy {
+        {
+          :servers => get_head_nodes
+        }
+      }
+    )
 end

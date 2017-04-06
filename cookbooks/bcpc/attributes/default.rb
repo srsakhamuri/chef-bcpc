@@ -628,6 +628,101 @@ default['bcpc']['flavors'] = {
       "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
       "aggregate_instance_extra_specs:general_compute" => "no",
     }
+  },
+  "generic2.small" => {
+    "vcpus" => 1,
+    "memory_mb" => 6144,
+    "disk_gb" => 50,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
+      "aggregate_instance_extra_specs:general_compute" => "yes",
+    }
+  },
+  "generic2.medium" => {
+    "vcpus" => 2,
+    "memory_mb" => 12288,
+    "disk_gb" => 100,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
+      "aggregate_instance_extra_specs:general_compute" => "yes",
+    }
+  },
+  "generic2.large" => {
+    "vcpus" => 4,
+    "memory_mb" => 24576,
+    "disk_gb" => 100,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
+      "aggregate_instance_extra_specs:general_compute" => "yes",
+    }
+  },
+  "generic2.xlarge" => {
+    "vcpus" => 8,
+    "memory_mb" => 49152,
+    "disk_gb" => 100,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
+      "aggregate_instance_extra_specs:general_compute" => "yes",
+    }
+  },
+  "generic2.2xlarge" => {
+    "vcpus" => 16,
+    "memory_mb" => 98304,
+    "disk_gb" => 100,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
+      "aggregate_instance_extra_specs:general_compute" => "yes",
+    }
+  },
+  "nondurable2.small" => {
+    "vcpus" => 1,
+    "memory_mb" => 6144,
+    "disk_gb" => 50,
+    "ephemeral_gb" => 50,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
+      "aggregate_instance_extra_specs:general_compute" => "no",
+    }
+  },
+  "nondurable2.medium" => {
+    "vcpus" => 2,
+    "memory_mb" => 12288,
+    "disk_gb" => 100,
+    "ephemeral_gb" => 100,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
+      "aggregate_instance_extra_specs:general_compute" => "no",
+    }
+  },
+  "nondurable2.large" => {
+    "vcpus" => 4,
+    "memory_mb" => 24576,
+    "disk_gb" => 100,
+    "ephemeral_gb" => 200,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
+      "aggregate_instance_extra_specs:general_compute" => "no",
+    }
+  },
+  "nondurable2.xlarge" => {
+    "vcpus" => 8,
+    "memory_mb" => 49152,
+    "disk_gb" => 100,
+    "ephemeral_gb" => 320,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
+      "aggregate_instance_extra_specs:general_compute" => "no",
+    }
+  },
+  "nondurable2.2xlarge" => {
+    "vcpus" => 16,
+    "memory_mb" => 98304,
+    "disk_gb" => 100,
+    "ephemeral_gb" => 320,
+    "extra_specs" => {
+      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
+      "aggregate_instance_extra_specs:general_compute" => "no",
+    }
   }
 }
 default['bcpc']['flavor_access'] = { }

@@ -287,20 +287,24 @@ if node['bcpc']['enabled']['dns'] then
     group "root"
     mode 00644
     # result of get_all_nodes is passed in here because Chef can't get context for running Chef::Search::Query#search inside the template generator
-    variables({
-      :all_servers         => get_all_nodes,
-      :float_cidr          => IPAddr.new(node['bcpc']['floating']['available_subnet']),
-      :database_name       => node['bcpc']['dbname']['pdns'],
-      :cluster_domain      => node['bcpc']['cluster_domain'],
-      :floating_vip        => node['bcpc']['floating']['vip'],
-      :management_vip      => node['bcpc']['management']['vip'],
-      :monitoring_vip      => node['bcpc']['monitoring']['vip'],
-      :reverse_fixed_zone  => reverse_fixed_zone,
-      :reverse_float_zone  => reverse_float_zone,
-      :management_zone     => management_zone,
-      :mgmt_octets         => mgmt_octets,
-      :float_octets        => float_octets
-    })
+    variables(
+      lazy {
+        {
+          :all_servers         => get_all_nodes,
+          :float_cidr          => IPAddr.new(node['bcpc']['floating']['available_subnet']),
+          :database_name       => node['bcpc']['dbname']['pdns'],
+          :cluster_domain      => node['bcpc']['cluster_domain'],
+          :floating_vip        => node['bcpc']['floating']['vip'],
+          :management_vip      => node['bcpc']['management']['vip'],
+          :monitoring_vip      => node['bcpc']['monitoring']['vip'],
+          :reverse_fixed_zone  => reverse_fixed_zone,
+          :reverse_float_zone  => reverse_float_zone,
+          :management_zone     => management_zone,
+          :mgmt_octets         => mgmt_octets,
+          :float_octets        => float_octets
+        }
+      }
+    )
     notifies :run, 'ruby_block[powerdns-load-float-records]', :immediately
   end
 

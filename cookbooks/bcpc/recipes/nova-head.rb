@@ -81,5 +81,13 @@ end
     end
 end
 
+cookbook_file '/usr/lib/python2.7/dist-packages/nova/scheduler/weights/bbweigher.py' do
+  source 'bbweigher.py'
+  mode   '00644'
+  owner  'root'
+  group  'root'
+  notifies :restart, "service[nova-scheduler]", :delayed
+end
+
 include_recipe "bcpc::nova-work"
 include_recipe "bcpc::nova-setup"

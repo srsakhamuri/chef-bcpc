@@ -221,10 +221,28 @@ if node['bcpc']['enabled']['monitoring'] then
         end
     end
 
-    %w( Bootstrap EphemeralWorknode Headnode Worknode ).each do |metadata|
+    %w( Bootstrap EphemeralWorknode Worknode ).each do |metadata|
       bcpc_zbx_autoreg "BCPC-#{metadata}" do
         action :create
       end
+    end
+
+    bcpc_zbx_autoreg 'BCPC-Headnode' do
+      action :create
+      template ['BCPC-Headnode', 'Template App Ceph Mon']
+      hostgroup ['BCPC-Headnode']
+    end
+
+    bcpc_zbx_autoreg 'BCPC-CephOSDNode' do
+      action :create
+      template ['Template App Ceph Node', 'Template OS Linux-active']
+      hostgroup ['BCPC-CephOSDNode']
+    end
+
+    bcpc_zbx_autoreg 'BCPC-CephMonitorNode' do
+      action :create
+      template ['Template App Ceph Mon', 'Template OS Linux-active']
+      hostgroup ['BCPC-CephMonitorNode']
     end
 
     bcpc_zbx_autoreg 'BCPC-DisklessWorknode' do

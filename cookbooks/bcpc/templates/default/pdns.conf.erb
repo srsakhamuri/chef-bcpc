@@ -8,7 +8,9 @@
 # allow-axfr-ips    If enabled, restrict zonetransfers to originate from these
 #                   IP addresses
 #
-# allow-axfr-ips=
+<% if not node['bcpc']['pdns']['allow-axfr-ips'].empty? %>
+allow-axfr-ips=<%= node['bcpc']['pdns']['allow-axfr-ips'].sort.join(',') %>
+<% end %>
 
 #################################
 # allow-recursion   List of netmasks that are allowed to recurse
@@ -135,6 +137,7 @@ local-port=53
 # master    Act as a master
 #
 # master=no
+master=yes
 
 #################################
 # max-queue-length  Maximum queuelength before considering situation lost

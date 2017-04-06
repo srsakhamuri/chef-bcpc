@@ -12,11 +12,11 @@ fqdn=$4
 bucket=$5
 s3_path=$6
 local_path=/tmp
-filename="$script-$(hostname -s)"
+filename="$script-$(hostname -s)-$fqdn"
 file_content="$(uuidgen) $date"
 content_type='application/x-compressed-tar'
 acl="x-amz-acl:private"
-curl_cmd='curl -q -f --max-time 15'
+curl_cmd='curl -q -f --max-time 10'
 [[ $proto == 'https' ]] && curl_cmd="$curl_cmd -k"
 
 function get_signature()

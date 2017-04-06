@@ -55,6 +55,9 @@ default['bcpc']['ceph']['mon_niceness'] = -10
 default['bcpc']['ceph']['allow_primary_affinity'] = true
 default['bcpc']['ceph']['set_headnode_affinity'] = true
 
+# set tcmalloc max total thread cache
+default['bcpc']['ceph']['tcmalloc_max_total_thread_cache_bytes'] = '128MB'
+
 # expected tunables when running ceph osd crush show-tunables
 # any deviation from these settings will stop the recipe from
 # reapplying optimal tunables

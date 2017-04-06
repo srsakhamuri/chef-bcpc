@@ -65,23 +65,27 @@ template "/etc/mysql/conf.d/wsrep.cnf" do
     source "wsrep.cnf.erb"
     mode 00644
     variables(
-        :max_connections => node['bcpc']['mysql-head']['max_connections'],
-        :servers => get_head_nodes,
-        :wsrep_cluster_name => node['bcpc']['region_name'],
-        :wsrep_port => 4567,
-        :galera_user_key => "mysql-galera-user",
-        :galera_pass_key => "mysql-galera-password",
-        :innodb_buffer_pool_size => node['bcpc']['mysql-head']['innodb_buffer_pool_size'],
-        :innodb_buffer_pool_instances => node['bcpc']['mysql-head']['innodb_buffer_pool_instances'],
-        :thread_cache_size => node['bcpc']['mysql-head']['thread_cache_size'],
-        :innodb_io_capacity => node['bcpc']['mysql-head']['innodb_io_capacity'],
-        :innodb_log_buffer_size => node['bcpc']['mysql-head']['innodb_log_buffer_size'],
-        :innodb_flush_method => node['bcpc']['mysql-head']['innodb_flush_method'],
-        :wsrep_slave_threads => node['bcpc']['mysql-head']['wsrep_slave_threads'],
-        :slow_query_log => node['bcpc']['mysql-head']['slow_query_log'],
-        :slow_query_log_file => node['bcpc']['mysql-head']['slow_query_log_file'],
-        :long_query_time => node['bcpc']['mysql-head']['long_query_time'],
-        :log_queries_not_using_indexes => node['bcpc']['mysql-head']['log_queries_not_using_indexes']
+      lazy {
+        {
+          :max_connections => node['bcpc']['mysql-head']['max_connections'],
+          :servers => get_head_nodes,
+          :wsrep_cluster_name => node['bcpc']['region_name'],
+          :wsrep_port => 4567,
+          :galera_user_key => "mysql-galera-user",
+          :galera_pass_key => "mysql-galera-password",
+          :innodb_buffer_pool_size => node['bcpc']['mysql-head']['innodb_buffer_pool_size'],
+          :innodb_buffer_pool_instances => node['bcpc']['mysql-head']['innodb_buffer_pool_instances'],
+          :thread_cache_size => node['bcpc']['mysql-head']['thread_cache_size'],
+          :innodb_io_capacity => node['bcpc']['mysql-head']['innodb_io_capacity'],
+          :innodb_log_buffer_size => node['bcpc']['mysql-head']['innodb_log_buffer_size'],
+          :innodb_flush_method => node['bcpc']['mysql-head']['innodb_flush_method'],
+          :wsrep_slave_threads => node['bcpc']['mysql-head']['wsrep_slave_threads'],
+          :slow_query_log => node['bcpc']['mysql-head']['slow_query_log'],
+          :slow_query_log_file => node['bcpc']['mysql-head']['slow_query_log_file'],
+          :long_query_time => node['bcpc']['mysql-head']['long_query_time'],
+          :log_queries_not_using_indexes => node['bcpc']['mysql-head']['log_queries_not_using_indexes']
+        }
+      }
     )
     notifies :restart, "service[mysql]", :immediately
 end
@@ -118,20 +122,26 @@ template '/root/.my.cnf' do
   )
 end
 
-vifs_cleanup_script = '/usr/local/bin/vifs_cleanup.sh'
-cookbook_file vifs_cleanup_script do
-  source 'vifs_cleanup.sh'
+
+# vifs-cleanup cron job removed (replaced by db_cleanup below)
+cron 'vifs-cleanup-daily' do
+  action :delete
+end
+
+db_cleanup_script = '/usr/local/bin/db_cleanup.sh'
+cookbook_file db_cleanup_script do
+  source 'db_cleanup.sh'
   mode   '00755'
   owner  'root'
   group  'root'
 end
 
-cron 'vifs-cleanup-daily' do
+cron 'db-cleanup-daily' do
   home    '/root'
   user    'root'
   minute  '0'
   hour    '3'
-  command "/usr/local/bin/if_vip #{vifs_cleanup_script}"
+  command "/usr/local/bin/if_vip #{db_cleanup_script}"
 end
 
 template '/usr/local/bin/mysql_slow_query_check.sh' do

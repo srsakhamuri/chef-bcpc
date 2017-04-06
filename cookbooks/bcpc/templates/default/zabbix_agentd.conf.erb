@@ -199,6 +199,12 @@ HostMetadata=BCPC-EphemeralWorknode
 HostMetadata=BCPC-Worknode
 <% elsif node['roles'].include? 'BCPC-Bootstrap' -%>
 HostMetadata=BCPC-Bootstrap
+<% elsif node['roles'].include? 'BCPC-DisklessWorknode' -%>
+HostMetadata=BCPC-DisklessWorknode
+<% elsif node['roles'].include? 'BCPC-CephOSDNode' -%>
+HostMetadata=BCPC-CephOSDNode
+<% elsif node['roles'].include? 'BCPC-CephMonitorNode' -%>
+HostMetadata=BCPC-CephMonitorNode
 <% else -%>
 HostMetadata=<%= node['roles'].sort.join(',') %>
 <% end -%>

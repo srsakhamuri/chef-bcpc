@@ -163,11 +163,7 @@ def get_all_nodes
       }
     }
     results = search(:node, "recipes:bcpc AND chef_environment:#{node.chef_environment}", filter)
-    if results.any? { |x| x['hostname'] == node['hostname'] }
-        results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
-    else
-        results.push(node)
-    end
+    results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
 end
 
@@ -181,12 +177,23 @@ def get_ceph_osd_nodes
         'roles' => ['roles']
       }
     }
-    results = search(:node, "recipes:bcpc\\:\\:ceph-osd AND chef_environment:#{node.chef_environment}", filter)
-    if results.any? { |x| x['hostname'] == node['hostname'] }
-        results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
-    else
-        results.push(node)
-    end
+    results = search(:node, "roles:BCPC-CephOSD AND chef_environment:#{node.chef_environment}", filter)
+    results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
+    return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
+end
+
+def get_ceph_mon_nodes
+    filter = {
+      :filter_result => {
+        'ipaddress' => ['ipaddress'],
+        'hostname' => ['hostname'],
+        'fqdn' => ['fqdn'],
+        'bcpc' => ['bcpc'],
+        'roles' => ['roles']
+      }
+    }
+    results = search(:node, "roles:BCPC-CephMonitor AND chef_environment:#{node.chef_environment}", filter)
+    results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
 end
 
@@ -200,12 +207,26 @@ def get_head_nodes
         'roles' => ['roles']
       }
     }
-    results = search(:node, "role:BCPC-Headnode AND chef_environment:#{node.chef_environment}", filter)
+    results = search(:node, "roles:BCPC-Headnode AND chef_environment:#{node.chef_environment}", filter)
     results.map! { |x| x['hostname'] == node['hostname'] ? node : x }
     if not results.include?(node) and node.run_list.roles.include?('BCPC-Headnode')
         results.push(node)
     end
     return results.sort! { |a, b| a['hostname'] <=> b['hostname'] }
+end
+
+def get_ceph_replica_count(pool)
+  replicas = [get_ceph_osd_nodes.length, node['bcpc']['ceph'][pool]['replicas']].min
+  replicas = 1 if replicas < 1
+  return replicas
+end
+
+def get_ceph_optimal_pg_count(pool)
+  power_of_2(
+    get_ceph_osd_nodes.length *
+    node['bcpc']['ceph']['pgs_per_node'] /
+    node['bcpc']['ceph'][pool]['replicas'] *
+    node['bcpc']['ceph'][pool]['portion'] / 100)
 end
 
 def get_bootstrap_node
@@ -376,14 +397,6 @@ def openstack_json_to_hash(input)
   }.reduce({}) {
     |target_hash, v| target_hash.merge(v)
   }
-end
-
-def join_aggregate_action
-  node['bcpc']['in_maintenance'] ? :depart : :member
-end
-
-def maintenance_action
-  node['bcpc']['in_maintenance'] ? :member : :depart
 end
 
 def generate_service_catalog_uri(svcprops, access_level)

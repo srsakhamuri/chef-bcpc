@@ -228,7 +228,13 @@ template "/etc/keystone/keystone.conf" do
     owner "keystone"
     group "keystone"
     mode 00600
-    variables(:servers => get_head_nodes)
+    variables(
+      lazy {
+        {
+          :servers => get_head_nodes
+        }
+      }
+    )
     notifies :restart, "service[apache2]", :immediately
 end
 
