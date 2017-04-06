@@ -52,8 +52,8 @@ export BOOTSTRAP_CHEF_ENV=Test-Laptop-Vagrant
 export BOOTSTRAP_CHEF_DO_CONVERGE=1
 
 # Set servers to be used as an HTTP/HTTPS proxy. Provide without scheme (no http/https).
-export BOOTSTRAP_HTTP_PROXY=
-export BOOTSTRAP_HTTPS_PROXY=
+export BOOTSTRAP_HTTP_PROXY_URL=
+export BOOTSTRAP_HTTPS_PROXY_URL=
 
 # Set a location on local disk which contains X509 certificates to add to the system
 # CA certificate store in each VM.

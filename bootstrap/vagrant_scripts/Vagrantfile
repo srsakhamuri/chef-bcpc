@@ -87,16 +87,19 @@ $proxy_configuration_script = <<-EOH
   sudo touch /etc/apt/apt.conf
   touch $HOME/proxy_config.sh
 EOH
-unless ENV['BOOTSTRAP_HTTP_PROXY'].nil? or ENV['BOOTSTRAP_HTTP_PROXY'].empty?
+# some ugliness for legacy configs
+BOOTSTRAP_HTTP_PROXY_URL = URI(ENV['BOOTSTRAP_HTTP_PROXY_URL'] || 'http://%s' % ENV['BOOTSTRAP_HTTP_PROXY'])
+BOOTSTRAP_HTTPS_PROXY_URL = URI(ENV['BOOTSTRAP_HTTPS_PROXY_URL'] || 'http://%s' % ENV['BOOTSTRAP_HTTPS_PROXY'])
+unless BOOTSTRAP_HTTP_PROXY_URL.host.nil?
   $proxy_configuration_script << <<-EOH
-    echo 'Acquire::http::Proxy "http://#{ENV['BOOTSTRAP_HTTP_PROXY']}";' | sudo tee -a /etc/apt/apt.conf
-    echo 'export http_proxy=#{ENV['BOOTSTRAP_HTTP_PROXY']}' | tee -a $HOME/proxy_config.sh
+    echo 'Acquire::http::Proxy "#{BOOTSTRAP_HTTP_PROXY_URL.to_s}";' | sudo tee -a /etc/apt/apt.conf
+    echo 'export http_proxy=#{BOOTSTRAP_HTTP_PROXY_URL.to_s}' | tee -a $HOME/proxy_config.sh
   EOH
 end
-unless ENV['BOOTSTRAP_HTTPS_PROXY'].nil? or ENV['BOOTSTRAP_HTTPS_PROXY'].empty?
+unless BOOTSTRAP_HTTPS_PROXY_URL.host.nil?
   $proxy_configuration_script << <<-EOH
-    echo 'Acquire::https::Proxy "https://#{ENV['BOOTSTRAP_HTTPS_PROXY']}";' | sudo tee -a /etc/apt/apt.conf
-    echo 'export https_proxy=#{ENV['BOOTSTRAP_HTTPS_PROXY']}' | tee -a $HOME/proxy_config.sh
+    echo 'Acquire::https::Proxy "#{BOOTSTRAP_HTTPS_PROXY_URL.to_s}";' | sudo tee -a /etc/apt/apt.conf
+    echo 'export https_proxy=#{BOOTSTRAP_HTTPS_PROXY_URL.to_s}' | tee -a $HOME/proxy_config.sh
   EOH
 end
 
