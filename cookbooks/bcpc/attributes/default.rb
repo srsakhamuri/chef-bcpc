@@ -323,6 +323,9 @@ default['bcpc']['nova']['max_concurrent_builds'] = 4
 # "workers" parameters in nova are set to number of CPUs
 # available by default. This provides an override.
 default['bcpc']['nova']['workers'] = 5
+# configure SQLAlchemy overflow/QueuePool sizes
+default['bcpc']['nova']['database']['max_overflow'] = 10
+default['bcpc']['nova']['database']['max_pool_size'] = 5
 # set soft/hard ulimits in upstart unit file for nova-compute
 # as number of OSDs in cluster increases, soft limit needs to increase to avoid
 # nova-compute deadlocks
