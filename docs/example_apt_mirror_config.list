@@ -80,3 +80,18 @@ clean http://ubuntu-cloud.archive.canonical.com/ubuntu
 deb http://repo.zabbix.com/zabbix/2.4/ubuntu trusty main
 deb-i386 http://repo.zabbix.com/zabbix/2.4/ubuntu trusty main
 clean http://repo.zabbix.com/zabbix/2.4/ubuntu
+
+# rally repository in BCPC
+deb http://ppa.launchpad.net/ubuntu-cloud-archive/mitaka-staging/ubuntu trusty main
+deb-i386 http://ppa.launchpad.net/ubuntu-cloud-archive/mitaka-staging/ubuntu trusty main
+clean http://ppa.launchpad.net/ubuntu-cloud-archive/mitaka-staging/ubuntu
+
+# calico
+deb http://ppa.launchpad.net/project-calico/felix-2.1-testing/ubuntu trusty main
+deb-i386 http://ppa.launchpad.net/project-calico/felix-2.1-testing/ubuntu trusty main
+clean http://ppa.launchpad.net/project-calico/felix-2.1-testing/ubuntu
+
+# bird
+deb http://ppa.launchpad.net/cz.nic-labs/bird/ubuntu trusty main
+deb-i386 http://ppa.launchpad.net/cz.nic-labs/bird/ubuntu trusty main
+clean http://ppa.launchpad.net/cz.nic-labs/bird/ubuntu
