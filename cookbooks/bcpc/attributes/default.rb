@@ -87,6 +87,9 @@ default['bcpc']['enabled']['swap'] = true
 default['bcpc']['enabled']['apport'] = true
 # Toggle to enable/disable Heat (OpenStack Cloud Formation)
 default['bcpc']['enabled']['heat'] = false
+# Toggle to switch between Neutron+Calico and nova-network
+# SET BEFORE BUILDING, CHANGING ON EXISTING CLUSTER WILL CAUSE DEVASTATION
+default['bcpc']['enabled']['neutron'] = false
 
 ###########################################
 #
@@ -197,6 +200,7 @@ default['bcpc']['dbname']['cinder'] = "cinder"
 default['bcpc']['dbname']['glance'] = "glance"
 default['bcpc']['dbname']['horizon'] = "horizon"
 default['bcpc']['dbname']['keystone'] = "keystone"
+default['bcpc']['dbname']['neutron'] = "neutron"
 default['bcpc']['dbname']['heat'] = "heat"
 default['bcpc']['dbname']['graphite'] = "graphite"
 default['bcpc']['dbname']['pdns'] = "pdns"
@@ -221,6 +225,7 @@ default['bcpc']['protocol']['keystone'] = "https"
 default['bcpc']['protocol']['glance'] = "https"
 default['bcpc']['protocol']['nova'] = "https"
 default['bcpc']['protocol']['cinder'] = "https"
+default['bcpc']['protocol']['neutron'] = "https"
 default['bcpc']['protocol']['heat'] = "https"
 
 ###########################################

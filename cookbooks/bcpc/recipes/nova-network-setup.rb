@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: bcpc
-# Recipe:: nova-setup
+# Recipe:: nova-network-setup
 #
 # Copyright 2013, Bloomberg Finance L.P.
 #
@@ -17,6 +17,9 @@
 # limitations under the License.
 #
 
+# recipe is only pertinent to nova-network
+return if node['bcpc']['enabled']['neutron']
+
 include_recipe "bcpc::keystone"
 include_recipe "bcpc::nova-head"
 
@@ -26,7 +29,6 @@ bash "wait-for-nova-to-become-operational" do
   code ". /root/adminrc; until nova secgroup-list >/dev/null 2>&1; do sleep 1; done"
   timeout 30
 end
-
 
 bash "nova-configure-default-icmp-secgroup-rule" do
     user "root"

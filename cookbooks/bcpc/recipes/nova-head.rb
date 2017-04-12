@@ -90,4 +90,4 @@ cookbook_file '/usr/lib/python2.7/dist-packages/nova/scheduler/weights/bbweigher
 end
 
 include_recipe "bcpc::nova-work"
-include_recipe "bcpc::nova-setup"
+include_recipe 'bcpc::openstack-network-setup'
