@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: bcpc
-# Recipe:: bird-compute
+# Recipe:: bird-false-tor
 #
 # Copyright 2017, Bloomberg Finance L.P.
 #
@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+# this recipe configures the bootstrap node to act as a simulated TOR for
+# the purposes of BGP peering
 return unless node['bcpc']['enabled']['neutron']
 
 include_recipe 'bcpc::packages-bird'
@@ -35,11 +37,12 @@ service 'bird6' do
 end
 
 template "/etc/bird/bird.conf" do
-  source "bird.conf.erb"
+  source "bird-false-tor.conf.erb"
   mode 00644
   variables(
     lazy {
       {
+        :servers => get_all_nodes,
         :as_number => node['bcpc']['calico']['bgp']['as_number'],
         :workload_interface => node['bcpc']['calico']['bgp']['workload_interface'],
         :upstream_peer => node['bcpc']['calico']['bgp']['upstream_peer']
