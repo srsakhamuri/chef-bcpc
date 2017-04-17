@@ -54,6 +54,8 @@ lock_path=/var/lock/cinder
 [database]
 # MySQL Connection
 connection=mysql://<%=get_config('mysql-cinder-user')%>:<%=get_config('mysql-cinder-password')%>@<%=node['bcpc']['management']['vip']%>/<%=node['bcpc']['dbname']['cinder']%>
+max_overflow=<%= node['bcpc']['cinder']['database']['max_overflow'] %>
+max_pool_size=<%= node['bcpc']['cinder']['database']['max_pool_size'] %>
 idle_timeout=3600
 
 [ssl]

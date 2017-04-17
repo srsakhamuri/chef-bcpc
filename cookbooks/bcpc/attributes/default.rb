@@ -265,6 +265,9 @@ default['bcpc']['keystone']['wait_for_keystone_timeout'] = 120
 # catalog, for now we recommend scaling only in the processes dimension)
 default['bcpc']['keystone']['wsgi']['processes'] = 5
 default['bcpc']['keystone']['wsgi']['threads'] = 1
+# configure SQLAlchemy overflow/QueuePool sizes
+default['bcpc']['keystone']['database']['max_overflow'] = 10
+default['bcpc']['keystone']['database']['max_pool_size'] = 5
 # The driver section below allows either 'sql' or 'ldap' (or 'templated' for catalog)
 # Note that not all drivers may support SQL/LDAP, only tinker if you know what you're getting into
 default['bcpc']['keystone']['drivers']['assignment'] = 'sql'
@@ -323,6 +326,9 @@ default['bcpc']['nova']['max_concurrent_builds'] = 4
 # "workers" parameters in nova are set to number of CPUs
 # available by default. This provides an override.
 default['bcpc']['nova']['workers'] = 5
+# configure SQLAlchemy overflow/QueuePool sizes
+default['bcpc']['nova']['database']['max_overflow'] = 10
+default['bcpc']['nova']['database']['max_pool_size'] = 5
 # set soft/hard ulimits in upstart unit file for nova-compute
 # as number of OSDs in cluster increases, soft limit needs to increase to avoid
 # nova-compute deadlocks
@@ -395,6 +401,8 @@ default['bcpc']['cinder']['workers'] = 5
 default['bcpc']['cinder']['allow_az_fallback'] = true
 default['bcpc']['cinder']['rbd_flatten_volume_from_snapshot'] = true
 default['bcpc']['cinder']['rbd_max_clone_depth'] = 5
+default['bcpc']['cinder']['database']['max_overflow'] = 10
+default['bcpc']['cinder']['database']['max_pool_size'] = 5
 default['bcpc']['cinder']['quota'] = {
   "volumes" => -1,
   "snapshots" => 10,
@@ -410,6 +418,8 @@ default['bcpc']['cinder']['quota'] = {
 default['bcpc']['glance']['verbose'] = false
 default['bcpc']['glance']['debug'] = false
 default['bcpc']['glance']['workers'] = 5
+default['bcpc']['glance']['database']['max_overflow'] = 10
+default['bcpc']['glance']['database']['max_pool_size'] = 5
 
 ###########################################
 #

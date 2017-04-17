@@ -175,13 +175,13 @@ amqp_durable_queues = <%=node['bcpc']['rabbitmq']['durable_queues']%>
 #sqlite_synchronous = True
 backend = sqlalchemy
 connection = mysql://<%=get_config('mysql-glance-user')%>:<%=get_config('mysql-glance-password')%>@<%=node['bcpc']['management']['vip']%>/<%=node['bcpc']['dbname']['glance']%>
+max_overflow=<%= node['bcpc']['glance']['database']['max_overflow'] %>
+max_pool_size=<%= node['bcpc']['glance']['database']['max_pool_size'] %>
 #mysql_sql_mode = TRADITIONAL
 #idle_timeout = 3600
 #min_pool_size = 1
-#max_pool_size = <None>
 #max_retries = 10
 #retry_interval = 10
-#max_overflow = <None>
 #connection_debug = 0
 #connection_trace = False
 #pool_timeout = <None>
