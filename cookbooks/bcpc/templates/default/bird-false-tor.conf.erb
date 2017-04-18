@@ -35,10 +35,10 @@ protocol bgp {
   neighbor <%= server['bcpc'][@workload_interface]['ip'] %> as <%= @as_number %>;
   multihop;
   import all;
+  export all;
   graceful restart;
-  export filter export_bgp;
-  next hop self;
   rr client;
   rr cluster id 1.0.0.1;
 }
+
 <%- end -%>
