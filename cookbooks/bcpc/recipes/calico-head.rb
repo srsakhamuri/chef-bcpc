@@ -28,3 +28,11 @@ include_recipe 'bcpc::neutron-head'
     notifies :restart, 'service[neutron-server]', :delayed
   end
 end
+
+cookbook_file '/usr/local/bin/calicoctl' do
+  source   'calicoctl-v1.1.1'
+  cookbook 'bcpc-binary-files'
+  mode     '00755'
+  owner    'root'
+  group    'root'
+end

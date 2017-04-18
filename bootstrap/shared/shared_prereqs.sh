@@ -169,6 +169,9 @@ download_file carbon-${VER_GRAPHITE_CARBON}.tar.gz http://pypi.python.org/packag
 download_file whisper-${VER_GRAPHITE_WHISPER}.tar.gz http://pypi.python.org/packages/source/w/whisper/whisper-${VER_GRAPHITE_WHISPER}.tar.gz
 download_file graphite-web-${VER_GRAPHITE_WEB}.tar.gz http://pypi.python.org/packages/source/g/graphite-web/graphite-web-${VER_GRAPHITE_WEB}.tar.gz
 
+# get calicoctl for Neutron+Calico experiments
+download_file calicoctl-${VER_CALICOCTL} https://github.com/projectcalico/calicoctl/releases/download/${VER_CALICOCTL}/calicoctl
+
 # Obtain packages for Rally. There are a lot.
 # for future reference, to install files from this cache use pip install --no-index -f file:///path/to/files rally
 RALLY_PACKAGES=( Babel-1.3.tar.gz
