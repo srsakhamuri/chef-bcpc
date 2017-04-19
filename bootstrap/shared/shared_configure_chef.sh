@@ -122,7 +122,7 @@ echo "Setting Chef environment and roles on cluster nodes..."
 do_on_node vm-bootstrap $ENVIRONMENT_SET
 
 if [[ $CLUSTER_TYPE == 'converged' ]]; then
-  do_on_node vm-bootstrap "$KNIFE node run_list set bcpc-vm-bootstrap.$BCPC_HYPERVISOR_DOMAIN 'role[BCPC-Hardware-Virtual],role[BCPC-Bootstrap]' \
+  do_on_node vm-bootstrap "$KNIFE node run_list set bcpc-vm-bootstrap.$BCPC_HYPERVISOR_DOMAIN 'role[BCPC-Hardware-Virtual],role[BCPC-Bootstrap],recipe[bcpc::bird-false-tor]' \
     && $KNIFE node run_list set bcpc-vm1.$BCPC_HYPERVISOR_DOMAIN 'role[BCPC-Hardware-Virtual],role[BCPC-Headnode]' \
     && $KNIFE node run_list set bcpc-vm2.$BCPC_HYPERVISOR_DOMAIN 'role[BCPC-Hardware-Virtual],role[BCPC-Worknode]' \
     && $KNIFE node run_list set bcpc-vm3.$BCPC_HYPERVISOR_DOMAIN 'role[BCPC-Hardware-Virtual],role[BCPC-EphemeralWorknode]'"
@@ -162,6 +162,8 @@ else
   done
   # run on head node one last time to update HAProxy with work node IPs
   do_on_node vm1 "sudo chef-client"
+  # run on bootstrap node again if it needs to be configured as a false TOR for Neutron+Calico
+  do_on_node vm-bootstrap "sudo chef-client"
   # HUP OpenStack services on each node to ensure everything's in a working state if converged
   if [[ $CLUSTER_TYPE == 'converged' ]]; then
     for vm in $vms; do

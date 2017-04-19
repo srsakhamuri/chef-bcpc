@@ -144,6 +144,13 @@ if [ ! -f python-graphite-web_${VER_GRAPHITE_WEB}_all.deb ]; then
 fi
 FILES="python-graphite-web_${VER_GRAPHITE_WEB}_all.deb $FILES"
 
+# add calicoctl binary
+CALICOCTL_BINARY=calicoctl-${VER_CALICOCTL}
+if [ ! -f $CALICOCTL_BINARY ]; then
+  cp -v $FILECACHE_MOUNT_POINT/$CALICOCTL_BINARY .
+fi
+FILES="$CALICOCTL_BINARY $FILES"
+
 # Rally has a number of dependencies. Some of the dependencies are in apt by default but some are not. Those that
 # are not are built here.
 

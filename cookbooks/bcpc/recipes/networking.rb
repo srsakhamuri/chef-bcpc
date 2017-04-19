@@ -266,7 +266,10 @@ if node['bcpc']['monitoring']['provider']
 
 end
 
-%w{ routing firewall }.each do |function|
+network_functions = %w(firewall)
+network_functions += ['routing'] unless node['bcpc']['enabled']['neutron']
+
+network_functions.each do |function|
     template "/etc/network/if-up.d/bcpc-#{function}" do
         mode 00775
         source "bcpc-#{function}.erb"

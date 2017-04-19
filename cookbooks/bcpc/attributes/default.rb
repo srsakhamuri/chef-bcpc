@@ -87,6 +87,9 @@ default['bcpc']['enabled']['swap'] = true
 default['bcpc']['enabled']['apport'] = true
 # Toggle to enable/disable Heat (OpenStack Cloud Formation)
 default['bcpc']['enabled']['heat'] = false
+# Toggle to switch between Neutron+Calico and nova-network
+# SET BEFORE BUILDING, CHANGING ON EXISTING CLUSTER WILL CAUSE DEVASTATION
+default['bcpc']['enabled']['neutron'] = false
 
 ###########################################
 #
@@ -183,6 +186,8 @@ default['bcpc']['repos']['erlang'] = "http://packages.erlang-solutions.com/ubunt
 default['bcpc']['repos']['ceph'] = "http://download.ceph.com/debian-hammer"
 default['bcpc']['repos']['zabbix'] = "http://repo.zabbix.com/zabbix/2.4/ubuntu"
 default['bcpc']['repos']['mitaka-staging'] = "http://ppa.launchpad.net/ubuntu-cloud-archive/mitaka-staging/ubuntu"
+default['bcpc']['repos']['calico'] = "http://ppa.launchpad.net/project-calico/felix-2.1-testing/ubuntu"
+default['bcpc']['repos']['bird'] = "http://ppa.launchpad.net/cz.nic-labs/bird/ubuntu"
 
 ###########################################
 #
@@ -195,6 +200,7 @@ default['bcpc']['dbname']['cinder'] = "cinder"
 default['bcpc']['dbname']['glance'] = "glance"
 default['bcpc']['dbname']['horizon'] = "horizon"
 default['bcpc']['dbname']['keystone'] = "keystone"
+default['bcpc']['dbname']['neutron'] = "neutron"
 default['bcpc']['dbname']['heat'] = "heat"
 default['bcpc']['dbname']['graphite'] = "graphite"
 default['bcpc']['dbname']['pdns'] = "pdns"
@@ -219,6 +225,7 @@ default['bcpc']['protocol']['keystone'] = "https"
 default['bcpc']['protocol']['glance'] = "https"
 default['bcpc']['protocol']['nova'] = "https"
 default['bcpc']['protocol']['cinder'] = "https"
+default['bcpc']['protocol']['neutron'] = "https"
 default['bcpc']['protocol']['heat'] = "https"
 
 ###########################################
