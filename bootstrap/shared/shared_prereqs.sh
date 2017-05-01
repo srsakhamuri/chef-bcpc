@@ -52,7 +52,7 @@ download_file() {
   remote_url="$2"
 
   if [[ ! -f "$BOOTSTRAP_CACHE_DIR/$input_file" && ! -f "$BOOTSTRAP_CACHE_DIR/${input_file}_downloaded" ]]; then
-    trap "echo && echo Trapped Ctrl-C, cleaning up partial download of $BOOTSTRAP_CACHE_DIR/$input_file && rm -f $BOOTSTRAP_CACHE_DIR/$input_file" INT
+    trap "echo && echo Download interrupted, cleaning up partial download of $BOOTSTRAP_CACHE_DIR/$input_file && rm -f $BOOTSTRAP_CACHE_DIR/$input_file" INT
     echo "Downloading $input_file..."
     curl_cmd -o "$BOOTSTRAP_CACHE_DIR/$input_file" "$remote_url" -Sw '[%{http_code}]\n'
     if [[ $? != 0 ]]; then
