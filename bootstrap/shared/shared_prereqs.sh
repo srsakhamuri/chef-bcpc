@@ -167,7 +167,16 @@ download_file knife-acl-1.0.2.gem "$ruby_gem_url/knife-acl-1.0.2.gem"
 ####################################################################
 # Pull needed gems for fpm.
 declare -a ruby_fpm_gems
-readarray -t ruby_fpm_gems < "$REPO_ROOT/bootstrap/shared/ruby_fpm.gems"
+
+# Bash 4.x and later only
+# readarray -t ruby_fpm_gems < "$REPO_ROOT/bootstrap/shared/ruby_fpm.gems"
+
+# Bash 3.1 and later. This version duplicates most of readarray's 
+# functionality and also treats the trailing newline correctly, so
+# we don't throw an error
+unset -v arr i
+while IFS= read -r; do ruby_fpm_gems[i++]=$REPLY; done < ruby_fpm.gems
+[[ ${arr[i-1]} ]] || unset -v 'arr[--i]'
 
 mkdir -p "$BOOTSTRAP_CACHE_DIR/fpm_gems"
 for gem in "${ruby_fpm_gems[@]}"; do
@@ -178,7 +187,14 @@ done
 ####################################################################
 # Pull needed gems for fluentd.
 declare -a ruby_fluentd_gems
-readarray -t ruby_fluentd_gems < "$REPO_ROOT/bootstrap/shared/ruby_fluentd.gems"
+
+# Bash 4.x and later only
+# readarray -t ruby_fluentd_gems < "$REPO_ROOT/bootstrap/shared/ruby_fluentd.gems"
+
+# Same as above for fpm
+unset -v arr i
+while IFS= read -r; do ruby_fluentd_gems[i++]=$REPLY; done < ruby_fluentd.gems
+[[ ${arr[i-1]} ]] || unset -v 'arr[--i]'
 
 mkdir -p "$BOOTSTRAP_CACHE_DIR/fluentd_gems"
 for gem in "${ruby_fluentd_gems[@]}"; do
