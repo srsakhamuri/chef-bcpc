@@ -168,19 +168,12 @@ download_file knife-acl-1.0.2.gem "$ruby_gem_url/knife-acl-1.0.2.gem"
 # Pull needed gems for fpm.
 declare -a ruby_fpm_gems
 
-# Bash 4.x and later only
-# readarray -t ruby_fpm_gems < "$REPO_ROOT/bootstrap/shared/ruby_fpm.gems"
-
-# Bash 3.1 and later. This version duplicates most of readarray's 
-# functionality and also treats the trailing newline correctly, so
-# we don't throw an error
-unset -v arr i
-while IFS= read -r; do ruby_fpm_gems[i++]=$REPLY; done < "$REPO_ROOT/bootstrap/shared/ruby_fpm.gems"
-[[ ${arr[i-1]} ]] || unset -v 'arr[--i]'
+ruby_fpm_gems=(); while IFS= read -r; do 
+	[[ $REPLY ]] && ruby_fpm_gems+=("$REPLY"); done < "$REPO_ROOT/bootstrap/shared/ruby_fpm.gems"
 
 mkdir -p "$BOOTSTRAP_CACHE_DIR/fpm_gems"
 for gem in "${ruby_fpm_gems[@]}"; do
-  download_file "fpm_gems/$gem.gem" "$ruby_gem_url/$gem.gem"
+	download_file "fpm_gems/$gem.gem" "$ruby_gem_url/$gem.gem"
 done
 
 
@@ -188,17 +181,12 @@ done
 # Pull needed gems for fluentd.
 declare -a ruby_fluentd_gems
 
-# Bash 4.x and later only
-# readarray -t ruby_fluentd_gems < "$REPO_ROOT/bootstrap/shared/ruby_fluentd.gems"
-
-# Same as above for fpm
-unset -v arr i
-while IFS= read -r; do ruby_fluentd_gems[i++]=$REPLY; done < "$REPO_ROOT/bootstrap/shared/ruby_fluentd.gems"
-[[ ${arr[i-1]} ]] || unset -v 'arr[--i]'
+ruby_fluentd_gems=(); while IFS= read -r; do 
+	[[ $REPLY ]] && ruby_fluentd_gems+=("$REPLY"); done < "$REPO_ROOT/bootstrap/shared/ruby_fluentd.gems"
 
 mkdir -p "$BOOTSTRAP_CACHE_DIR/fluentd_gems"
 for gem in "${ruby_fluentd_gems[@]}"; do
-  download_file "fluentd_gems/$gem.gem" "$ruby_gem_url/$gem.gem"
+	download_file "fluentd_gems/$gem.gem" "$ruby_gem_url/$gem.gem"
 done
 
 
@@ -234,14 +222,17 @@ download_file "calicoctl-${VER_CALICOCTL}" "https://github.com/projectcalico/cal
 # Obtain packages for Rally. There are a lot.
 # for future reference, to install files from this cache use pip install --no-index -f file:///path/to/files rally
 declare -a rally_packages
-readarray -t rally_packages < "$REPO_ROOT/bootstrap/shared/packages.rally"
+
+# Bash 4.x
+# readarray -t rally_packages < "$REPO_ROOT/bootstrap/shared/packages.rally"
+
+rally_packages=(); while IFS= read -r; do 
+        [[ $REPLY ]] && rally_packages+=("$REPLY"); done < "$REPO_ROOT/bootstrap/shared/packages.rally"
 
 mkdir -p "$BOOTSTRAP_CACHE_DIR/rally"
-
 for package in "${!rally_packages[@]}"; do 
         pypi_dir="${rally_packages[package]:0:1}"
         base_package_name="${rally_packages[package]%-*}"
- 
         download_file "rally/${rally_packages[package]}" "$pypi_url/$pypi_dir/$base_package_name/${rally_packages[package]}"
 done
 
