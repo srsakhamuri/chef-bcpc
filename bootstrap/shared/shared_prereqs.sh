@@ -175,7 +175,7 @@ declare -a ruby_fpm_gems
 # functionality and also treats the trailing newline correctly, so
 # we don't throw an error
 unset -v arr i
-while IFS= read -r; do ruby_fpm_gems[i++]=$REPLY; done < ruby_fpm.gems
+while IFS= read -r; do ruby_fpm_gems[i++]=$REPLY; done < "$REPO_ROOT/bootstrap/shared/ruby_fpm.gems"
 [[ ${arr[i-1]} ]] || unset -v 'arr[--i]'
 
 mkdir -p "$BOOTSTRAP_CACHE_DIR/fpm_gems"
@@ -193,7 +193,7 @@ declare -a ruby_fluentd_gems
 
 # Same as above for fpm
 unset -v arr i
-while IFS= read -r; do ruby_fluentd_gems[i++]=$REPLY; done < ruby_fluentd.gems
+while IFS= read -r; do ruby_fluentd_gems[i++]=$REPLY; done < "$REPO_ROOT/bootstrap/shared/ruby_fluentd.gems"
 [[ ${arr[i-1]} ]] || unset -v 'arr[--i]'
 
 mkdir -p "$BOOTSTRAP_CACHE_DIR/fluentd_gems"
