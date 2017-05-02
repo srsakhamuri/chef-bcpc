@@ -18,6 +18,8 @@
 #
 
 include_recipe "bcpc::default"
+# There is cyclical dependency upon some of checks - see /etc/xinetd.d/*chk
+include_recipe "bcpc::xinetd"
 include_recipe "bcpc::haproxy-common"
 
 concat_fragment "haproxy-main-config" do
