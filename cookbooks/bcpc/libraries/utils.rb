@@ -229,6 +229,14 @@ def get_ceph_optimal_pg_count(pool)
     node['bcpc']['ceph'][pool]['portion'] / 100)
 end
 
+def get_mysql_max_connections
+  if node['bcpc']['mysql-head']['max_connections'].nil? or node['bcpc']['mysql-head']['max_connections'].zero?
+     [get_head_nodes.length*150+get_all_nodes.length*10, 450].max
+  else
+    node['bcpc']['mysql-head']['max_connections']
+  end
+end
+
 def get_bootstrap_node
     filter = {
       :filter_result => {
