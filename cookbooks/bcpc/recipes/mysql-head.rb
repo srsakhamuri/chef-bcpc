@@ -57,17 +57,13 @@ template "/etc/mysql/debian.cnf" do
     notifies :reload, "service[mysql]", :immediately
 end
 
-if node['bcpc']['mysql-head']['max_connections'] == 0 then
-    node.default['bcpc']['mysql-head']['max_connections'] = [get_head_nodes.length*150+get_all_nodes.length*10, 450].max
-end
-
 template "/etc/mysql/conf.d/wsrep.cnf" do
     source "wsrep.cnf.erb"
     mode 00644
     variables(
       lazy {
         {
-          :max_connections => node['bcpc']['mysql-head']['max_connections'],
+          :max_connections => get_mysql_max_connections,
           :servers => get_head_nodes,
           :wsrep_cluster_name => node['bcpc']['region_name'],
           :wsrep_port => 4567,
