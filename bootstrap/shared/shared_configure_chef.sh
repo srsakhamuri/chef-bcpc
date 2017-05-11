@@ -61,14 +61,10 @@ do_on_node vm-bootstrap "mkdir -p \$HOME/.chef && echo -e \"chef_server_url 'htt
 
 # Initialize VM lists
 vms="vm1 vm2 vm3"
-if [ $MONITORING_NODES -gt 0 ]; then
-  i=1
-  while [ $i -le $MONITORING_NODES ]; do
-    mon_vm="vm`expr 3 + $i`"
+for ((i=1; i <= MONITORING_NODES; i++)); do
+    mon_vm="vm$((3 + i))"
     mon_vms="$mon_vms $mon_vm"
-    i=`expr $i + 1`
-  done
-fi
+done
 
 # install the knife-acl plugin into embedded knife, rsync the Chef repository into the non-root user
 # (vagrant)'s home directory, and add the dependency cookbooks from the file cache
