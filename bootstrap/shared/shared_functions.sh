@@ -19,8 +19,7 @@ fi
 
 check_for_envvars() {
   FAILED_ENVVAR_CHECK=0
-  REQUIRED_VARS="${@}"
-  for ENVVAR in ${REQUIRED_VARS[@]}; do
+  for ENVVAR; do
     if [[ -z "${!ENVVAR}" ]]; then
       echo "Environment variable $ENVVAR must be set!" >&2
       FAILED_ENVVAR_CHECK=1
