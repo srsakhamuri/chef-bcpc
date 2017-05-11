@@ -80,6 +80,7 @@ do_on_node vm-bootstrap "sudo /opt/opscode/embedded/bin/gem install -l $FILECACH
 echo "Building binaries..."
 
 do_on_node vm-bootstrap "sudo apt-get update \
+  && sudo apt-get -y autoremove \
   && cd \$HOME/chef-bcpc \
   && sudo bash -c 'export FILECACHE_MOUNT_POINT=$FILECACHE_MOUNT_POINT \
   && source \$HOME/proxy_config.sh && bootstrap/shared/shared_build_bins.sh'"
