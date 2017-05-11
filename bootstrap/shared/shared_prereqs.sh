@@ -52,7 +52,7 @@ download_file() {
   remote_url="$2"
 
   if [[ ! -f "$BOOTSTRAP_CACHE_DIR/$input_file" && ! -f "$BOOTSTRAP_CACHE_DIR/${input_file}_downloaded" ]]; then
-    trap "echo && echo Download interrupted, cleaning up partial download of $BOOTSTRAP_CACHE_DIR/$input_file && rm -f $BOOTSTRAP_CACHE_DIR/$input_file" INT
+    trap 'echo && echo Download interrupted, cleaning up partial download of "$BOOTSTRAP_CACHE_DIR"/"$input_file" && rm -f "$BOOTSTRAP_CACHE_DIR"/"$input_file"' INT
     echo "Downloading $input_file..."
     curl_cmd -o "$BOOTSTRAP_CACHE_DIR/$input_file" "$remote_url" -Sw '[%{http_code}]\n'
     if [[ $? != 0 ]]; then
@@ -139,8 +139,8 @@ download_file "$cloud_img_box" "$cloud_img_url/$cloud_img_box"
 
 ####################################################################
 # Obtain Chef client and server DEBs.
-download_file $CHEF_CLIENT_DEB $chef_url/chef/$chef_client_ver/ubuntu/14.04/$CHEF_CLIENT_DEB
-download_file $CHEF_SERVER_DEB $chef_url/chef-server-core/$chef_server_ver/ubuntu/14.04/$CHEF_SERVER_DEB
+download_file "$CHEF_CLIENT_DEB" "$chef_url/chef/$chef_client_ver/ubuntu/14.04/$CHEF_CLIENT_DEB"
+download_file "$CHEF_SERVER_DEB" "$chef_url/chef-server-core/$chef_server_ver/ubuntu/14.04/$CHEF_SERVER_DEB"
 
 ####################################################################
 # Pull needed cookbooks from the Chef Supermarket (and remove the previous
