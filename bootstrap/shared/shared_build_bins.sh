@@ -122,7 +122,7 @@ FILES="pagerduty-zabbix-proxy.py $FILES"
 # Build graphite packages
 if [ ! -f "python-carbon_${VER_GRAPHITE_CARBON}_all.deb" ]; then
   cp -v "$FILECACHE_MOUNT_POINT/carbon-${VER_GRAPHITE_CARBON}.tar.gz" .
-  tar "zxf carbon-${VER_GRAPHITE_CARBON}.tar.gz"
+  tar zxf "carbon-${VER_GRAPHITE_CARBON}.tar.gz"
   fpm --python-install-bin /opt/graphite/bin -s python -t deb -f "carbon-${VER_GRAPHITE_CARBON}/setup.py"
   rm -rf "carbon-${VER_GRAPHITE_CARBON}" "carbon-${VER_GRAPHITE_CARBON}.tar.gz"
 fi
