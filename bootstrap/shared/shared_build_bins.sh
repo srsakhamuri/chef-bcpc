@@ -1,5 +1,5 @@
 #!/bin/bash -e
-set -e
+set -ex
 
 # This script must be invoked from the root of the repository (e.g., as
 # bootstrap/shared/shared_build_bins.sh). It expects to run INSIDE the
@@ -57,7 +57,7 @@ FILES+="cirros-0.3.4-x86_64-disk.img $FILES"
 
 # Grab the Ubuntu 14.04 installer image
 if [ ! -f ubuntu-14.04-mini.iso ]; then
-  cp -v "$FILECACHE_MOUNT_POINT/ubuntu-14.04-mini.iso ubuntu-14.04-mini.iso"
+  cp -v "$FILECACHE_MOUNT_POINT"/ubuntu-14.04-mini.iso ubuntu-14.04-mini.iso
 fi
 FILES="ubuntu-14.04-mini.iso $FILES"
 
