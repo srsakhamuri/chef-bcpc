@@ -148,6 +148,7 @@ end
 # and waste everyone's time in case our repo configuration set above is broken
 $repos_script << <<-EOH
   apt-get update
+  apt-get -y autoremove
 EOH
 # END repository configuration script
 
