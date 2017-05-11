@@ -15,7 +15,7 @@ fi
 if [[ -z $BUILD_DEST ]]; then BUILD_DEST=cookbooks/bcpc-binary-files/files/default; fi
 
 # directory used for storing build cache products
-BUILD_CACHE_DIR=$FILECACHE_MOUNT_POINT/build_bins_cache
+BUILD_CACHE_DIR="$FILECACHE_MOUNT_POINT/build_bins_cache"
 
 # Binary versions to grab/build
 source bootstrap/config/build_bins_versions.sh
@@ -26,7 +26,7 @@ pushd $BUILD_DEST
 # (will not exist if this is the first time run with the new script)
 if [ -d "$BUILD_CACHE_DIR" ]; then
   echo "Copying cached build products..."
-  rsync -avxSH "$BUILD_CACHE_DIR/*" "$(pwd -P)"
+  rsync -avxSH "$BUILD_CACHE_DIR"/* "$(pwd -P)"
 fi
 
 # Install tools needed for packaging
@@ -204,6 +204,6 @@ FILES="rally.tar.gz rally-pip.tar.gz rally-bin.tar.gz python-pip_${VER_PIP}_all.
 # End of Rally
 
 # rsync build products with cache directory
-mkdir -p "$BUILD_CACHE_DIR" && rsync -avxSH "$(pwd -P)/*" "$BUILD_CACHE_DIR"
+mkdir -p "$BUILD_CACHE_DIR" && rsync -avxSH "$(pwd -P)"/* "$BUILD_CACHE_DIR"
 
 popd # $BUILD_DEST
