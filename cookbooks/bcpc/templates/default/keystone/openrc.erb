@@ -4,15 +4,19 @@
 #
 ################################################
 
-export OS_TENANT_NAME=<%= @project_name %>
-export OS_USERNAME=<%= @username %>
-export OS_PASSWORD=<%= @password %>
+<% if get_api_version(:identity) == "2" %>
+export OS_TENANT_NAME='<%= @project_name %>'
+<% else %>
+export OS_PROJECT_NAME='<%= @project_name %>'
+<% end %>
+export OS_USERNAME='<%= @username %>'
+export OS_PASSWORD='<%= @password %>'
 export OS_AUTH_URL=<%= @node['bcpc']['protocol']['keystone'] %>://openstack.<%= @node['bcpc']['cluster_domain'] %>:<%= @node['bcpc']['catalog']['identity']['ports']['admin'] %>/<%= @node['bcpc']['catalog']['identity']['uris']['admin'] %>/
-export OS_REGION_NAME=<%= @node['bcpc']['region_name'] %>
+export OS_REGION_NAME='<%= @node['bcpc']['region_name'] %>'
 export OS_NO_CACHE=1
-<% if get_api_version(:identity) == "3" %>
-export OS_PROJECT_DOMAIN_NAME=<%= @domain %>
-export OS_USER_DOMAIN_NAME=<%= @domain %>
+<% unless get_api_version(:identity) == "2" %>
+export OS_PROJECT_DOMAIN_NAME='<%= @project_domain || @domain %>'
+export OS_USER_DOMAIN_NAME='<%= @user_domain || @domain %>'
 <% end %>
 
 # API versions in a separate file so that they can be used when bootstrapping Keystone services

@@ -278,23 +278,6 @@ template "/etc/keystone/policy.json" do
     variables(:policy => JSON.pretty_generate(node['bcpc']['keystone']['policy']))
 end
 
-template "/root/adminrc" do
-    source "keystone/openrc.erb"
-    owner "root"
-    group "root"
-    mode "0600"
-    variables(
-      lazy {
-        {
-          username: get_config('keystone-admin-user'),
-          password: get_config('keystone-admin-password'),
-          project_name: node['bcpc']['keystone']['admin_tenant'],
-          domain: node['bcpc']['keystone']['default_domain']
-        }
-      }
-    )
-end
-
 template "/root/api_versionsrc" do
     source "api_versionsrc.erb"
     owner "root"
@@ -556,6 +539,25 @@ ruby_block "keystone-create-member-role" do
   end
   not_if { execute_in_keystone_admin_context("openstack role show #{member_role_name}") ; $?.success? }
 end
+
+template "/root/adminrc" do
+    source "keystone/openrc.erb"
+    owner "root"
+    group "root"
+    mode "0600"
+    variables(
+      lazy {
+        {
+          username: get_config('keystone-admin-user'),
+          password: get_config('keystone-admin-password'),
+          project_name: node['bcpc']['keystone']['admin_tenant'],
+          user_domain: get_config('keystone-admin-user-domain'),
+          project_domain: default_domain
+        }
+      }
+    )
+end
+
 
 # Cleanup actions
 #
