@@ -51,6 +51,7 @@ default['bcpc']['keystone']['fernet_token_max_age_seconds'] = 7*24*60*60
 default['bcpc']['keystone']['notification_format'] = 'cadf'
 
 # Identity configuration
+default['bcpc']['keystone']['admin']['user_domain'] = "default"
 default['bcpc']['keystone']['admin_tenant'] = "AdminTenant"
 default['bcpc']['keystone']['admin_role'] = "Admin"
 default['bcpc']['keystone']['admin_username'] = "admin"

@@ -36,6 +36,7 @@ ruby_block "initialize-keystone-config" do
         make_config('keystone-admin-token', secure_password)
         make_config('keystone-admin-user',  node["bcpc"]["ldap"]["admin_user"] || node["bcpc"]["keystone"]["admin_username"])
         make_config('keystone-admin-password',node["bcpc"]["ldap"]["admin_pass"]  ||  secure_password)
+        make_config('keystone-admin-user-domain', node['bcpc']['default_domain'] || 'default')
         begin
             get_config('keystone-pki-certificate')
         rescue
