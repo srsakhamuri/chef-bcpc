@@ -35,21 +35,6 @@ default['bcpc']['catalog'] = {
       'public' => 'v2.1/%(project_id)s'
     }
   },
-  'ec2' => {
-    'name' => 'EC2 Service',
-    'project' => 'nova',
-    'description' => 'OpenStack EC2 Service',
-    'ports' => {
-      'admin' => 8773,
-      'internal' => 8773,
-      'public' => 8773
-    },
-    'uris' => {
-      'admin' => 'services/Admin',
-      'internal' => 'services/Cloud',
-      'public' => 'services/Cloud'
-    }
-  },
   'volume' => {
     'name' => 'Volume Service',
     'project' => 'cinder',
