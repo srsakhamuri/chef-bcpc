@@ -19,7 +19,7 @@
 include_recipe "bcpc::ceph-work"
 
 package "radosgw" do
-  default_release 'trusty'  # use Ceph repository instead of UCA
+  default_release 'xenial'  # use Ceph repository instead of UCA
   action :upgrade
 end
 

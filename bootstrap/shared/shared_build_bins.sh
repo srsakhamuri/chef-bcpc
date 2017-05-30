@@ -55,11 +55,11 @@ if [[ ! -f cirros-0.3.4-x86_64-disk.img ]]; then
 fi
 FILES+="cirros-0.3.4-x86_64-disk.img $FILES"
 
-# Grab the Ubuntu 14.04 installer image
-if [[ ! -f ubuntu-14.04-mini.iso ]]; then
-  cp -v "$FILECACHE_MOUNT_POINT"/ubuntu-14.04-mini.iso ubuntu-14.04-mini.iso
+# Grab the Ubuntu 16.04 installer image
+if [ ! -f ubuntu-16.04-mini.iso ]; then
+  cp -v $FILECACHE_MOUNT_POINT/ubuntu-16.04-mini.iso ubuntu-16.04-mini.iso
 fi
-FILES="ubuntu-14.04-mini.iso $FILES"
+FILES="ubuntu-16.04-mini.iso $FILES"
 
 # Test if diamond package version is <= 3.x, which implies a BrightCoveOS source
 if [[ -f diamond.deb ]]; then

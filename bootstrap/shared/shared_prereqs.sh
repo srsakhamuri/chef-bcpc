@@ -31,8 +31,8 @@ cirros_version="0.3.4"
 cloud_img_url="https://cloud-images.ubuntu.com/vagrant/trusty/current"
 # cloud_img_url="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-cloud-images/vagrant/trusty/current"
 
-cloud_img_box="trusty-server-cloudimg-amd64-vagrant-disk1.box"
-netboot_iso="ubuntu-14.04-mini.iso"
+cloud_img_box="xenial-server-cloudimg-amd64-vagrant-disk1.box"
+netboot_iso="ubuntu-16.04-mini.iso"
 pypi_url="https://pypi.python.org/packages/source"
 pxe_rom="gpxe-1.0.1-80861004.rom"
 ruby_gem_url="https://rubygems.global.ssl.fastly.net/gems"
@@ -139,11 +139,10 @@ download_file "$vbox_additions" "$vbox_url/$vbox_version/$vbox_additions"
 # Obtain a Vagrant Trusty box.
 download_file "$cloud_img_box" "$cloud_img_url/$cloud_img_box"
 
-
 ####################################################################
 # Obtain Chef client and server DEBs.
-download_file "$CHEF_CLIENT_DEB" "$chef_url/chef/$chef_client_ver/ubuntu/14.04/$CHEF_CLIENT_DEB"
-download_file "$CHEF_SERVER_DEB" "$chef_url/chef-server-core/$chef_server_ver/ubuntu/14.04/$CHEF_SERVER_DEB"
+download_file "$CHEF_CLIENT_DEB" "$chef_url/chef/$chef_client_ver/ubuntu/16.04/$CHEF_CLIENT_DEB"
+download_file "$CHEF_SERVER_DEB" "$chef_url/chef-server-core/$chef_server_ver/ubuntu/16.04/$CHEF_SERVER_DEB"
 
 ####################################################################
 # Pull needed cookbooks from the Chef Supermarket (and remove the previous

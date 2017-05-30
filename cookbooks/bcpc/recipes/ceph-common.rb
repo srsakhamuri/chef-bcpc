@@ -49,7 +49,7 @@ end
   package pkg do
     # use Ceph repository instead of UCA
     # UCA release looks like "trusty-proposed" or "trusty-updates"
-    default_release 'trusty'
+    default_release 'xenial'
     action :upgrade
   end
 end
