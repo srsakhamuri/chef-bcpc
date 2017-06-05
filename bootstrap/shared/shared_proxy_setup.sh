@@ -1,13 +1,12 @@
 #!/bin/bash
-# Exit immediately if anything goes wrong, instead of making things worse.
 
-. "$REPO_ROOT"/bootstrap/shared/shared_functions.sh
+source "$REPO_ROOT"/bootstrap/shared/shared_functions.sh
 load_configs
 
-if [[ -n "$SHARED_PROXY_SETUP" ]] || {
+[ -n "$SHARED_PROXY_SETUP" ] || {
   REQUIRED_VARS=( BOOTSTRAP_HTTP_PROXY_URL BOOTSTRAP_HTTPS_PROXY_URL )
   check_for_envvars "${REQUIRED_VARS[@]}"
-
+  
   set -e
 
   if [[ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]]; then
