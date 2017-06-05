@@ -4,13 +4,13 @@
 . "$REPO_ROOT"/bootstrap/shared/shared_functions.sh
 load_configs
 
-[ -n "$SHARED_PROXY_SETUP" ] || {
+if [[ -n "$SHARED_PROXY_SETUP" ]] || {
   REQUIRED_VARS=( BOOTSTRAP_HTTP_PROXY_URL BOOTSTRAP_HTTPS_PROXY_URL )
   check_for_envvars "${REQUIRED_VARS[@]}"
 
   set -e
 
-  if [ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]; then
+  if [[ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]]; then
     export http_proxy="${BOOTSTRAP_HTTP_PROXY_URL}"
 
     curl -s --connect-timeout 10 http://www.google.com > /dev/null && true
@@ -20,7 +20,7 @@ load_configs
     fi
   fi
 
-  if [ ! -z "$BOOTSTRAP_HTTPS_PROXY_URL" ]; then
+  if [[ ! -z "$BOOTSTRAP_HTTPS_PROXY_URL" ]]; then
     export https_proxy="${BOOTSTRAP_HTTPS_PROXY_URL}"
     curl -s --connect-timeout 10 https://github.com > /dev/null && true
     if [[ $? != 0 ]]; then
