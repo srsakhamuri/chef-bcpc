@@ -7,8 +7,6 @@ load_configs
   REQUIRED_VARS=( BOOTSTRAP_HTTP_PROXY_URL BOOTSTRAP_HTTPS_PROXY_URL )
   check_for_envvars "${REQUIRED_VARS[@]}"
   
-  set -e
-
   if [[ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]]; then
     export http_proxy="${BOOTSTRAP_HTTP_PROXY_URL}"
 
