@@ -40,8 +40,8 @@ if [[ -z "$(gem list --local fpm | awk '/fpm/ {print $1}')" ]]; then
 fi
 
 # Delete old kibana 4 deb
-if [[ -f "kibana_${VER_KIBANA}_amd64.deb" ]]; then
-  rm -f "kibana_${VER_KIBANA}_amd64.deb" "kibana_${VER_KIBANA}.tar.gz"
+if [[ -f kibana_"${VER_KIBANA}"_amd64.deb ]]; then
+  rm -f kibana_"${VER_KIBANA}"_amd64.deb kibana_"${VER_KIBANA}".tar.gz
 fi
 
 # fluentd plugins and dependencies are fetched by shared_prereqs.sh, just copy them
@@ -69,47 +69,47 @@ if [[ -f diamond.deb ]]; then
 fi
 # Make the diamond package
 if [[ ! -f diamond.deb ]]; then
-  (git clone "$FILECACHE_MOUNT_POINT/python-diamond" Diamond
-  cd Diamond
-  git checkout "$VER_DIAMOND"
-  make builddeb
-  VERSION=$(cat version.txt)
-  cd ..
-  mv "Diamond/build/diamond_${VERSION}_all.deb" diamond.deb
-  rm -rf Diamond)
+  git clone "$FILECACHE_MOUNT_POINT/python-diamond" Diamond &&
+  cd Diamond &&
+  git checkout "$VER_DIAMOND" &&
+  make builddeb &&
+  diamond_version=$(< version.txt) &&
+  cd .. &&
+  mv Diamond/build/diamond_"${diamond_version}"_all.deb diamond.deb &&
+  rm -rf Diamond || exit
 fi
 FILES="diamond.deb $FILES"
 
 if [[ ! -f elasticsearch-plugins.tgz ]]; then
-  (cp -r "$FILECACHE_MOUNT_POINT/elasticsearch-head" .
-  cd elasticsearch-head
-  git archive --output ../elasticsearch-plugins.tgz --prefix head/_site/ "$VER_ESPLUGIN"
-  cd ..
-  rm -rf elasticsearch-head)
+  cp -r "$FILECACHE_MOUNT_POINT/elasticsearch-head" . &&
+  cd elasticsearch-head &&
+  git archive --output ../elasticsearch-plugins.tgz --prefix head/_site/ "$VER_ESPLUGIN" &&
+  cd .. &&
+  rm -rf elasticsearch-head || exit
 fi
 FILES="elasticsearch-plugins.tgz $FILES"
 
 # Fetch pyrabbit
 if [[ ! -f pyrabbit-1.0.1.tar.gz ]]; then
-  cp -v "$FILECACHE_MOUNT_POINT/pyrabbit-1.0.1.tar.gz" .
+  cp -v "$FILECACHE_MOUNT_POINT"/pyrabbit-1.0.1.tar.gz .
 fi
 FILES="pyrabbit-1.0.1.tar.gz $FILES"
 
 # Build requests-aws package
-if [[ ! -f "python-requests-aws_${VER_REQUESTS_AWS}_all.deb" ]]; then
-  cp -v "$FILECACHE_MOUNT_POINT/requests-aws-${VER_REQUESTS_AWS}.tar.gz" .
-  tar zxf "requests-aws-${VER_REQUESTS_AWS}.tar.gz"
-  fpm -s python -t deb -f "requests-aws-${VER_REQUESTS_AWS}/setup.py"
-  rm -rf "requests-aws-${VER_REQUESTS_AWS}.tar.gz" "requests-aws-${VER_REQUESTS_AWS}"
+if [[ ! -f python-requests-aws_"${VER_REQUESTS_AWS}"_all.deb ]]; then
+  cp -v "$FILECACHE_MOUNT_POINT"/requests-aws-"${VER_REQUESTS_AWS}".tar.gz . &&
+  tar zxf requests-aws-"${VER_REQUESTS_AWS}".tar.gz &&
+  fpm -s python -t deb -f requests-aws-"${VER_REQUESTS_AWS}"/setup.py &&
+  rm -rf requests-aws-"${VER_REQUESTS_AWS}".tar.gz requests-aws-"${VER_REQUESTS_AWS}" || exit
 fi
 FILES="python-requests-aws_${VER_REQUESTS_AWS}_all.deb $FILES"
 
 # Build pyzabbix package
-if [[ ! -f "python-pyzabbix_${VER_PYZABBIX}_all.deb" ]]; then
-  cp -v "$FILECACHE_MOUNT_POINT/pyzabbix-${VER_PYZABBIX}.tar.gz" .
-  tar zxf "pyzabbix-${VER_PYZABBIX}.tar.gz"
-  fpm -s python -t deb -f "pyzabbix-${VER_PYZABBIX}/setup.py"
-  rm -rf "pyzabbix-${VER_PYZABBIX}.tar.gz pyzabbix-${VER_PYZABBIX}"
+if [[ ! -f python-pyzabbix_"${VER_PYZABBIX}"_all.deb ]]; then
+  cp -v "$FILECACHE_MOUNT_POINT"/pyzabbix-"${VER_PYZABBIX}".tar.gz . &&
+  tar zxf pyzabbix-"${VER_PYZABBIX}".tar.gz &&
+  fpm -s python -t deb -f pyzabbix-"${VER_PYZABBIX}"/setup.py &&
+  rm -rf pyzabbix-"${VER_PYZABBIX}".tar.gz pyzabbix-"${VER_PYZABBIX}" || exit
 fi
 FILES="python-pyzabbix_${VER_PYZABBIX}_all.deb $FILES"
 
@@ -120,32 +120,32 @@ fi
 FILES="pagerduty-zabbix-proxy.py $FILES"
 
 # Build graphite packages
-if [[ ! -f "python-carbon_${VER_GRAPHITE_CARBON}_all.deb" ]]; then
-  cp -v "$FILECACHE_MOUNT_POINT/carbon-${VER_GRAPHITE_CARBON}.tar.gz" .
-  tar zxf "carbon-${VER_GRAPHITE_CARBON}.tar.gz"
-  fpm --python-install-bin /opt/graphite/bin -s python -t deb -f "carbon-${VER_GRAPHITE_CARBON}/setup.py"
-  rm -rf "carbon-${VER_GRAPHITE_CARBON}" "carbon-${VER_GRAPHITE_CARBON}.tar.gz"
+if [[ ! -f python-carbon_"${VER_GRAPHITE_CARBON}"_all.deb ]]; then
+  cp -v "$FILECACHE_MOUNT_POINT"/carbon-"${VER_GRAPHITE_CARBON}".tar.gz . &&
+  tar zxf carbon-"${VER_GRAPHITE_CARBON}".tar.gz &&
+  fpm --python-install-bin /opt/graphite/bin -s python -t deb -f carbon-"${VER_GRAPHITE_CARBON}"/setup.py &&
+  rm -rf carbon-"${VER_GRAPHITE_CARBON}" carbon-"${VER_GRAPHITE_CARBON}".tar.gz || exit
 fi
 FILES="python-carbon_${VER_GRAPHITE_CARBON}_all.deb $FILES"
 
-if [[ ! -f "python-whisper_${VER_GRAPHITE_WHISPER}_all.deb" ]]; then
-  cp -v "$FILECACHE_MOUNT_POINT/whisper-${VER_GRAPHITE_WHISPER}.tar.gz" .
-  tar zxf "whisper-${VER_GRAPHITE_WHISPER}.tar.gz"
-  fpm --python-install-bin /opt/graphite/bin -s python -t deb -f "whisper-${VER_GRAPHITE_WHISPER}/setup.py"
-  rm -rf "whisper-${VER_GRAPHITE_WHISPER}" "whisper-${VER_GRAPHITE_WHISPER}.tar.gz"	
+if [[ ! -f python-whisper_"${VER_GRAPHITE_WHISPER}"_all.deb ]]; then
+  cp -v "$FILECACHE_MOUNT_POINT"/whisper-"${VER_GRAPHITE_WHISPER}".tar.gz . &&
+  tar zxf whisper-"${VER_GRAPHITE_WHISPER}".tar.gz &&
+  fpm --python-install-bin /opt/graphite/bin -s python -t deb -f whisper-"${VER_GRAPHITE_WHISPER}"/setup.py &&
+  rm -rf whisper-"${VER_GRAPHITE_WHISPER}" whisper-"${VER_GRAPHITE_WHISPER}".tar.gz || exit
 fi
 FILES="python-whisper_${VER_GRAPHITE_WHISPER}_all.deb $FILES"
 
 if [[ ! -f "python-graphite-web_${VER_GRAPHITE_WEB}_all.deb" ]]; then
-  cp -v "$FILECACHE_MOUNT_POINT/graphite-web-${VER_GRAPHITE_WEB}.tar.gz" .
-  tar zxf "graphite-web-${VER_GRAPHITE_WEB}.tar.gz"
-  fpm --python-install-lib /opt/graphite/webapp -s python -t deb -f "graphite-web-${VER_GRAPHITE_WEB}/setup.py"
-  rm -rf "graphite-web-${VER_GRAPHITE_WEB}" "graphite-web-${VER_GRAPHITE_WEB}.tar.gz"
+  cp -v "$FILECACHE_MOUNT_POINT"/graphite-web-"${VER_GRAPHITE_WEB}".tar.gz . &&
+  tar zxf graphite-web-"${VER_GRAPHITE_WEB}".tar.gz &&
+  fpm --python-install-lib /opt/graphite/webapp -s python -t deb -f graphite-web-"${VER_GRAPHITE_WEB}"/setup.py &&
+  rm -rf graphite-web-"${VER_GRAPHITE_WEB}" graphite-web-"${VER_GRAPHITE_WEB}".tar.gz || exit
 fi
 FILES="python-graphite-web_${VER_GRAPHITE_WEB}_all.deb $FILES"
 
 # add calicoctl binary
-CALICOCTL_BINARY=calicoctl-${VER_CALICOCTL}
+CALICOCTL_BINARY=calicoctl-"${VER_CALICOCTL}"
 if [[ ! -f "$CALICOCTL_BINARY" ]]; then
   cp -v "$FILECACHE_MOUNT_POINT/$CALICOCTL_BINARY" .
 fi
@@ -158,16 +158,16 @@ FILES="$CALICOCTL_BINARY $FILES"
 # directory that we want and we need a good place to run our tests from.
 
 if [[ ! -f rally.tar.gz ]]; then
-  cp "$FILECACHE_MOUNT_POINT/rally/rally-${VER_RALLY}.tar.gz ."
-  tar xvf "rally-${VER_RALLY}.tar.gz"
-  tar zcf rally.tar.gz -C "rally-${VER_RALLY}/" .
-  rm -rf "rally-${VER_RALLY}.tar.gz" "rally-${VER_RALLY}"
+  cp "$FILECACHE_MOUNT_POINT"/rally/rally-"${VER_RALLY}".tar.gz . &&
+  tar xvf rally-"${VER_RALLY}".tar.gz &&
+  tar zcf rally.tar.gz -C rally-"${VER_RALLY}"/ . &&
+  rm -rf rally-"${VER_RALLY}".tar.gz rally-"${VER_RALLY}" || exit
 fi
 
 # TODO FOR erhudy: fix up these Rally packages to be built like the Graphite stuff
 
 # Also test for deb if migrating from 5.1.x
-if [[ ! -f rally-pip.tar.gz ]] || [[ ! -f rally-bin.tar.gz ]] || [[ ! -f "python-pip_${VER_PIP}_all.deb" ]]; then
+if [[ ! -f rally-pip.tar.gz ]] || [[ ! -f rally-bin.tar.gz ]] || [[ ! -f python-pip_"${VER_PIP}"_all.deb ]]; then
   # Rally has a very large number of version specific dependencies!!
   # The latest version of PIP is installed instead of the distro version. We don't want this to block to exit on error
   # so it is changed here and reset at the end. Several apt packages must be present since easy_install builds
@@ -176,12 +176,12 @@ if [[ ! -f rally-pip.tar.gz ]] || [[ ! -f rally-bin.tar.gz ]] || [[ ! -f "python
   echo "Processing Rally setup..."
 
   # Create a deb for pip to replace really old upstream pip
-  if [[ ! -f python-pip_${VER_PIP}_all.deb ]]; then
-    cp "$FILECACHE_MOUNT_POINT/rally/pip-${VER_PIP}.tar.gz" .
-    tar xvzf "pip-${VER_PIP}.tar.gz"
-    fpm -s python -t deb "pip-${VER_PIP}/setup.py"
-    dpkg -i "python-pip_${VER_PIP}_all.deb"
-    rm -rf "pip-${VER_PIP}" "pip-${VER_PIP}.tar.gz"
+  if [[ ! -f python-pip_"${VER_PIP}"_all.deb ]]; then
+    cp "$FILECACHE_MOUNT_POINT"/rally/pip-"${VER_PIP}".tar.gz . &&
+    tar xvzf pip-"${VER_PIP}".tar.gz &&
+    fpm -s python -t deb pip-"${VER_PIP}"/setup.py &&
+    dpkg -i python-pip_"${VER_PIP}"_all.deb && 
+    rm -rf pip-"${VER_PIP}" pip-"${VER_PIP}".tar.gz || exit
   fi
 
   # We install rally and a few other items here. Since fpm does not resolve dependencies but only lists them, we
