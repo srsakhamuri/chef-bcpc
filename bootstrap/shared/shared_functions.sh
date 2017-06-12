@@ -4,13 +4,13 @@
 # via absolute paths.
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-if [[ $BOOTSTRAP_METHOD == "vagrant" ]]; then 
+if [[ "$BOOTSTRAP_METHOD" == "vagrant" ]]; then 
   do_on_node() {
-    NODE=$1
+    NODE="$1"
     shift
     COMMAND="${*}"
     echo "EXECUTING on $NODE"
-    vagrant ssh $NODE -c "$COMMAND"
+    vagrant ssh "$NODE" -c "$COMMAND"
   }
 else
   # define it here with whatever we would use to SSH to Packer-booted machines
@@ -19,14 +19,13 @@ fi
 
 check_for_envvars() {
   FAILED_ENVVAR_CHECK=0
-  REQUIRED_VARS="${@}"
-  for ENVVAR in ${REQUIRED_VARS[@]}; do
-    if [[ -z ${!ENVVAR} ]]; then
+  for ENVVAR; do
+    if [[ -z "${!ENVVAR}" ]]; then
       echo "Environment variable $ENVVAR must be set!" >&2
       FAILED_ENVVAR_CHECK=1
     fi
   done
-  if [[ $FAILED_ENVVAR_CHECK != 0 ]]; then exit 1; fi
+  if [[ "$FAILED_ENVVAR_CHECK" != 0 ]]; then exit 1; fi
 }
 
 load_configs(){
@@ -36,7 +35,7 @@ load_configs(){
   if [[ -f "$REPO_ROOT/bootstrap/config/bootstrap_config.sh" ]]; then
     if [[ ! -f "$REPO_ROOT/bootstrap/config/bootstrap_config.sh.overrides" ]]; then
       echo "Performing one-time move of bootstrap_config.sh to bootstrap_config.sh.overrides..."
-      mv $REPO_ROOT/bootstrap/config/bootstrap_config.sh $REPO_ROOT/bootstrap/config/bootstrap_config.sh.overrides
+      mv "$REPO_ROOT"/bootstrap/config/bootstrap_config.sh "$REPO_ROOT"/bootstrap/config/bootstrap_config.sh.overrides
     else
       echo "ERROR: both bootstrap_config.sh and bootstrap_config.sh.overrides exist!" >&2
       echo "Please move all overrides to bootstrap_config.sh.overrides and remove bootstrap_config.sh!" >&2
@@ -46,10 +45,10 @@ load_configs(){
 
   BOOTSTRAP_CONFIG_DEFAULTS="$REPO_ROOT/bootstrap/config/bootstrap_config.sh.defaults"
   BOOTSTRAP_CONFIG_OVERRIDES="$REPO_ROOT/bootstrap/config/bootstrap_config.sh.overrides"
-  if [[ ! -f $BOOTSTRAP_CONFIG_DEFAULTS ]]; then
+  if [[ ! -f "$BOOTSTRAP_CONFIG_DEFAULTS" ]]; then
     echo "Bootstrap configuration defaults are missing! Your repository is corrupt; please restore $REPO_ROOT/bootstrap/config/bootstrap_config.sh.defaults." >&2
     exit 1
   fi
-  source $BOOTSTRAP_CONFIG_DEFAULTS
-  if [[ -f $BOOTSTRAP_CONFIG_OVERRIDES ]]; then source $BOOTSTRAP_CONFIG_OVERRIDES; fi
+  source "$BOOTSTRAP_CONFIG_DEFAULTS"
+  if [[ -f "$BOOTSTRAP_CONFIG_OVERRIDES" ]]; then source "$BOOTSTRAP_CONFIG_OVERRIDES"; fi
 }
