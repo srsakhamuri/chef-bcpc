@@ -1,6 +1,19 @@
 #!/bin/bash
 # Exit immediately if anything goes wrong, instead of making things worse.
 set -e
+####################################################################
+
+# NB(kamidzi): following calls load_configs(); potentially is destructive to settings
+if [[ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]] || [[ ! -z "$BOOTSTRAP_HTTPS_PROXY_URL" ]] ; then
+  echo "Testing configured proxies..."
+  source "$REPO_ROOT/bootstrap/shared/shared_proxy_setup.sh"
+fi
+
+REQUIRED_VARS=( BOOTSTRAP_CACHE_DIR REPO_ROOT )
+check_for_envvars "${REQUIRED_VARS[@]}"
+
+# Create directory for download cache.
+mkdir -p "$BOOTSTRAP_CACHE_DIR"
 
 ubuntu_url="http://us.archive.ubuntu.com/ubuntu/dists/trusty-updates"
 
@@ -26,24 +39,10 @@ vbox_version="5.0.36"
 vbox_additions="VBoxGuestAdditions_$vbox_version.iso"
 vbox_url="http://download.virtualbox.org/virtualbox"
 
-curl_cmd() { curl -f --progress -L -H 'Accept-encoding: gzip,deflate' "$@"; }
-# wget_cmd() { wget --show-progress --no-check-certificate -nc -c -nd --header='Accept-Encoding: gzip,deflate' "$@"; }
-####################################################################
-
-if [[ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]] || [[ ! -z "$BOOTSTRAP_HTTPS_PROXY_URL" ]] ; then
-  echo "Testing configured proxies..."
-  source "$REPO_ROOT/bootstrap/shared/shared_proxy_setup.sh"
-fi
-
-REQUIRED_VARS=( BOOTSTRAP_CACHE_DIR REPO_ROOT )
-check_for_envvars "${REQUIRED_VARS[@]}"
-
 # List of binary versions to download
 source "$REPO_ROOT/bootstrap/config/build_bins_versions.sh"
 
-# Create directory for download cache.
-mkdir -p "$BOOTSTRAP_CACHE_DIR"
-
+curl_cmd() { curl -f --progress -L -H 'Accept-encoding: gzip,deflate' "$@"; }
 
 ####################################################################
 # download_file wraps the usual behavior of curling a remote URL to a local file
