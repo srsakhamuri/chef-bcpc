@@ -131,3 +131,10 @@ ruby_block 'converge-io-scheduler' do
     devices_to_converge.length.zero?
   end
 end
+
+template '/etc/updatedb.conf' do
+  source 'updatedb.conf.erb'
+  owner 'root'
+  group 'root'
+  mode 00644
+end
