@@ -7,6 +7,8 @@ set -e
 if [[ ! -z "$BOOTSTRAP_HTTP_PROXY_URL" ]] || [[ ! -z "$BOOTSTRAP_HTTPS_PROXY_URL" ]] ; then
   echo "Testing configured proxies..."
   source "$REPO_ROOT/bootstrap/shared/shared_proxy_setup.sh"
+else
+  source "$REPO_ROOT/bootstrap/shared/shared_functions.sh"
 fi
 
 REQUIRED_VARS=( BOOTSTRAP_CACHE_DIR REPO_ROOT )
@@ -100,9 +102,11 @@ clone_repo() {
   version="$3"
 
   if [[ -d "$BOOTSTRAP_CACHE_DIR/$local_dir/.git" ]]; then
-    git -C "$BOOTSTRAP_CACHE_DIR/$local_dir" log --pretty=format:'%H' | \
+    pushd "$BOOTSTRAP_CACHE_DIR/$local_dir"
+    git log --pretty=format:'%H' | \
     grep -q "$version" || \
-    git -C "$BOOTSTRAP_CACHE_DIR/$local_dir" pull
+    git pull
+    popd
   else
     git clone "$repo_url" "$BOOTSTRAP_CACHE_DIR/$local_dir"
   fi
