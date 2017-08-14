@@ -133,7 +133,14 @@ multi_host=True
 fixed_range=<%=node['bcpc']['fixed']['cidr']%>
 floating_range=<%=node['bcpc']['floating']['cidr']%>
 network_size=<%=node['bcpc']['fixed']['network_size']%>
+<% if node['bcpc']['nova']['conditional_dns'] %>
+<% @dns_servers.each do |dns_server| %>
+dns_server=<%= dns_server %>
+<% end %>
+dns_server=/<%= @fixed_reverse_zone %>/<%= node['bcpc']['management']['vip'] %>
+<% else %>
 flat_network_dns=<%=node['bcpc']['management']['vip']%>
+<% end %>
 dhcpbridge_flagfile=/etc/nova/nova.conf
 dhcpbridge=/usr/bin/nova-dhcpbridge
 force_dhcp_release=False
