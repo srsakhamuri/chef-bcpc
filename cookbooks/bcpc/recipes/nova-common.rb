@@ -52,6 +52,9 @@ template "/etc/nova/nova.conf" do
     variables(
       lazy {
         {
+          :dns_servers => node['bcpc']['dns_servers'],
+          :fixed_reverse_zone => \
+            calc_reverse_dns_zone(node['bcpc']['fixed']['cidr']).first,
           :servers => get_head_nodes
         }
       }
