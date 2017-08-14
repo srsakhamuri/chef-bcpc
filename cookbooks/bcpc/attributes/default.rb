@@ -391,6 +391,13 @@ default['bcpc']['nova']['quota'] = {
   "instances" => -1,
   "ram" => 8192
 }
+# Conditionally forwards queries to external DNS servers.
+# When false, all DNS queries will be resolved via nameservers defined in
+# /etc/resolv.conf.
+# When true, all DNS queries will be forwarded to external DNS servers
+# by each tenant's dnsmasq instance, except fixed zone PTRs.
+default['bcpc']['nova']['conditional_dns'] = false
+
 # load a custom vendor driver,
 # e.g. "nova.api.metadata.bcpc_metadata.BcpcMetadata",
 # comment out to use default
