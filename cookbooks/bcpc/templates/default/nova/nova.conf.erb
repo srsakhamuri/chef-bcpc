@@ -12,34 +12,28 @@
 #qpid_username=admin
 #qpid_password=<%=get_config('rabbitmq-password')%>
 
-# memcached settings
-memcached_servers=<%=@servers.map{|x| x['bcpc']['management']['ip'] + ":11211"}.join(",")%>
-
 # Nova API settings
 auth_strategy=keystone
 api_paste_config=/etc/nova/api-paste.ini
 s3_host=<%=node['bcpc']['management']['vip']%>
 osapi_compute_listen=<%= node['bcpc']['management']['ip'] %>
 osapi_compute_workers=<%=node['bcpc']['nova']['workers']%>
+<% if node['bcpc']['enabled']['neutron'] %>
+metadata_listen=127.0.0.1
+<% else %>
 metadata_listen=169.254.169.254
+<% end %>
 metadata_host=169.254.169.254
 metadata_workers=<%=node['bcpc']['nova']['workers']%>
 dmz_cidr=169.254.169.254/32
 <% if @servers.include?(node) -%>
-enabled_apis=ec2,osapi_compute,metadata
+enabled_apis=osapi_compute,metadata
 <% else -%>
 enabled_apis=metadata
 <% end %>
 <% if not node["bcpc"]["vendordata_driver"].nil? %>
 vendordata_driver = <%=node["bcpc"]["vendordata_driver"] %>
 <% end %>
-
-# EC2 compatibility API settings
-ec2_listen = <%= node['bcpc']['management']['ip'] %>
-ec2_host = <%= node['bcpc']['management']['vip'] %>
-ec2_workers = <%= node['bcpc']['nova']['workers'] %>
-ec2_private_dns_show_ip = True
-keystone_ec2_url = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:<%= node['bcpc']['catalog']['identity']['ports']['public'] %>/<%= node['bcpc']['catalog']['identity']['uris']['public'] %>/ec2tokens
 
 <% if node['bcpc']['nova']['notifications']['enabled'] %>
 # Nova notification settings
@@ -57,7 +51,67 @@ cpu_allocation_ratio=<%=node['bcpc']['nova']['cpu_allocation_ratio']%>
 scheduler_host_subset_size=<%= node['bcpc']['nova']['scheduler_host_subset_size'] %>
 max_concurrent_builds=<%= node['bcpc']['nova']['max_concurrent_builds'] %>
 
-# Nova Network settings
+# Nova Compute settings
+compute_driver=libvirt.LibvirtDriver
+compute_monitors = cpu.virt_driver
+use_cow_images=True
+#snapshot_image_format=qcow2
+sync_power_state_interval=<%= node['bcpc']['nova']['sync_power_state_interval'] %>
+resume_guests_state_on_host_boot=<%= node['bcpc']['nova']['resume_guests_state_on_host_boot'] %>
+<% if node['bcpc']['nova']['cpu_config']['vcpu_pin_set'] %>
+vcpu_pin_set = <%= node['bcpc']['nova']['cpu_config']['vcpu_pin_set'] %>
+<% end %>
+
+# Nova Volume settings
+volume_api_class=nova.volume.cinder.API
+
+# Glance settings
+image_service=nova.image.glance.GlanceImageService
+
+# Cloudpipe
+vpn_image_id=<%=get_config('glance-cloudpipe-uuid')%>
+use_project_ca=True
+cnt_vpn_clients=5
+
+# Misc other settings
+log-dir=/var/log/nova
+state_path=/var/lib/nova
+rootwrap_config=/etc/nova/rootwrap.conf
+debug=<%= node['bcpc']['nova']['debug'] %>
+<% if not node['bcpc']['nova']['default_log_levels'].nil? %>
+default_log_levels="<%= node['bcpc']['nova']['default_log_levels'] %>"
+<% end %>
+#rpc_response_timeout=120
+
+# ca_file = /etc/ssl/certs/ssl-bcpc.pem
+# cinder_ca_certificates_file = /etc/ssl/certs/ssl-bcpc.pem
+
+# Quotas
+<% node['bcpc']['nova']['quota'].each do | key, value| %>
+quota_<%=key%> = <%= value %>
+<% end %>
+max_age = 28800
+until_refresh = 10
+
+# Nova VNC settings
+novncproxy_host=<%=node['bcpc']['management']['ip']%>
+
+# Networking settings
+<% if node['bcpc']['enabled']['neutron'] %>
+network_api_class = nova.network.neutronv2.api.API
+security_group_api=neutron
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+vif_plugging_is_fatal = False
+vif_plugging_timeout = 0
+
+[neutron]
+url = <%= node['bcpc']['protocol']['neutron'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:9696
+admin_tenant_name = <%= node['bcpc']['admin_tenant'] %>
+auth_strategy = keystone
+admin_auth_url = <%= node['bcpc']['protocol']['keystone'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:35357/v2.0/
+admin_username = <%= get_config('keystone-admin-user') %>
+admin_password = <%= get_config('keystone-admin-password') %>
+<% else %>
 network_manager=nova.network.manager.VlanManager
 firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
 allow_same_net_traffic=False
@@ -89,58 +143,14 @@ routing_source_ip=<%=node['bcpc']['floating']['ip']%>
 dhcp_domain=<%=node['bcpc']['cluster_domain']%>
 default_availability_zone=
 default_floating_pool = <%= node['bcpc']['region_name'] %>
-
-# Nova Compute settings
-compute_driver=libvirt.LibvirtDriver
-compute_monitors = cpu.virt_driver
-use_cow_images=True
-#snapshot_image_format=qcow2
-sync_power_state_interval=<%= node['bcpc']['nova']['sync_power_state_interval'] %>
-resume_guests_state_on_host_boot=<%= node['bcpc']['nova']['resume_guests_state_on_host_boot'] %>
-<% if node['bcpc']['nova']['cpu_config']['vcpu_pin_set'] %>
-vcpu_pin_set = <%= node['bcpc']['nova']['cpu_config']['vcpu_pin_set'] %>
 <% end %>
-
-# Nova Volume settings
-volume_api_class=nova.volume.cinder.API
-
-# Glance settings
-image_service=nova.image.glance.GlanceImageService
-
-# Cloudpipe
-vpn_image_id=<%=get_config('glance-cloudpipe-uuid')%>
-use_project_ca=True
-cnt_vpn_clients=5
-
-# Misc other settings
-logdir=/var/log/nova
-state_path=/var/lib/nova
-rootwrap_config=/etc/nova/rootwrap.conf
-verbose=<%= node['bcpc']['nova']['verbose'] %>
-debug=<%= node['bcpc']['nova']['debug'] %>
-<% if not node['bcpc']['nova']['default_log_levels'].nil? %>
-default_log_levels="<%= node['bcpc']['nova']['default_log_levels'] %>"
-<% end %>
-#rpc_response_timeout=120
-
-# ca_file = /etc/ssl/certs/ssl-bcpc.pem
-# cinder_ca_certificates_file = /etc/ssl/certs/ssl-bcpc.pem
-
-# Quotas
-<% node['bcpc']['nova']['quota'].each do | key, value| %>
-quota_<%=key%> = <%= value %>
-<% end %>
-max_age = 28800
-until_refresh = 10
-
-# Nova VNC settings
-novncproxy_host=<%=node['bcpc']['management']['ip']%>
 
 [vnc]
 enabled=True
 ssl_only=false
 key=/etc/nova/ssl-bcpc.key
 cert=/etc/nova/ssl-bcpc.pem
+novncproxy_host=<%=node['bcpc']['management']['ip']%>
 <% if node['bcpc']['vnc']['proxy_use_vip'] %>
 novncproxy_base_url=https://<%=node['bcpc']['management']['vip']%>:6080/vnc_auto.html
 <% else %>
@@ -164,10 +174,14 @@ amqp_durable_queues=<%=node['bcpc']['rabbitmq']['durable_queues']%>
 [database]
 # MySQL Connection
 connection=mysql://<%=get_config('mysql-nova-user')%>:<%=get_config('mysql-nova-password')%>@<%=node['bcpc']['management']['vip']%>/<%=node['bcpc']['dbname']['nova']%>
+max_overflow=<%= node['bcpc']['nova']['database']['max_overflow'] %>
+max_pool_size=<%= node['bcpc']['nova']['database']['max_pool_size'] %>
 idle_timeout=3600
 
 [api_database]
 connection=mysql://<%= get_config('mysql-nova-api-user') %>:<%= get_config('mysql-nova-api-password') %>@<%= node['bcpc']['management']['vip'] %>/<%= node['bcpc']['dbname']['nova_api'] %>
+max_overflow=<%= node['bcpc']['nova']['database']['max_overflow'] %>
+max_pool_size=<%= node['bcpc']['nova']['database']['max_pool_size'] %>
 idle_timeout=3600
 
 [ssl]
@@ -175,13 +189,10 @@ idle_timeout=3600
 
 # Keystone settings
 [keystone_authtoken]
-# cafile = /etc/ssl/certs/ssl-bcpc.pem
-auth_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:5000/<%= node['bcpc']['catalog']['identity']['uris']['internal'] %>/
-identity_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:35357
-auth_version = <%= node['bcpc']['catalog']['identity']['uris']['internal'] %>
-admin_tenant_name = <%=node['bcpc']['admin_tenant']%>
-admin_user = <%=get_config('keystone-admin-user')%>
-admin_password = <%=get_config('keystone-admin-password')%>
+<% snippet = 'keystone/keystone_authtoken.snippet.erb' %>
+<%# add the node for chef nonsense... see https://github.com/chef/chef/issues/1506 %>
+<% vars = @partials[snippet]['variables'].merge({node: @node}) %>
+<%= render snippet, :variables => vars %>
 signing_dir = /var/lib/nova
 memcached_servers=<%=@servers.map{|x| x['bcpc']['management']['ip'] + ":11211"}.join(",")%>
 memcache_pool_conn_get_timeout=1
@@ -230,3 +241,7 @@ cpu_model = <%= node['bcpc']['nova']['cpu_config']['cpu_model'] %>
 <%=k %>=<%=v %>
 <% end %>
 <% end %>
+
+[oslo_cache]
+enabled = true
+memcached_servers=<%=@servers.map{|x| x['bcpc']['management']['ip'] + ":11211"}.join(",")%>

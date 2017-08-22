@@ -12,7 +12,7 @@ fqdn=$4
 bucket=$5
 s3_path=$6
 local_path=/tmp
-filename="$script-$(hostname -s)-$fqdn"
+filename="$script-$(hostname -s)-$fqdn-$start_time"
 file_content="$(uuidgen) $date"
 content_type='application/x-compressed-tar'
 acl="x-amz-acl:private"
@@ -30,6 +30,12 @@ function get_date()
 {
   date=`date -R -u`
   echo $date
+}
+
+function log()
+{
+  message=$1
+  logger -t s3test -p syslog.notice $message
 }
 
 # Create a monitoring test file for upload
@@ -61,6 +67,7 @@ for verb in PUT GET DELETE; do
     curl="$curl -o $local_path/$filename"
   fi
 
+  log "Starting $verb $filename"
   $curl \
     -H "Host: $bucket.$fqdn" \
     -H "Date: $date" \
@@ -69,7 +76,9 @@ for verb in PUT GET DELETE; do
     -H "Authorization: AWS ${key}:$signature" \
     $proto://$bucket.$fqdn$s3_path$filename 2>/dev/null
 
-  [[ $? -eq 0 ]] || { echo -1 && exit 0; }
+  rc="$?"
+  log "$verb $filename returned $rc"
+  [[ $rc -eq 0 ]] || { echo -1 && exit 0; }
 
   # Ensure monitoring test file does not exist
   [[ -f $local_path/$filename ]] && rm -f $local_path/$filename

@@ -40,6 +40,7 @@ listen mysql-galera
   option tcpka
   option httpchk
   option nolinger
+  maxconn <%= @mysql_max_connections %>
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:3306 check port 3307 inter 5s rise 1 fall 1 observe layer4 backup" %>
 <% end -%>
@@ -106,16 +107,6 @@ listen cinder-api
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8776 check inter 5s rise 1 fall 1" %>
 <% end -%>
 
-listen nova-ec2
-  bind <%=node['bcpc']['management']['vip']%>:8773 <%= (node['bcpc']['protocol']['nova'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
-  balance source
-  option tcplog
-  option httpchk GET /
-  http-check expect status 400
-<% @servers.each do |server| -%>
-  <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8773 check inter 5s rise 1 fall 1" %>
-<% end -%>
-
 listen nova-api
   bind <%=node['bcpc']['management']['vip']%>:8774 <%= (node['bcpc']['protocol']['nova'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
@@ -125,6 +116,18 @@ listen nova-api
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8774 check inter 5s rise 1 fall 1" %>
 <% end -%>
+
+<% if node['bcpc']['enabled']['neutron'] %>
+listen neutron-api
+  bind <%=node['bcpc']['management']['vip']%>:9696 <%= (node['bcpc']['protocol']['neutron'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
+  balance source
+  option tcplog
+  option httpchk GET /
+  http-check expect status 200
+<% @servers.each do |server| -%>
+  <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:9696 check inter 5s rise 1 fall 1" %>
+<% end -%>
+<% end %>
 
 listen heat-api
   bind <%=node['bcpc']['management']['vip']%>:8004 <%= (node['bcpc']['protocol']['heat'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>

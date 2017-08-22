@@ -172,7 +172,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 OPENSTACK_HOST = "openstack.<%=node['bcpc']['cluster_domain']%>"
 
 OPENSTACK_KEYSTONE_URL = "<%=node['bcpc']['protocol']['keystone']%>://%s:5000/<%= node['bcpc']['catalog']['identity']['uris']['internal'] %>" % OPENSTACK_HOST
-OPENSTACK_KEYSTONE_DEFAULT_ROLE = "<%=node['bcpc']['member_role']%>"
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = "<%=node['bcpc']['keystone']['member_role']%>"
 
 <% if node['bcpc']['ssl_certificate'] %>
 OPENSTACK_SSL_NO_VERIFY = False

@@ -26,8 +26,8 @@ end
 def openstack_cli
   # even on Kilo with a v1.1 compute API endpoint, force v2
   args =  ["openstack",
-           "--os-tenant-name", node['bcpc']['admin_tenant'],
-           "--os-project-name", node['bcpc']['admin_tenant'],
+           "--os-tenant-name", node['bcpc']['keystone']['admin_tenant'],
+           "--os-project-name", node['bcpc']['keystone']['admin_tenant'],
            "--os-username", get_config('keystone-admin-user'),
            "--os-compute-api-version", "2",
            "--os-auth-url", "#{node['bcpc']['protocol']['keystone']}://openstack.#{node['bcpc']['cluster_domain']}:#{node['bcpc']['catalog']['identity']['ports']['public']}/#{node['bcpc']['catalog']['identity']['uris']['public']}/",

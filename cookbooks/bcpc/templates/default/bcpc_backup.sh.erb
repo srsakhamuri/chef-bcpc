@@ -179,6 +179,7 @@ mv $PG_BACKUP_TMP $CHEF_SERVER_BACKUP_PATH
 
 tar cjf $CHEF_SERVER_BACKUP_PATH/etc-opscode.tar.bz2 /etc/opscode 2>/dev/null
 tar cjf $CHEF_SERVER_BACKUP_PATH/var-opt-opscode.tar.bz2 /var/opt/opscode 2>/dev/null
+tar cjf $CHEF_SERVER_BACKUP_PATH/etc-chef.tar.bz2 /etc/chef 2>/dev/null
 
 # prune old backups for currently given retention ($2)
 

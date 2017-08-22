@@ -18,6 +18,8 @@
 #
 
 include_recipe "bcpc::default"
+# There is cyclical dependency upon some of checks - see /etc/xinetd.d/*chk
+include_recipe "bcpc::xinetd"
 include_recipe "bcpc::haproxy-common"
 
 concat_fragment "haproxy-main-config" do
@@ -28,6 +30,7 @@ concat_fragment "haproxy-main-config" do
     lazy {
       {
         :servers => get_head_nodes,
+        :mysql_max_connections => get_mysql_max_connections,
         :radosgw_servers => search_nodes('recipe', 'ceph-rgw')
       }
     }

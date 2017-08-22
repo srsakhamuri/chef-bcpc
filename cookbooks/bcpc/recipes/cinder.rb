@@ -25,6 +25,7 @@ ruby_block "initialize-cinder-config" do
     block do
         make_config('mysql-cinder-user', "cinder")
         make_config('mysql-cinder-password', secure_password)
+        make_config('keystone-cinder-password', secure_password)
         make_config('libvirt-secret-uuid', %x[uuidgen -r].strip)
     end
 end
@@ -83,14 +84,22 @@ service "cinder-api" do
 end
 
 template "/etc/cinder/cinder.conf" do
-    source "cinder.conf.erb"
+    source "cinder/cinder.conf.erb"
     owner "cinder"
     group "cinder"
-    mode 00600
+    mode "0600"
     variables(
       lazy {
         {
-          :servers => get_head_nodes
+          :servers => get_head_nodes,
+          :partials => {
+            "keystone/keystone_authtoken.snippet.erb" => {
+              "variables" => {
+                username: node['bcpc']['cinder']['user'],
+                password: get_config('keystone-cinder-password')
+              }
+            }
+          }
         }
       }
     )
@@ -138,9 +147,55 @@ bash "cinder-database-sync" do
     notifies :restart, "service[cinder-scheduler]", :immediately
 end
 
+# Configure the glance keystone bits
+# https://docs.openstack.org/mitaka/install-guide-ubuntu/glance-install.html
+domain = node['bcpc']['keystone']['service_project']['domain']
+cinder_username = node['bcpc']['cinder']['user']
+cinder_project_name = node['bcpc']['keystone']['service_project']['name']
+
+ruby_block "keystone-create-cinder-user" do
+  block do
+    execute_in_keystone_admin_context("openstack user create --domain #{domain} --password #{get_config('keystone-cinder-password')} #{cinder_username}")
+  end
+  not_if { execute_in_keystone_admin_context("openstack user show --domain #{domain} #{cinder_username}") ; $?.success? }
+end
+
+ruby_block "keystone-assign-cinder-admin-role" do
+  block do
+    execute_in_keystone_admin_context("openstack role add --project #{cinder_project_name} --user #{cinder_username} #{node['bcpc']['keystone']['admin_role']}")
+  end
+  # NOTE(kmidzi): below command always returns, so check for valid json output; break pattern with only_if
+  only_if {
+    begin
+      r = JSON.parse execute_in_keystone_admin_context("openstack role assignment list --role #{node['bcpc']['keystone']['admin_role']} --project #{cinder_project_name} --user #{cinder_username} -fjson")
+      r.empty?
+    rescue JSON::ParserError
+      true
+    end
+  }
+end
+
+# Write out cinder openrc
+template "/root/cinder-openrc" do
+    source "keystone/openrc.erb"
+    owner cinder_username
+    group cinder_username
+    mode "0600"
+    variables(
+      lazy {
+        {
+          username: cinder_username,
+          password: get_config('keystone-cinder-password'),
+          project_name: cinder_project_name,
+          domain: domain
+        }
+      }
+    )
+end
+
 # this is a synchronization resource that polls Cinder until it stops returning 503s
 bash "wait-for-cinder-to-become-operational" do
-    code ". /root/adminrc; until cinder list >/dev/null 2>&1; do sleep 1; done"
+    code ". /root/cinder-openrc; until cinder list >/dev/null 2>&1; do sleep 1; done"
     timeout 120
 end
 
@@ -148,11 +203,11 @@ node['bcpc']['ceph']['enabled_pools'].each do |type|
     bash "cinder-make-type-#{type}" do
         user "root"
         code <<-EOH
-            . /root/adminrc
+            . /root/cinder-openrc
             cinder type-create #{type.upcase}
             cinder type-key #{type.upcase} set volume_backend_name=#{type.upcase}
         EOH
-        not_if ". /root/adminrc; cinder type-list | grep #{type.upcase}"
+        not_if ". /root/cinder-openrc; cinder type-list | grep #{type.upcase}"
     end
 end
 
@@ -160,7 +215,7 @@ node['bcpc']['cinder']['quota'].each do |k, v|
   bash "cinder-set-default-#{k}-quota" do
     user "root"
     code <<-EOH
-      . /root/adminrc
+      . /root/cinder-openrc
       cinder quota-class-update --#{k} #{v} default
     EOH
   end

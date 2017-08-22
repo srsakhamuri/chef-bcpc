@@ -229,6 +229,14 @@ def get_ceph_optimal_pg_count(pool)
     node['bcpc']['ceph'][pool]['portion'] / 100)
 end
 
+def get_mysql_max_connections
+  if node['bcpc']['mysql-head']['max_connections'].nil? or node['bcpc']['mysql-head']['max_connections'].zero?
+     [get_head_nodes.length*150+get_all_nodes.length*10, 450].max
+  else
+    node['bcpc']['mysql-head']['max_connections']
+  end
+end
+
 def get_bootstrap_node
     filter = {
       :filter_result => {
@@ -403,11 +411,13 @@ def generate_service_catalog_uri(svcprops, access_level)
   "#{node['bcpc']['protocol'][svcprops['project']]}://openstack.#{node['bcpc']['cluster_domain']}:#{svcprops['ports'][access_level]}/#{svcprops['uris'][access_level]}"
 end
 
-def execute_in_keystone_admin_context(cmd)
-  %x[
-    . /root/api_versionsrc
+def execute_in_keystone_admin_context(cmd, debug=false)
+  script = <<-EoS
+    . /root/api_versionsrc ;
     export OS_TOKEN="#{get_config('keystone-admin-token')}";
     export OS_URL="#{node['bcpc']['protocol']['keystone']}://openstack.#{node['bcpc']['cluster_domain']}:#{node['bcpc']['catalog']['identity']['ports']['admin']}/#{node['bcpc']['catalog']['identity']['uris']['admin']}/";
     #{cmd}
-  ]
+  EoS
+  script = "set -x;\n" + script if debug
+  %x[ #{script} ]
 end

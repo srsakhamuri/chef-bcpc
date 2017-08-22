@@ -1,12 +1,12 @@
-﻿#Bloomberg Clustered Private Cloud - Network Architecture v1.0
+﻿# Bloomberg Clustered Private Cloud - Network Architecture v1.0
 
-##Introduction 
+## Introduction 
 
 This document defines the networks and related infrastructure necessary to 
 build a physical OpenStack cluster using Bloomberg's 'chef-bcpc' OpenStack 
 distribution. 
 
-##Rationale
+## Rationale
 
 Most BCPC cluster builds happen on VirtualBox during normal
 development, for both speed of build and convenience. When working
@@ -23,7 +23,7 @@ discrete networking hardware is not standardised enough for this to be
 scripted in a universal way. This document attempts to provide enough
 info to build such networks, enabling a physical BCPC cluster build.
 
-##Required Networks
+## Required Networks
 
 Running BCPC clusters require four core data networks to be configured
 on the cluster switch(es) and router(s), but typically use 3 or even
@@ -48,7 +48,7 @@ network.
 
 [1] running on < 3 physical NICs is possible, see appendix A
 
-##BCPC Cluster networks : names, sample traffic
+## BCPC Cluster networks : names, sample traffic
 
 The four data networks on a BCPC cluster are:
 
@@ -68,7 +68,7 @@ The four data networks on a BCPC cluster are:
 
   example : Ceph monitor election traffic, Ceph OSD replication traffic
 
-##Layer 2 spanning
+## Layer 2 spanning
 
 In this version of the BCPC network architecture, all networks are
 required to be simply-connected internally at Layer 2 (the storage
@@ -81,7 +81,7 @@ is a requirement, this requires some type of explicit Layer 2 spanning
 architecture (e.g. leaf/spine using MC-LAG) so as to extend the Layer
 2 (broadcast) domain across multiple switches.
 
-##Routing
+## Routing
 
 A BCPC cluster also requires a local Layer 3 router, both to forward
 traffic between the cluster networks and for north-south
@@ -95,7 +95,7 @@ Note: If a "trunk port" is not explicitly supported by the switch, you just
 need to configure a port which will see all BCPC VLANs (mgmt, storage,
 fixed, float) so as to be able to see and forward any packet.
 
-##BCPC detailed network requirements.
+## BCPC detailed network requirements.
 
 Minimum IP range sizes are discussed in the following sections for
 cases where they are constrained, however if possible it is better to
@@ -206,9 +206,9 @@ routing for this network is not technically required. The storage
 network subnet is defined as usual in the Chef attributes, typically
 in the environment file.
 
-###Appendix A
+### Appendix A
 
-####Moving the mgmt network onto the same NIC as float
+#### Moving the mgmt network onto the same NIC as float
 
 Using the default NIC with its own link to the switch can be easier to
 configure when first attempting to build a physical cluster. For
@@ -232,11 +232,11 @@ interfaces come and go as nova network builds and tears down tenant
 networks and virtual NICs bridged to the physical NIC assigned to the
 float network.
 
-###Appendix B
+### Appendix B
 
-####Network summary table
+#### Network summary table
 
-#####default
+##### default
 
 |        |tagged |  routed |  nic assign|          
 | ---    | ---   | ---     | --- |
@@ -245,7 +245,7 @@ float network.
 |float   |  y    |    y    |  2|
 |storage |  y    |    n    |  3|
 
-#####alternate
+##### alternate
 
 note: if you only use two NICs, mgmt, fixed and float should be on the
 first NIC and storage on the second i.e.

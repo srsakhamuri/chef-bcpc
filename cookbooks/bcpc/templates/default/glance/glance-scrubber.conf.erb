@@ -43,11 +43,10 @@ registry_host = <%=node['bcpc']['management']['vip']%>
 # Port the registry server is listening on
 registry_port = 9191
 
-# Auth settings if using Keystone
-auth_url = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:5000/v2.0/
-admin_tenant_name = <%=node['bcpc']['admin_tenant']%>
-admin_user = <%=get_config('keystone-admin-user')%>
-admin_password = <%=get_config('keystone-admin-password')%>
+
+# Role used to identify an authenticated user as administrator.
+# (string value)
+admin_role = <%=node['bcpc']['keystone']['admin_role']%>
 
 # Directory to use for lock files. Default to a temp directory
 # (string value). This setting needs to be the same for both
