@@ -7,7 +7,7 @@ default['bcpc']['country'] = "US"
 default['bcpc']['state'] = "NY"
 default['bcpc']['location'] = "New York"
 default['bcpc']['organization'] = "Bloomberg"
-default['bcpc']['openstack_release'] = "liberty"
+default['bcpc']['openstack_release'] = "mitaka"
 # Can be "updates" or "proposed"
 default['bcpc']['openstack_branch'] = "proposed"
 # Should be kvm (or qemu if testing in VMs that don't support VT-x)
@@ -208,6 +208,7 @@ default['bcpc']['dbname']['zabbix'] = "zabbix"
 
 default['bcpc']['admin_tenant'] = "AdminTenant"
 default['bcpc']['admin_role'] = "Admin"
+default['bcpc']['admin_username'] = "admin"
 default['bcpc']['member_role'] = "Member"
 default['bcpc']['admin_email'] = "admin@localhost.com"
 
@@ -249,130 +250,13 @@ default['bcpc']['memcached']['connections'] = 10240
 # (if the last panel in a group is removed, the group will also be removed)
 default['bcpc']['horizon']['disable_panels'] = ['containers']
 
-###########################################
-#
-#  Keystone Settings
-#
-###########################################
-#
-# Default log file
-default['bcpc']['keystone']['log_file'] = '/var/log/keystone/keystone.log'
-# Turn caching via memcached on or off.
-default['bcpc']['keystone']['enable_caching'] = true
-# Enable debug logging (also caching debug logging).
-default['bcpc']['keystone']['debug'] = false
-# Enable verbose logging.
-default['bcpc']['keystone']['verbose'] = false
-# Set the timeout for how long we will wait for Keystone to become operational
-# before failing (configures timeout on the wait-for-keystone-to-be-operational
-# spinlock guard).
-default['bcpc']['keystone']['wait_for_keystone_timeout'] = 120
-# Set the number of Keystone WSGI processes and threads to use by default on the
-# public API (experimentally threads > 1 may cause problems with the service
-# catalog, for now we recommend scaling only in the processes dimension)
-default['bcpc']['keystone']['wsgi']['processes'] = 5
-default['bcpc']['keystone']['wsgi']['threads'] = 1
-# configure SQLAlchemy overflow/QueuePool sizes
-default['bcpc']['keystone']['database']['max_overflow'] = 10
-default['bcpc']['keystone']['database']['max_pool_size'] = 5
-# The driver section below allows either 'sql' or 'ldap' (or 'templated' for catalog)
-# Note that not all drivers may support SQL/LDAP, only tinker if you know what you're getting into
-default['bcpc']['keystone']['drivers']['assignment'] = 'sql'
-default['bcpc']['keystone']['drivers']['catalog'] = 'sql'
-default['bcpc']['keystone']['drivers']['credential'] = 'sql'
-default['bcpc']['keystone']['drivers']['domain_config'] = 'sql'
-default['bcpc']['keystone']['drivers']['endpoint_filter'] = 'sql'
-default['bcpc']['keystone']['drivers']['endpoint_policy'] = 'sql'
-default['bcpc']['keystone']['drivers']['federation'] = 'sql'
-default['bcpc']['keystone']['drivers']['identity'] = 'sql'
-default['bcpc']['keystone']['drivers']['identity_mapping'] = 'sql'
-default['bcpc']['keystone']['drivers']['oauth1'] = 'sql'
-default['bcpc']['keystone']['drivers']['policy'] = 'sql'
-default['bcpc']['keystone']['drivers']['revoke'] = 'sql'
-default['bcpc']['keystone']['drivers']['role'] = 'sql'
-default['bcpc']['keystone']['drivers']['token'] = 'memcache_pool'
-default['bcpc']['keystone']['drivers']['trust'] = 'sql'
-# Notifications driver
-default['bcpc']['keystone']['drivers']['notification'] = 'log'
-# token format
-default['bcpc']['keystone']['providers']['token'] = 'fernet'
-# enable automatic key rotation for Fernet tokens
-# (recommended but just in case you want it off)
-default['bcpc']['keystone']['rotate_fernet_tokens'] = true
-# rotate Fernet tokens after they reach this age (if enabled)
-default['bcpc']['keystone']['fernet_token_max_age_seconds'] = 7*24*60*60
-# Notifications format. See: http://docs.openstack.org/developer/keystone/event_notifications.html
-default['bcpc']['keystone']['notification_format'] = 'cadf'
-
-# LDAP credentials used by Keystone
-default['bcpc']['ldap']['admin_user'] = nil
-default['bcpc']['ldap']['admin_pass'] = nil
-default['bcpc']['ldap']['config'] = {}
 
 ###########################################
 #
-#  Nova Settings
+#  Misc storage Settings
 #
 ###########################################
 #
-# Over-allocation settings. Set according to your cluster
-# SLAs. Default is to not allow over allocation of memory
-# a slight over allocation of CPU (x2).
-default['bcpc']['nova']['ram_allocation_ratio'] = 1.0
-default['bcpc']['nova']['reserved_host_memory_mb'] = 1024
-default['bcpc']['nova']['cpu_allocation_ratio'] = 2.0
-# CPU passthrough/masking configurations
-default['bcpc']['nova']['cpu_config']['cpu_mode'] = nil
-default['bcpc']['nova']['cpu_config']['cpu_model'] = nil
-default['bcpc']['nova']['cpu_config']['vcpu_pin_set'] = nil
-# select from between this many equally optimal hosts when launching an instance
-default['bcpc']['nova']['scheduler_host_subset_size'] = 3
-# maximum number of builds to allow the scheduler to run simultaneously
-# (setting too high may cause Three Stooges Syndrome, particularly on RBD-intensive operations)
-default['bcpc']['nova']['max_concurrent_builds'] = 4
-# "workers" parameters in nova are set to number of CPUs
-# available by default. This provides an override.
-default['bcpc']['nova']['workers'] = 5
-# configure SQLAlchemy overflow/QueuePool sizes
-default['bcpc']['nova']['database']['max_overflow'] = 10
-default['bcpc']['nova']['database']['max_pool_size'] = 5
-# set soft/hard ulimits in upstart unit file for nova-compute
-# as number of OSDs in cluster increases, soft limit needs to increase to avoid
-# nova-compute deadlocks
-default['bcpc']['nova']['compute']['limits']['nofile']['soft'] = 1024
-default['bcpc']['nova']['compute']['limits']['nofile']['hard'] = 4096
-# frequency of syncing power states between hypervisor and database
-default['bcpc']['nova']['sync_power_state_interval'] = 600
-# automatically restart guests that were running when hypervisor was rebooted
-default['bcpc']['nova']['resume_guests_state_on_host_boot'] = false
-# Verbose logging (level INFO)
-default['bcpc']['nova']['verbose'] = false
-# Nova debug toggle
-default['bcpc']['nova']['debug'] = false
-# Nova default log levels
-default['bcpc']['nova']['default_log_levels'] = nil
-# Nova scheduler default filters
-default['bcpc']['nova']['scheduler_default_filters'] = %w(
-  AggregateInstanceExtraSpecsFilter
-  RetryFilter
-  AvailabilityZoneFilter
-  CoreFilter
-  RamFilter
-  DiskFilter
-  ComputeFilter
-  ComputeCapabilitiesFilter
-  NUMATopologyFilter
-  ImagePropertiesFilter
-  ServerGroupAntiAffinityFilter
-  ServerGroupAffinityFilter
-)
-
-# configure optional Nova notification system
-default['bcpc']['nova']['notifications']['enabled'] = false
-default['bcpc']['nova']['notifications']['notification_topics'] = 'notifications'
-default['bcpc']['nova']['notifications']['notification_driver'] = 'messagingv2'
-default['bcpc']['nova']['notifications']['notify_on_state_change'] = 'vm_state'
-
 # settings pertaining to ephemeral storage via mdadm/LVM
 # (software RAID settings are here for logical grouping)
 default['bcpc']['software_raid']['enabled'] = false
@@ -380,60 +264,11 @@ default['bcpc']['software_raid']['enabled'] = false
 default['bcpc']['software_raid']['devices'] = []
 default['bcpc']['software_raid']['md_device'] = '/dev/md/md0'
 default['bcpc']['software_raid']['chunk_size'] = 512
-default['bcpc']['nova']['ephemeral'] = false
-default['bcpc']['nova']['ephemeral_vg_name'] = 'nova_disk'
-default['bcpc']['nova']['ephemeral_disks'] = [default['bcpc']['software_raid']['md_device']]
-
-default['bcpc']['nova']['quota'] = {
-  "cores" => 4,
-  "floating_ips" => 10,
-  "gigabytes"=> 1000,
-  "instances" => -1,
-  "ram" => 8192
-}
-# Conditionally forwards queries to external DNS servers.
-# When false, all DNS queries will be resolved via nameservers defined in
-# /etc/resolv.conf.
-# When true, all DNS queries will be forwarded to external DNS servers
-# by each tenant's dnsmasq instance, except fixed zone PTRs.
-default['bcpc']['nova']['conditional_dns'] = false
 
 # load a custom vendor driver,
 # e.g. "nova.api.metadata.bcpc_metadata.BcpcMetadata",
 # comment out to use default
 #default['bcpc']['vendordata_driver'] = "nova.api.metadata.bcpc_metadata.BcpcMetadata"
-
-###########################################
-#
-#  Cinder Settings
-#
-###########################################
-# Verbose logging (level INFO)
-default['bcpc']['cinder']['verbose'] = false
-default['bcpc']['cinder']['debug'] = false
-default['bcpc']['cinder']['workers'] = 5
-default['bcpc']['cinder']['allow_az_fallback'] = true
-default['bcpc']['cinder']['rbd_flatten_volume_from_snapshot'] = true
-default['bcpc']['cinder']['rbd_max_clone_depth'] = 5
-default['bcpc']['cinder']['database']['max_overflow'] = 10
-default['bcpc']['cinder']['database']['max_pool_size'] = 5
-default['bcpc']['cinder']['quota'] = {
-  "volumes" => -1,
-  "snapshots" => 10,
-  "gigabytes" => 1000
-}
-
-###########################################
-#
-#  Glance Settings
-#
-###########################################
-# Verbose logging (level INFO)
-default['bcpc']['glance']['verbose'] = false
-default['bcpc']['glance']['debug'] = false
-default['bcpc']['glance']['workers'] = 5
-default['bcpc']['glance']['database']['max_overflow'] = 10
-default['bcpc']['glance']['database']['max_pool_size'] = 5
 
 ###########################################
 #

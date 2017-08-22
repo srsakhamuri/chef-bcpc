@@ -30,24 +30,9 @@ default['bcpc']['catalog'] = {
       'public' => 8774
     },
     'uris' => {
-      'admin' => 'v2.1/%(tenant_id)s',
-      'internal' => 'v2.1/%(tenant_id)s',
-      'public' => 'v2.1/%(tenant_id)s'
-    }
-  },
-  'ec2' => {
-    'name' => 'EC2 Service',
-    'project' => 'nova',
-    'description' => 'OpenStack EC2 Service',
-    'ports' => {
-      'admin' => 8773,
-      'internal' => 8773,
-      'public' => 8773
-    },
-    'uris' => {
-      'admin' => 'services/Admin',
-      'internal' => 'services/Cloud',
-      'public' => 'services/Cloud'
+      'admin' => 'v2.1/%(project_id)s',
+      'internal' => 'v2.1/%(project_id)s',
+      'public' => 'v2.1/%(project_id)s'
     }
   },
   'volume' => {
@@ -60,9 +45,9 @@ default['bcpc']['catalog'] = {
       'public' => 8776
     },
     'uris' => {
-      'admin' => 'v2/%(tenant_id)s',
-      'internal' => 'v2/%(tenant_id)s',
-      'public' => 'v2/%(tenant_id)s'
+      'admin' => 'v2/%(project_id)s',
+      'internal' => 'v2/%(project_id)s',
+      'public' => 'v2/%(project_id)s'
     }
   },
   'volumev2' => {
@@ -75,9 +60,9 @@ default['bcpc']['catalog'] = {
       'public' => 8776
     },
     'uris' => {
-      'admin' => 'v2/%(tenant_id)s',
-      'internal' => 'v2/%(tenant_id)s',
-      'public' => 'v2/%(tenant_id)s'
+      'admin' => 'v2/%(project_id)s',
+      'internal' => 'v2/%(project_id)s',
+      'public' => 'v2/%(project_id)s'
     }
   },
   'image' => {

@@ -55,7 +55,7 @@ KEYSTONE_API_VERSIONS.each do |version|
         region_name:  node.chef_environment,
         username: get_config('keystone-admin-user'),
         password: get_config('keystone-admin-password'),
-        project_name: node['bcpc']['admin_tenant'],
+        project_name: node['bcpc']['keystone']['admin_tenant'],
       )
   end
 end

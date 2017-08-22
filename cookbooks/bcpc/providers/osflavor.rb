@@ -25,8 +25,8 @@ end
 
 def openstack_cli
   args = ["openstack",
-          "--os-tenant-name", node['bcpc']['admin_tenant'],
-          "--os-project-name", node['bcpc']['admin_tenant'],
+          "--os-tenant-name", node['bcpc']['keystone']['admin_tenant'],
+          "--os-project-name", node['bcpc']['keystone']['admin_tenant'],
           "--os-username", get_config('keystone-admin-user'),
           "--os-compute-api-version", "2",
           "--os-auth-url", "#{node['bcpc']['protocol']['keystone']}://openstack.#{node['bcpc']['cluster_domain']}:#{node['bcpc']['catalog']['identity']['ports']['public']}/#{node['bcpc']['catalog']['identity']['uris']['public']}/",
@@ -44,8 +44,8 @@ def nova_cli
   # Note the amazing lack of consistency between openstack CLI and nova CLI when it
   # comes to args e.g. "--os-user-name" vs "--os-username".
   args = ["nova",
-          "--os-tenant-name", node['bcpc']['admin_tenant'],
-          "--os-project-name", node['bcpc']['admin_tenant'],
+          "--os-tenant-name", node['bcpc']['keystone']['admin_tenant'],
+          "--os-project-name", node['bcpc']['keystone']['admin_tenant'],
           "--os-user-name", get_config('keystone-admin-user'),
           "--os-compute-api-version", "2",
           "--os-auth-url", "#{node['bcpc']['protocol']['keystone']}://openstack.#{node['bcpc']['cluster_domain']}:#{node['bcpc']['catalog']['identity']['ports']['public']}/#{node['bcpc']['catalog']['identity']['uris']['public']}/",

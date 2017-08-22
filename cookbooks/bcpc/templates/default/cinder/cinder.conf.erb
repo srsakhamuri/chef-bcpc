@@ -16,7 +16,7 @@ verbose = <%= node['bcpc']['cinder']['verbose'] %>
 debug = <%= node['bcpc']['cinder']['debug'] %>
 auth_strategy = keystone
 state_path = /var/lib/cinder
-logdir=/var/log/cinder
+log-dir=/var/log/cinder
 
 enable_v1_api=false
 enable_v2_api=true
@@ -25,6 +25,7 @@ enable_v2_api=true
 osapi_volume_listen=<%=node['bcpc']['management']['ip']%>
 osapi_volume_workers=<%= node['bcpc']['cinder']['workers'] %>
 
+rpc_backend = rabbit
 # If using qpid...
 #rpc_backend=cinder.openstack.common.rpc.impl_qpid
 #qpid_hostname=<%=node['bcpc']['management']['vip']%>
@@ -62,14 +63,10 @@ idle_timeout=3600
 # ca_file = /etc/ssl/certs/ssl-bcpc.pem
 
 [keystone_authtoken]
-# cafile = /etc/ssl/certs/ssl-bcpc.pem
-auth_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:5000/<%= node['bcpc']['catalog']['identity']['uris']['internal'] %>/
-identity_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:35357
-auth_version = <%= node['bcpc']['catalog']['identity']['uris']['internal'] %>
-admin_tenant_name = <%=node['bcpc']['admin_tenant']%>
-admin_user = <%=get_config('keystone-admin-user')%>
-admin_password = <%=get_config('keystone-admin-password')%>
-signing_dir = /var/lib/cinder
+<% snippet = 'keystone/keystone_authtoken.snippet.erb' %>
+<%# add the node for chef nonsense... see https://github.com/chef/chef/issues/1506 %>
+<% vars = @partials[snippet]['variables'].merge({node: @node}) %>
+<%= render snippet, :variables => vars %>
 
 <% node['bcpc']['ceph']['enabled_pools'].each do |type| -%>
 [<%= type.upcase %>]

@@ -5,7 +5,7 @@
 ################################################
 
 ---
-OS_PROJECT_NAME: <%=@node['bcpc']['admin_tenant']%>
+OS_PROJECT_NAME: <%=@node['bcpc']['keystone']['admin_tenant']%>
 OS_USERNAME: <%=get_config('keystone-admin-user')%>
 OS_PASSWORD: <%=get_config('keystone-admin-password')%>
 OS_AUTH_URL: <%=node['bcpc']['protocol']['keystone']%>://<%=node['bcpc']['management']['vip']%>:5000

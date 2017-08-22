@@ -76,7 +76,7 @@ iptables-restore <<EOH
 ## cinder 8776
 ## nova-api-ec2 8773
 ## nova-api 8774
--A INPUT -i <%=@node["bcpc"]["management"]["interface"]%> -d <%=@node["bcpc"]["management"]["vip"]%> -p tcp --match multiport --dports 80,443,5000,6080,8773,8774,8776,9292 -j ACCEPT
+-A INPUT -i <%=@node["bcpc"]["management"]["interface"]%> -d <%=@node["bcpc"]["management"]["vip"]%> -p tcp --match multiport --dports 80,443,5000,6080,8774,8776,9292 -j ACCEPT
 
 <% if node['bcpc']['enabled']['neutron'] %>
 ## Allow external access to Neutron on VIP

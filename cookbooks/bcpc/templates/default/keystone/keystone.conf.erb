@@ -15,7 +15,7 @@ admin_endpoint = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=@node[
 #max_param_size = 64
 #max_token_size = 8192
 #member_role_id = 9fe2ff9ee4384b1894a90878d3e92bab
-member_role_name=<%= node['bcpc']['member_role'] %>
+member_role_name=<%= node['bcpc']['keystone']['member_role'] %>
 #crypt_strength = 40000
 #list_limit = <None>
 #domain_id_immutable = true
@@ -67,11 +67,6 @@ log_file = <%= node['bcpc']['keystone']['log_file'] %>
 #matchmaker_heartbeat_freq = 300
 #matchmaker_heartbeat_ttl = 600
 #rpc_thread_pool_size = 64
-<% if node['bcpc']['keystone']['drivers']['notification'] %>
-notification_driver = <%= node['bcpc']['keystone']['drivers']['notification'] %>
-<% else %>
-#notification_driver =
-<% end %>
 #notification_topics = notifications
 #rpc_response_timeout = 60
 #transport_url = <None>
@@ -92,7 +87,7 @@ driver = <%= node['bcpc']['keystone']['drivers']['assignment'] %>
 #config_prefix = cache.keystone
 #expiration_time = 600
 <% if node['bcpc']['keystone']['enable_caching'] %>
-backend = keystone.cache.memcache_pool
+backend = oslo_cache.memcache_pool
 <% else %>
 #backend =
 <% end %>
@@ -272,6 +267,13 @@ driver = <%= node['bcpc']['keystone']['drivers']['oauth1'] %>
 #ssl_key_file =
 #ssl_key_password = <None>
 #allow_insecure_clients = false
+
+[oslo_messaging_notifications]
+<% if node['bcpc']['keystone']['drivers']['notification'] %>
+driver = <%= node['bcpc']['keystone']['drivers']['notification'] %>
+<% else %>
+driver =
+<% end %>
 
 [oslo_messaging_qpid]
 #amqp_durable_queues = <%=node['bcpc']['rabbitmq']['durable_queues']%>

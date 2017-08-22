@@ -18,7 +18,7 @@ backlog = 4096
 # data_api = glance.db.sqlalchemy.api
 workers = <%= node['bcpc']['glance']['workers'] %>
 # max_header_line = 16384
-admin_role = <%=node['bcpc']['admin_role']%>
+admin_role = <%=node['bcpc']['keystone']['admin_role']%>
 #allow_anonymous_access = False
 # v1 API must remain on even in Liberty
 enable_v1_api = True
@@ -47,13 +47,6 @@ registry_client_protocol = <%= node['bcpc']['protocol']['glance'] %>
 #registry_client_timeout = 600
 #db_auto_create = False
 #sqlalchemy_debug = True
-#use_user_token = True
-#admin_user = None
-#admin_password = None
-#admin_tenant_name = None
-#auth_url = None
-#auth_region = None
-#auth_strategy = keystone
 notifier_strategy = rabbit
 #notification_driver = noop
 #default_publisher_id = image.localhost
@@ -192,16 +185,13 @@ max_pool_size=<%= node['bcpc']['glance']['database']['max_pool_size'] %>
 #db_max_retries = 20
 
 [keystone_authtoken]
-auth_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:5000/<%= node['bcpc']['catalog']['identity']['uris']['internal'] %>/
-identity_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:35357
-auth_version = <%= node['bcpc']['catalog']['identity']['uris']['internal'] %>
-admin_tenant_name = <%=node['bcpc']['admin_tenant']%>
-admin_user = <%=get_config('keystone-admin-user')%>
-admin_password = <%=get_config('keystone-admin-password')%>
+<% snippet = 'keystone/keystone_authtoken.snippet.erb' %>
+<%# add the node for chef nonsense... see https://github.com/chef/chef/issues/1506 %>
+<% vars = @partials[snippet]['variables'].merge({node: @node}) %>
+<%= render snippet, :variables => vars %>
 signing_dir = /var/lib/glance
 
 [paste_deploy]
-#config_file = glance-api-paste.ini
 flavor = keystone
 
 [store_type_location_strategy]

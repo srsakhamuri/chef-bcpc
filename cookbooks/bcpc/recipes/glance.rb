@@ -25,6 +25,7 @@ ruby_block "initialize-glance-config" do
     block do
         make_config('mysql-glance-user', "glance")
         make_config('mysql-glance-password', secure_password)
+        make_config('keystone-glance-password', secure_password)
     end
 end
 
@@ -44,15 +45,51 @@ service "glance-api" do
     restart_command "service glance-api restart; sleep 5"
 end
 
+# Configure the glance keystone bits
+# https://docs.openstack.org/mitaka/install-guide-ubuntu/glance-install.html
+domain = node['bcpc']['keystone']['service_project']['domain']
+glance_username = 'glance'
+glance_project_name = node['bcpc']['keystone']['service_project']['name']
+
+ruby_block "keystone-create-glance-user" do
+  block do
+    execute_in_keystone_admin_context("openstack user create --domain #{domain} --password #{get_config('keystone-glance-password')} #{glance_username}")
+  end
+  not_if { execute_in_keystone_admin_context("openstack user show --domain #{domain} #{glance_username}") ; $?.success? }
+end
+
+ruby_block "keystone-assign-glance-admin-role" do
+  block do
+    execute_in_keystone_admin_context("openstack role add --project #{glance_project_name} --user #{glance_username} #{node['bcpc']['keystone']['admin_role']}")
+  end
+  # NOTE(kmidzi): below command always returns, so check for valid json output; break pattern with only_if
+  only_if {
+    begin
+      r = JSON.parse execute_in_keystone_admin_context("openstack role assignment list --role #{node['bcpc']['keystone']['admin_role']} --project #{glance_project_name} --user #{glance_username} -fjson")
+      r.empty?
+    rescue JSON::ParserError
+      true
+    end
+  }
+end
+
 template "/etc/glance/glance-api.conf" do
-    source "glance-api.conf.erb"
-    owner "glance"
-    group "glance"
-    mode 00600
+    source "glance/glance-api.conf.erb"
+    owner glance_username
+    group glance_username
+    mode "0600"
     variables(
       lazy {
         {
-          :servers => get_head_nodes
+          :servers => get_head_nodes,
+          :partials => {
+            "keystone/keystone_authtoken.snippet.erb" => {
+              "variables" => {
+                username: node['bcpc']['glance']['user'],
+                password: get_config('keystone-glance-password')
+              }
+            }
+          }
         }
       }
     )
@@ -61,38 +98,56 @@ template "/etc/glance/glance-api.conf" do
 end
 
 template "/etc/glance/glance-registry.conf" do
-    source "glance-registry.conf.erb"
-    owner "glance"
-    group "glance"
-    mode 00600
+    source "glance/glance-registry.conf.erb"
+    owner glance_username
+    group glance_username
+    mode "0600"
     notifies :restart, "service[glance-api]", :delayed
     notifies :restart, "service[glance-registry]", :delayed
 end
 
 template "/etc/glance/glance-scrubber.conf" do
-    source "glance-scrubber.conf.erb"
-    owner "glance"
-    group "glance"
-    mode 00600
+    source "glance/glance-scrubber.conf.erb"
+    owner glance_username
+    group glance_username
+    mode "0600"
     notifies :restart, "service[glance-api]", :delayed
     notifies :restart, "service[glance-registry]", :delayed
 end
 
 template "/etc/glance/glance-cache.conf" do
-    source "glance-cache.conf.erb"
-    owner "glance"
-    group "glance"
-    mode 00600
+    source "glance/glance-cache.conf.erb"
+    owner glance_username
+    group glance_username
+    mode "0600"
     notifies :restart, "service[glance-api]", :immediately
     notifies :restart, "service[glance-registry]", :immediately
 end
 
 template "/etc/glance/policy.json" do
-    source "glance-policy.json.erb"
-    owner "glance"
-    group "glance"
-    mode 00600
+    source "glance/glance-policy.json.erb"
+    owner glance_username
+    group glance_username
+    mode "0600"
     variables(:policy => JSON.pretty_generate(node['bcpc']['glance']['policy']))
+end
+
+# Write out glance openrc
+template "/root/glance-openrc" do
+    source "keystone/openrc.erb"
+    owner glance_username
+    group glance_username
+    mode "0600"
+    variables(
+      lazy {
+        {
+          username: glance_username,
+          password: get_config('keystone-glance-password'),
+          project_name: glance_project_name,
+          domain: domain
+        }
+      }
+    )
 end
 
 ruby_block "glance-database-creation" do
@@ -119,6 +174,7 @@ end
 
 bash "glance-database-sync" do
     action :nothing
+    # TODO(kmidzi): why is this run as root?
     user "root"
     code "glance-manage db_sync"
     notifies :restart, "service[glance-api]", :immediately
@@ -162,7 +218,7 @@ cookbook_file "/tmp/cirros-0.3.4-x86_64-disk.img" do
     source "cirros-0.3.4-x86_64-disk.img"
     cookbook 'bcpc-binary-files'
     owner "root"
-    mode 00444
+    mode "0444"
 end
 
 package "qemu-utils"
@@ -170,10 +226,10 @@ package "qemu-utils"
 bash "glance-cirros-image" do
     user "root"
     code <<-EOH
-        . /root/adminrc
+        . /root/glance-openrc
         . /root/api_versionsrc
         qemu-img convert -f qcow2 -O raw /tmp/cirros-0.3.4-x86_64-disk.img /tmp/cirros-0.3.4-x86_64-disk.raw
         glance image-create --name='Cirros 0.3.4 x86_64' --visibility=public --container-format=bare --disk-format=raw --file /tmp/cirros-0.3.4-x86_64-disk.raw
     EOH
-    not_if ". /root/adminrc; glance image-list | grep 'Cirros 0.3.4 x86_64'"
+    not_if ". /root/glance-openrc; glance image-list | grep 'Cirros 0.3.4 x86_64'"
 end

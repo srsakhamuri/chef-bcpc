@@ -53,7 +53,7 @@ api_limit_max = 1000
 limit_param_default = 25
 
 # Role used to identify an authenticated user as administrator
-admin_role = <%=node['bcpc']['admin_role']%>
+admin_role = <%=node['bcpc']['keystone']['admin_role']%>
 
 # Whether to automatically create the database tables.
 # Default: False
@@ -185,15 +185,13 @@ max_overflow=<%= node['bcpc']['glance']['database']['max_overflow'] %>
 [keystone_authtoken]
 # cafile = /etc/ssl/certs/ssl-bcpc.pem
 auth_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:5000/v2.0/
-#auth_host = <%=node['bcpc']['management']['vip']%>
-#auth_port = 35357
-#auth_protocol = <%=node['bcpc']['protocol']['keystone']%>
-identity_uri = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:35357
-auth_version = v2.0
-admin_tenant_name = <%=node['bcpc']['admin_tenant']%>
-admin_user = <%=get_config('keystone-admin-user')%>
-admin_password = <%=get_config('keystone-admin-password')%>
-#admin_token = <%=get_config('keystone-admin-token')%>
+auth_url = <%=node['bcpc']['protocol']['keystone']%>://openstack.<%=node['bcpc']['cluster_domain']%>:35357
+auth_type = password
+project_domain_name = <%=node['bcpc']['keystone']['service_project']['domain']%>
+user_domain_name = <%=node['bcpc']['keystone']['service_project']['domain']%>
+project_name = <%=node['bcpc']['keystone']['service_project']['name']%>
+username = <%=node['bcpc']['glance']['user']%>
+password = <%=get_config('keystone-glance-password')%>
 signing_dir = /var/lib/glance
 
 [paste_deploy]
