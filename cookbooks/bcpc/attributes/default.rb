@@ -507,16 +507,6 @@ default['bcpc']['bootstrap']['mirror_path'] = "/ubuntu"
 
 ###########################################
 #
-# Rally settings
-#
-###########################################
-#
-# Package versions
-# None needed at this time
-default['bcpc']['rally']['user'] = 'root'
-
-###########################################
-#
 # Openstack Flavors
 #
 ###########################################
