@@ -40,6 +40,14 @@ if node['bcpc']['enabled']['metrics'] then
         action :upgrade
     end
 
+    bcpc_patch '/usr/share/diamond/collectors/powerdns/powerdns.py' do
+        patch_file           'diamond-collector-powerdns.patch'
+        patch_root_dir       '/usr/share/diamond/collectors'
+        shasums_before_apply 'diamond-collector-powerdns.patch.BEFORE.SHASUMS'
+        shasums_after_apply  'diamond-collector-powerdns.patch.AFTER.SHASUMS'
+        notifies             :restart, "service[diamond]", :delayed
+    end
+
     if node['bcpc']['virt_type'] == "kvm"
         package "ipmitool" do
             action :upgrade
