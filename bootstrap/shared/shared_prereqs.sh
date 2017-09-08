@@ -28,10 +28,11 @@ CHEF_SERVER_DEB=${CHEF_SERVER_DEB:-chef-server-core_${chef_server_ver}-1_amd64.d
 cirros_url="http://download.cirros-cloud.net"
 cirros_version="0.3.4"
 
-cloud_img_url="https://cloud-images.ubuntu.com/vagrant/trusty/current"
+distro=xenial
+cloud_img_url="https://cloud-images.ubuntu.com/${distro}/current"
 # cloud_img_url="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-cloud-images/vagrant/trusty/current"
 
-cloud_img_box="xenial-server-cloudimg-amd64-vagrant-disk1.box"
+cloud_img_box="xenial-server-cloudimg-amd64-vagrant.box"
 netboot_iso="ubuntu-16.04-mini.iso"
 pypi_url="https://pypi.python.org/packages/source"
 pxe_rom="gpxe-1.0.1-80861004.rom"
