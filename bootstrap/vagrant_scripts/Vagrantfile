@@ -322,7 +322,7 @@ Vagrant.configure("2") do |config|
           disk_file = File.join(vm_dir, "#{vm}-#{disk[0]}.vdi")
           unless File.exist?(disk_file)
             vb.customize ["createhd", "--filename", disk_file, "--size", disk[1]]
-            vb.customize ["storageattach", :id, "--storagectl", "SATAController", "--device", "0", "--port", "#{disk_idx+1}", "--type", "hdd", "--medium", disk_file]
+            vb.customize ["storageattach", :id, "--storagectl", "SCSI Controller", "--device", "0", "--port", "#{disk_idx+1}", "--type", "hdd", "--medium", disk_file]
           end # File.exist
         end # disks.each
 
