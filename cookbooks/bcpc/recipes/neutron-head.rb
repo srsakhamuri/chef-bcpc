@@ -52,119 +52,48 @@ bash "neutron-database-sync" do
   code "neutron-db-manage upgrade heads"
 end
 
-# add Neutron to the service catalog (not encoded in the main catalog due to Neutron
-# being a feature-bitted option at present)
-network_catalog_entry = {
-  'network' => {
-    'name' => 'Network Service',
-    'project' => 'neutron',
-    'description' => 'OpenStack Network Service',
-    'ports' => {
-      'admin' => 9696,
-      'internal' => 9696,
-      'public' => 9696
-    },
-    'uris' => {
-      'admin' => '',
-      'internal' => '',
-      'public' => ''
-    }
+domain = node['bcpc']['keystone']['service_project']['domain']
+neutron_username = node['bcpc']['neutron']['user']
+neutron_project_name = node['bcpc']['keystone']['service_project']['name']
+
+ruby_block "keystone-create-neutron-user" do
+  block do
+    execute_in_keystone_admin_context("openstack user create --domain #{domain} --password #{get_config('keystone-neutron-password')} #{neutron_username}")
+  end
+  not_if { execute_in_keystone_admin_context("openstack user show --domain #{domain} #{neutron_username}") ; $?.success? }
+end
+
+ruby_block "keystone-assign-neutron-admin-role" do
+  block do
+    execute_in_keystone_admin_context("openstack role add --project #{neutron_project_name} --user #{neutron_username} #{node['bcpc']['keystone']['admin_role']}")
+  end
+  # NOTE(kmidzi): below command always returns, so check for valid json output; break pattern with only_if
+  only_if {
+    begin
+      r = JSON.parse execute_in_keystone_admin_context("openstack role assignment list --role #{node['bcpc']['keystone']['admin_role']} --project #{neutron_project_name} --user #{neutron_username} -fjson")
+      r.empty?
+    rescue JSON::ParserError
+      true
+    end
   }
-}
+end
 
-# ruthlessly copied and pasted from the Keystone recipe
-network_catalog_entry.each do |svc, svcprops|
-  # attempt to delete endpoints that no longer match the environment
-  # (keys off the service type, so it is possible to orphan endpoints if you remove an
-  # entry from the environment service catalog)
-  ruby_block "keystone-delete-outdated-#{svc}-endpoint" do
-    block do
-      svc_endpoints_raw = execute_in_keystone_admin_context('openstack endpoint list -f json')
-      begin
-        #puts svc_endpoints_raw
-        svc_endpoints = JSON.parse(svc_endpoints_raw)
-        #puts svc_endpoints
-        svc_ids = svc_endpoints.select { |k| k['Service Type'] == svc }.collect { |v| v['ID'] }
-        #puts svc_ids
-        svc_ids.each do |svc_id|
-          execute_in_keystone_admin_context("openstack endpoint delete #{svc_id} 2>&1")
-        end
-      rescue JSON::ParserError
-      end
-    end
-    not_if {
-      svc_endpoints_raw = execute_in_keystone_admin_context('openstack endpoint list -f json')
-      begin
-        svc_endpoints = JSON.parse(svc_endpoints_raw)
-        next if svc_endpoints.empty?
-        svcs = svc_endpoints.select { |k| k['Service Type'] == svc }
-        next if svcs.empty?
-
-        adminurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'admin' }
-        adminurl = adminurl_raw.empty? ? nil : adminurl_raw[0]['URL']
-        internalurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'internal' }
-        internalurl = internalurl_raw.empty? ? nil : internalurl_raw[0]['URL']
-        publicurl_raw = svcs.select { |v| v['URL'] if v['Interface'] == 'public' }
-        publicurl = publicurl_raw.empty? ? nil : publicurl_raw[0]['URL']
-
-        adminurl_match = adminurl.nil? ? true : (adminurl == generate_service_catalog_uri(svcprops, 'admin'))
-        internalurl_match = internalurl.nil? ? true : (internalurl == generate_service_catalog_uri(svcprops, 'internal'))
-        publicurl_match = publicurl.nil? ? true : (publicurl == generate_service_catalog_uri(svcprops, 'public'))
-
-        adminurl_match && internalurl_match && publicurl_match
-      rescue JSON::ParserError
-        false
-      end
+# Write out neutron openrc
+template "/root/neutron-openrc" do
+  source "keystone/openrc.erb"
+  owner neutron_username
+  group neutron_username
+  mode "0600"
+  variables(
+    lazy {
+      {
+        username: neutron_username,
+        password: get_config('keystone-neutron-password'),
+        project_name: neutron_project_name,
+        domain: domain
+      }
     }
-  end
-
-  # why no corresponding deletion for out of date services?
-  # services don't get outdated in the way endpoints do (since endpoints encode version numbers and ports),
-  # services just say that service X is present in the catalog, not how to access it
-
-  ruby_block "keystone-create-#{svc}-service" do
-    block do
-      execute_in_keystone_admin_context("openstack service create --name '#{svcprops['name']}' --description '#{svcprops['description']}' #{svc}")
-    end
-    only_if {
-      services_raw = execute_in_keystone_admin_context('openstack service list -f json')
-      services = JSON.parse(services_raw)
-      services.select { |s| s['Type'] == svc }.length.zero?
-    }
-  end
-
-  # openstack command syntax changes between identity API v2 and v3, so calculate the endpoint creation command ahead of time
-  identity_api_version = node['bcpc']['catalog']['identity']['uris']['public'].scan(/^[^\d]*(\d+)/)[0][0].to_i
-  if identity_api_version == 3
-    endpoint_create_cmd = <<-EOH
-      openstack endpoint create \
-          --region '#{node['bcpc']['region_name']}' #{svc} public "#{generate_service_catalog_uri(svcprops, 'public')}" ;
-      openstack endpoint create \
-          --region '#{node['bcpc']['region_name']}' #{svc} internal "#{generate_service_catalog_uri(svcprops, 'internal')}" ;
-      openstack endpoint create \
-          --region '#{node['bcpc']['region_name']}' #{svc} admin "#{generate_service_catalog_uri(svcprops, 'admin')}" ;
-    EOH
-  else
-    endpoint_create_cmd = <<-EOH
-      openstack endpoint create \
-          --region '#{node['bcpc']['region_name']}' \
-          --publicurl "#{generate_service_catalog_uri(svcprops, 'public')}" \
-          --adminurl "#{generate_service_catalog_uri(svcprops, 'admin')}" \
-          --internalurl "#{generate_service_catalog_uri(svcprops, 'internal')}" \
-          #{svc}
-    EOH
-  end
-
-  ruby_block "keystone-create-#{svc}-endpoint" do
-    block do
-      execute_in_keystone_admin_context(endpoint_create_cmd)
-    end
-    only_if {
-      endpoints_raw = execute_in_keystone_admin_context('openstack endpoint list -f json')
-      endpoints = JSON.parse(endpoints_raw)
-      endpoints.select { |e| e['Service Type'] == svc }.length.zero?
-    }
-  end
+  )
 end
 
 include_recipe 'bcpc::calico-head'

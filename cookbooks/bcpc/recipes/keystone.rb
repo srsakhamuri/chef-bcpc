@@ -376,8 +376,10 @@ bash "wait-for-keystone-to-become-operational" do
 end
 
 # TODO(kamidzi): each service should create its *own* catalog entry
-# create services and endpoints
-node['bcpc']['catalog'].each do |svc, svcprops|
+# create services and endpoint
+catalog = node['bcpc']['catalog']
+catalog.delete('network') unless node['bcpc']['enabled']['neutron']
+catalog.each do |svc, svcprops|
   # attempt to delete endpoints that no longer match the environment
   # (keys off the service type, so it is possible to orphan endpoints if you remove an
   # entry from the environment service catalog)
