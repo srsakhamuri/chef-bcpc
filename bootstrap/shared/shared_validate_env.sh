@@ -1,5 +1,5 @@
 #!/bin/bash
-NEEDED_PROGRAMS=( curl git rsync ssh foobar )
+NEEDED_PROGRAMS=( curl git rsync ssh )
 FAILED=0
 for binary in "${NEEDED_PROGRAMS[@]}"; do
   if ! which "$binary" >/dev/null; then
