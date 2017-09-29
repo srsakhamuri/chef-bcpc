@@ -3,7 +3,7 @@
 hash -r
 
 export PATH=/bin:/usr/bin
-DIR="$( cd ${0%/*} && pwd -P )"
+DIR=$( cd "${0%/*}" && pwd -P )
 confdir="$(cd "$DIR/../config" &&  pwd -P)"
 
 # Relocate and set me
