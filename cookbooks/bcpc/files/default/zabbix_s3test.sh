@@ -4,7 +4,7 @@
 # and bucket to validate S3 functionality.
 
 start_time=$(date +%s.%N)
-script="`basename $0`"
+script=$(basename "$0")
 key=$1
 secret=$2
 proto=$3
@@ -23,23 +23,23 @@ function get_signature()
 {
   string=$1
   signature=$(echo -en "${string}" | openssl sha1 -hmac "${secret}" -binary | base64)
-  echo $signature
+  echo "$signature"
 }
 
 function get_date()
 {
-  date=`date -R -u`
-  echo $date
+  date=$(date -R -u)
+  echo "$date"
 }
 
 function log()
 {
   message=$1
-  logger -t s3test -p syslog.notice $message
+  logger -t s3test -p syslog.notice "$message"
 }
 
 # Create a monitoring test file for upload
-echo "$file_content" > $local_path/$filename
+echo "$file_content" > "$local_path/$filename"
 
 # Create bucket
 date=$(get_date)
@@ -50,7 +50,7 @@ $curl_cmd -X $verb \
   -H "Host: $bucket.$fqdn" \
   -H "Date: $date" \
   -H "Authorization: AWS ${key}:$signature" \
-  $proto://$bucket.$fqdn 2>/dev/null
+  "$proto://${bucket}.${fqdn}" 2>/dev/null
 
 [[ $? -eq 0 ]] || { echo -1 && exit 0; }
 
@@ -74,18 +74,18 @@ for verb in PUT GET DELETE; do
     -H "Content-Type: $content_type" \
     -H "$acl" \
     -H "Authorization: AWS ${key}:$signature" \
-    $proto://$bucket.$fqdn$s3_path$filename 2>/dev/null
+    "$proto://${bucket}.${fqdn$s3_path}${filename}" 2>/dev/null
 
   rc="$?"
   log "$verb $filename returned $rc"
   [[ $rc -eq 0 ]] || { echo -1 && exit 0; }
 
   # Ensure monitoring test file does not exist
-  [[ -f $local_path/$filename ]] && rm -f $local_path/$filename
+  [[ -f "$local_path"/"$filename" ]] && rm -f "$local_path"/"$filename"
 
 done
 
 end_time=$(date +%s.%N)
-duration="`echo ${end_time}-${start_time} | bc -l`"
+duration=$(echo "${end_time}"-"${start_time}" | bc -l)
 
-echo $duration
+echo "$duration"
