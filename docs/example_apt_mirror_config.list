@@ -61,13 +61,9 @@ deb-i386 http://ppa.launchpad.net/vbernat/haproxy-1.5/ubuntu trusty main
 clean http://ppa.launchpad.net/vbernat/haproxy-1.5/ubuntu
 
 # openstack repository in BCPC
-deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-proposed/liberty main
 deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/liberty main
-deb-i386 http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-proposed/liberty main
 deb-i386 http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/liberty main
-deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-proposed/mitaka main
 deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/mitaka main
-deb-i386 http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-proposed/mitaka main
 deb-i386 http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/mitaka main
 clean http://ubuntu-cloud.archive.canonical.com/ubuntu
 
