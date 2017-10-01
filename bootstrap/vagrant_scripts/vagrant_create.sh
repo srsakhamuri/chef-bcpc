@@ -2,7 +2,7 @@
 # Exit immediately if anything goes wrong, instead of making things worse.
 set -e
 
-. $REPO_ROOT/bootstrap/shared/shared_functions.sh
+. "$REPO_ROOT"/bootstrap/shared/shared_functions.sh
 
 ################################################################################
 # Function to remove VirtualBox DHCP servers
@@ -12,24 +12,24 @@ set -e
 # (or passes the vboxmanage error and return code up to the caller)
 # 
 function remove_DHCPservers {
-  local network_name=${1-}
+  local vms vm_networks existing_nets_reg_ex network_name=${1-}
   if [[ -z "$network_name" ]]; then
     # make a list of VM UUID's
-    local vms=$(VBoxManage list vms|sed 's/^.*{\([0-9a-f-]*\)}/\1/')
+    vms=$(VBoxManage list vms|sed 's/^.*{\([0-9a-f-]*\)}/\1/')
     # make a list of networks (e.g. "vboxnet0 vboxnet1")
-    local vm_networks=$(for vm in $vms; do \
-      VBoxManage showvminfo --details --machinereadable $vm | \
+    vm_networks=$(for vm in $vms; do \
+      VBoxManage showvminfo --details --machinereadable "$vm" | \
       grep -i '^hostonlyadapter[2-9]=' | \
       sed -e 's/^.*=//' -e 's/"//g'; \
     done | sort -u)
     # will produce a regular expression string of networks which are in use by VMs
     # (e.g. ^vboxnet0$|^vboxnet1$)
-    local existing_nets_reg_ex=$(sed -e 's/^/^/' -e 's/$/$/' -e 's/ /$|^/g' <<< "$vm_networks")
+    existing_nets_reg_ex=$(sed -e 's/^/^/' -e 's/$/$/' -e 's/ /$|^/g' <<< "$vm_networks")
 
     VBoxManage list dhcpservers | grep -E "^NetworkName:\s+HostInterfaceNetworking" | awk '{print $2}' |
     while read -r network_name; do
       [[ -n $existing_nets_reg_ex ]] && ! egrep -q "$existing_nets_reg_ex" <<< $network_name && continue
-      remove_DHCPservers $network_name
+      remove_DHCPservers "$network_name"
     done
   else
     VBoxManage dhcpserver remove --netname "$network_name" && local return=0 || local return=$?
@@ -40,7 +40,7 @@ function remove_DHCPservers {
 ###################################################################
 # Function to create all VMs using Vagrant
 function create_vagrant_vms {
-  cd $REPO_ROOT/bootstrap/vagrant_scripts && vagrant up
+  cd "$REPO_ROOT"/bootstrap/vagrant_scripts && vagrant up
 }
 
 # only execute functions if being run and not sourced
