@@ -6,7 +6,7 @@
 
 [DEFAULT]
 # Print more verbose output (set logging level to INFO instead of default WARNING level).
-verbose = True
+verbose = <%= node['bcpc']['nova']['verbose'] %>
 
 # =========Start Global Config Option for Distributed L3 Router===============
 # Setting the "router_distributed" flag to "True" will default to the creation
@@ -19,7 +19,7 @@ verbose = True
 # ===========End Global Config Option for Distributed L3 Router===============
 
 # Print debugging output (set logging level to DEBUG instead of default WARNING level).
-debug = True
+debug = <%= node['bcpc']['nova']['debug'] %>
 
 # Where to store Neutron state files.  This directory must be writable by the
 # user executing the agent.
@@ -708,12 +708,9 @@ root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
 # ===========  end of items for agent management extension =====
 
 [keystone_authtoken]
-auth_uri = <%= node['bcpc']['protocol']['keystone'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:5000/v2.0/
-identity_uri = <%= node['bcpc']['protocol']['keystone'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:35357
-auth_version = v2.0
-admin_tenant_name = <%= node['bcpc']['admin_tenant'] %>
-admin_user = <%= get_config('keystone-admin-user') %>
-admin_password = <%= get_config('keystone-admin-password') %>
+<% snippet = 'keystone/keystone_authtoken.snippet.erb' %>
+<% vars = @partials[snippet]['variables'].merge({node: @node}) %>
+<%= render snippet, :variables => vars %>
 
 [database]
 # This line MUST be changed to actually run the plugin.
