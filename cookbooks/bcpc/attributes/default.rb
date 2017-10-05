@@ -241,17 +241,6 @@ default['bcpc']['memcached']['connections'] = 10240
 
 ###########################################
 #
-#  Horizon Settings
-#
-###########################################
-#
-# List panels to remove from the Horizon interface here
-# (if the last panel in a group is removed, the group will also be removed)
-default['bcpc']['horizon']['disable_panels'] = ['containers']
-
-
-###########################################
-#
 #  Misc storage Settings
 #
 ###########################################
