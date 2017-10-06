@@ -16,6 +16,19 @@ source $REPO_ROOT/bootstrap/config/build_bins_versions.sh
 # Create directory for download cache.
 mkdir -p $BOOTSTRAP_CACHE_DIR
 
+# This is obscure to prevent cert dir test each time
+if [[ -d "$BOOTSTRAP_ADDITIONAL_CACERTS_DIR" ]] && \
+  [[ -x "$BOOTSTRAP_ADDITIONAL_CACERTS_DIR" ]]; then
+  curl_cmd() {
+    curl -f --capath "$BOOTSTRAP_ADDITIONAL_CACERTS_DIR" --progress -L \
+      -H 'Accept-encoding: gzip,deflate' "$@"
+  }
+else
+  curl_cmd() {
+    curl -f --progress -L -H 'Accept-encoding: gzip,deflate' "$@"
+  }
+fi
+
 # download_file wraps the usual behavior of curling a remote URL to a local file
 download_file() {
   FILE=$1
@@ -67,16 +80,23 @@ cleanup_and_download_cookbook() {
 
 # Clones a repo and attempts to pull updates if requested version does not exist
 clone_repo() {
-  URL=$1
-  DIR=$2
-  VER=$3
+  local repo_url="$1"
+  local local_dir="$2"
+  local version="$3"
 
-  if [[ -d $BOOTSTRAP_CACHE_DIR/$DIR/.git ]]; then
-    git -C $BOOTSTRAP_CACHE_DIR/$DIR log --pretty=format:'%H' | \
-    grep -q $VER || \
-    git -C $BOOTSTRAP_CACHE_DIR/$DIR pull
+  local git_args=
+  if [[ -d "$BOOTSTRAP_ADDITIONAL_CACERTS_DIR" ]] && \
+    [[ -x "$BOOTSTRAP_ADDITIONAL_CACERTS_DIR" ]]; then
+    git_args="-c http.sslCAPath=$BOOTSTRAP_ADDITIONAL_CACERTS_DIR"
+  fi
+  if [[ -d "$BOOTSTRAP_CACHE_DIR/$local_dir/.git" ]]; then
+    pushd "$BOOTSTRAP_CACHE_DIR/$local_dir"
+    git log --pretty=format:'%H' | \
+    grep -q "$version" || \
+    git $git_args pull
+    popd
   else
-    git clone $URL $BOOTSTRAP_CACHE_DIR/$DIR
+    git $git_args clone "$repo_url" "$BOOTSTRAP_CACHE_DIR/$local_dir"
   fi
 }
 
