@@ -422,3 +422,10 @@ def env(env={}, &block)
   ENV.replace old_env
   res
 end
+
+def rb_bool_to_py_bool_str(val)
+  case val
+    when true then return 'True'
+    when false then return 'False'
+  end
+end

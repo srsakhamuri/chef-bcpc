@@ -3,4 +3,4 @@
 default['bcpc']['horizon']['disable_panels'] = ['containers']
 
 # See https://docs.openstack.org/mitaka/config-reference/dashboard/config-options.html
-default['bcpc']['horizon']['multi-domain'] = False
+default['bcpc']['horizon']['multi-domain'] = false
