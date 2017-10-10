@@ -146,6 +146,18 @@ unless ENV['BOOTSTRAP_APT_MIRROR'].nil? or ENV['BOOTSTRAP_APT_MIRROR'].empty?
   EOH
 end
 
+# Hack in support for local APT mirrors
+( ENV['LOCAL_APT_MIRRORS'] || '').split(',').each do |mirror|
+  host = URI(mirror).host
+  if host.nil?
+    $stderr.puts "Invalid local mirror: #{mirror}. Skipping..."
+  else
+    $repos_script << <<-EOH
+      echo 'Acquire::http::Proxy::#{host} "DIRECT";' | tee -a /etc/apt/apt.conf
+    EOH
+  end
+end
+
 # try to apt-get update immediately so that the bootstrap does not wander along for a while
 # and waste everyone's time in case our repo configuration set above is broken
 $repos_script << <<-EOH
