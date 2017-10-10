@@ -2,14 +2,6 @@
 # Show debugging output in log (sets DEBUG log level output)
 # debug = True
 
-# The Neutron user information for accessing the Neutron API.
-auth_url = <%= node['bcpc']['protocol']['keystone'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:5000/v2.0/
-identity_uri = <%= node['bcpc']['protocol']['keystone'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:35357
-auth_version = v2.0
-admin_tenant_name = <%= node['bcpc']['admin_tenant'] %>
-admin_user = <%= get_config('keystone-admin-user') %>
-admin_password = <%= get_config('keystone-admin-password') %>
-
 # Turn off verification of the certificate for ssl
 # auth_insecure = False
 # Certificate Authority public key (CA cert) file for ssl
@@ -42,7 +34,7 @@ nova_metadata_ip = <%= node['bcpc']['management']['ip'] %>
 # shared secret to prevent spoofing.  You may select any string for a secret,
 # but it must match here and in the configuration used by the Nova Metadata
 # Server. NOTE: Nova uses the same config key, but in [neutron] section.
-# metadata_proxy_shared_secret =
+metadata_proxy_shared_secret = <%= get_config('neutron-metadata-proxy-shared-secret') %>
 
 # Location of Metadata Proxy UNIX domain socket
 # metadata_proxy_socket = $state_path/metadata_proxy
