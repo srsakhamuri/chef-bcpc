@@ -17,6 +17,11 @@
     "description": "A bootstrap node in a BCPC cluster",
     "chef_type": "role",
     "override_attributes": {
+      "ubuntu" : {
+         "security_url" : "http://security.ubuntu.com/ubuntu",
+         "include_source_packages" : false,
+         "archive_url" : "http://us.archive.ubuntu.com/ubuntu"
+      }
     }
 }
 
