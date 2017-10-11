@@ -13,7 +13,7 @@ get(){
   # Add the certs for proxy test if available
   if [[ -d "$BOOTSTRAP_ADDITIONAL_CACERTS_DIR" ]] && \
       [[ -x "$BOOTSTRAP_ADDITIONAL_CACERTS_DIR" ]]; then
-    args+=" --capath $BOOTSTRAP_ADDITIONAL_CACERTS_DIR"
+    args+=" -k --capath $BOOTSTRAP_ADDITIONAL_CACERTS_DIR"
   fi
   curl $args "$url"
 }
