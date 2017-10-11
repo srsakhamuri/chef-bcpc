@@ -26,7 +26,7 @@ if node['bcpc']['enabled']['logging'] then
         distribution node['lsb']['codename']
         components ["contrib"]
         arch "amd64"
-        key "fluentd.key"
+        key ( node['bcpc']['fluentd']['apt']['key'] || "fluentd.key" )
     end
 
     package "td-agent-v1" do
