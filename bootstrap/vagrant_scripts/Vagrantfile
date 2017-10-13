@@ -105,6 +105,25 @@ unless BOOTSTRAP_HTTPS_PROXY_URL.host.nil?
   EOH
 end
 
+# Adds some apt debugging
+$apt_debug_conf_script = <<-EOH
+  filename=/etc/apt/apt.conf.d/80debug
+  if [[ -n "#{ENV['APT_DEBUG']}" ]]; then
+    sudo cat <<-EoS > "$filename"
+Debug {
+  Acquire {
+    http "true";
+    ftp "true";
+  };
+  pkgDPkgPM "true";
+  RunScripts "true";
+};
+EoS
+  else
+    sudo rm -f $filename
+  fi
+EOH
+
 # this script tests proxy servers from inside the bootstrap node
 $testing_proxy_servers_script = <<-EOH
   . $HOME/proxy_config.sh
@@ -267,6 +286,9 @@ Vagrant.configure("2") do |config|
         s.inline = $repos_script
       end
 
+      m.vm.provision "configure-apt", type: "shell" do |s|
+        s.inline = $apt_debug_conf_script
+      end
       # configure a hostfile entry with the IP of the bootstrap node (for Chef)
       m.vm.provision "configure-bootstrap-hostfile-entry", type: "shell" do |s|
         s.inline = "echo -e '10.0.100.3\tbcpc-vm-bootstrap.#{bootstrap_domain}\n' >> /etc/hosts"
