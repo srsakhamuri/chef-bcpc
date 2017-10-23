@@ -1,0 +1,31 @@
+#!/bin/bash
+hash -r
+
+get_vm_property(){
+  local id="$1"
+  local propname="$2"
+  if [[ -z "$propname" ]] || [[ -z "$id" ]] ; then
+    return 1
+  fi
+  local cmd
+  read cmd <<EoF
+    VBoxManage showvminfo "$id" | awk 'BEGIN{FS=":"}/^${propname}/{gsub(/^ +| +\$/,"",\$2); print \$2}'
+EoF
+  # "Evil" `eval` or messy interoploation?
+  eval "$cmd"
+}
+
+get_vm_config_file_path(){
+  local id="$1"
+  if [[ -z "$id" ]] ; then return 1 ; fi
+  get_vm_property "$vm" "Config file"
+}
+
+while read vm; do 
+  vm_config="$(get_vm_config_file_path "$vm")"
+  data_dir="${vm_config%/*}"
+  VBoxManage controlvm $vm poweroff
+  VBoxManage unregistervm --delete $vm
+  echo "Removing data directory for $vm"
+  rm -rf "$data_dir"
+done < <( VBoxManage list vms | awk '{gsub(/{|}/,"",$2); print $2}' )
