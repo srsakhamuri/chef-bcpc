@@ -1,7 +1,6 @@
 #!/bin/bash
-# Re-chefs the entire dev environment cluster
+# Re-chefs a node
 hash -r
-# sync sources
 
 DIR=$(cd ${0%%/*} && pwd -P)
 export PATH=$DIR:$PATH
@@ -9,9 +8,12 @@ export PATH=$DIR:$PATH
 vagrant_dir=$DIR/../bootstrap/vagrant_scripts
 pushd "${vagrant_dir}"
 
+nodes=( $@ )
+cookbooks=( bcpc bcpc-extra )
 vagrant ssh -c 'cd chef-bcpc && knife role from file roles/*.json &&
   echo environments/Test-Laptop-Vagrant.json | xargs -tn1 knife environment from file &&
-  knife cookbook upload -o cookbooks bcpc bcpc-extra' vm-bootstrap
+  knife cookbook upload -o cookbooks "${cookbooks[@]}" vm-bootstrap
 vagrant ssh -c 'sudo -i chef-client' vm-bootstrap
-vagrant status | awk '/running/{ if ($1 ~ /^vm/) print $1 }' | \
-  xargs -tn1 -J % vagrant ssh -c 'sudo -i chef-client' % -- -t
+for node in "${nodes[@]}" ; do
+  vagrant ssh -c 'sudo -i chef-client' $node -- -t
+done

@@ -14,5 +14,7 @@ if [ $# -lt 1 ] ; then usage ; fi
 nodename="$1"
 d="$(date)"
 
-key=~/.ssh/id_rsa.bcpc
-ssh -ostricthostkeychecking=no -l root -i ${key} ${nodename} "date -s '$d'"
+set -e
+dir="$(git rev-parse --show-toplevel)"
+cd "${dir}/bootstrap/vagrant_scripts"
+vagrant ssh -c "sudo date -s '$d'" $nodename
