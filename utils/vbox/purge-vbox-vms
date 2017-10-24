@@ -3,4 +3,4 @@ hash -r
 
 vmdir="$(VBoxManage list systemproperties | awk 'BEGIN{FS=":"}/^Default machine folder/{gsub(/^ +| +$/,"",$2); print $2}')"
 echo "Removing all Virtual Box data and directories at $vmdir"
-echo rm -rf "$vmdir"
+rm -rf "$vmdir"
