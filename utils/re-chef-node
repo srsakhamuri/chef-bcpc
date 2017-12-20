@@ -15,8 +15,8 @@ read -d %% cmd <<EoF
     echo environments/Test-Laptop-Vagrant.json | xargs -tn1 knife environment from file && \
     knife cookbook upload -o cookbooks ${cookbooks[@]}
 EoF
-vagrant ssh -c "$cmd" vm-bootstrap
-vagrant ssh -c 'sudo -i chef-client' vm-bootstrap
+vagrant ssh -c "$cmd" bootstrap
+vagrant ssh -c 'sudo -i chef-client' bootstrap
 for node in "${nodes[@]}" ; do
   vagrant ssh -c 'sudo -i chef-client' $node -- -t
 done
