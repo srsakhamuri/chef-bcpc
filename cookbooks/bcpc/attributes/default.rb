@@ -30,10 +30,6 @@ default['bcpc']['hypervisor_domain'] = "hypervisor-bcpc.example.com"
 default['bcpc']['ssl_certificate'] = nil
 default['bcpc']['ssl_private_key'] = nil
 default['bcpc']['ssl_intermediate_certificate'] = nil
-# custom SSL certificate for Rados Gateway (S3)
-default['bcpc']['s3_ssl_certificate'] = nil
-default['bcpc']['s3_ssl_private_key'] = nil
-default['bcpc']['s3_ssl_intermediate_certificate'] = nil
 
 ###########################################
 #
@@ -146,7 +142,6 @@ default['bcpc']['storage']['interface'] = nil
 # to be set properly
 default['bcpc']['storage']['interface-parent'] = nil
 
-default['bcpc']['floating']['vip'] = "192.168.43.15"
 default['bcpc']['floating']['netmask'] = "255.255.255.0"
 default['bcpc']['floating']['cidr'] = "192.168.43.0/24"
 default['bcpc']['floating']['gateway'] = "192.168.43.2"
@@ -213,12 +208,6 @@ default['bcpc']['admin_email'] = "admin@localhost.com"
 
 default['bcpc']['zabbix']['user'] = "zabbix"
 default['bcpc']['zabbix']['group'] = "adm"
-
-# General ports for Civetweb backend and HAProxy frontend
-default['bcpc']['ports']['radosgw'] = 8088
-default['bcpc']['ports']['radosgw_https'] = 443
-default['bcpc']['ports']['haproxy']['radosgw'] = 80
-default['bcpc']['ports']['haproxy']['radosgw_https'] = 443
 
 # Can be set to 'http' or 'https'
 default['bcpc']['protocol']['keystone'] = "https"
@@ -464,19 +453,6 @@ default['bcpc']['host_aggregates'] = {
 }
 
 default['bcpc']['aggregate_membership'] = []
-
-###########################################
-#
-# RadosGW Quotas
-#
-###########################################
-default['bcpc']['rgw_quota'] = {
-    'user' => {
-        'default' => {
-           'max_size' => 10737418240
-        }
-    }
-}
 
 ###########################################
 #

@@ -31,7 +31,6 @@ concat_fragment "haproxy-main-config" do
       {
         :servers => get_head_nodes,
         :mysql_max_connections => get_mysql_max_connections,
-        :radosgw_servers => search_nodes('recipe', 'ceph-rgw')
       }
     }
   )

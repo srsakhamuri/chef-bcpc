@@ -294,7 +294,6 @@ if node['bcpc']['enabled']['dns'] then
           :float_cidr          => IPAddr.new(node['bcpc']['floating']['available_subnet']),
           :database_name       => node['bcpc']['dbname']['pdns'],
           :cluster_domain      => node['bcpc']['cluster_domain'],
-          :floating_vip        => node['bcpc']['floating']['vip'],
           :management_vip      => node['bcpc']['management']['vip'],
           :monitoring_vip      => node['bcpc']['monitoring']['vip'],
           :reverse_fixed_zone  => reverse_fixed_zone,

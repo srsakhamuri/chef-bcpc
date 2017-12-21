@@ -58,12 +58,6 @@ if node['bcpc']['enabled']['monitoring'] then
         notifies :restart, "service[zabbix-agent]", :immediately
     end
 
-    # Remove machine-level RGW check
-    file '/etc/zabbix/zabbix_agentd.d/zabbix-rgw.conf' do
-      action :delete
-      notifies :restart, 'service[zabbix-agent]', :delayed
-    end
-
     template "/etc/zabbix/zabbix_agentd.d/userparameter_mysql.conf" do
         source "zabbix_agentd_userparameters_mysql.conf.erb"
         owner node['bcpc']['zabbix']['user']
