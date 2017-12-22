@@ -22,6 +22,20 @@ Dir.foreach(libdir) {|f|
 # if it is not set, set it ourselves
 ENV['REPO_ROOT'] ||= %x{git rev-parse --show-toplevel}.strip
 
+# Modified URI HTTP/S classes to prevent stripping of well-known ports
+module URI
+  class HTTPS
+    def to_s
+      '%s://%s:%s' % [self.scheme, self.host, self.port]
+    end
+  end
+  class HTTP
+    def to_s
+      '%s://%s:%s' % [self.scheme, self.host, self.port]
+    end
+  end
+end
+
 # pull in the bootstrap config defaults and overrides (even though these would already
 # be set by BOOT_GO.sh, do it again here so that Vagrant always has access to all
 # configuration variables)
