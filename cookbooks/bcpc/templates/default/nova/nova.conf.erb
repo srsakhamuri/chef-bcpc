@@ -15,7 +15,6 @@
 # Nova API settings
 auth_strategy=keystone
 api_paste_config=/etc/nova/api-paste.ini
-s3_host=<%=node['bcpc']['management']['vip']%>
 osapi_compute_listen=<%= node['bcpc']['management']['ip'] %>
 osapi_compute_workers=<%=node['bcpc']['nova']['workers']%>
 <% if node['bcpc']['enabled']['neutron'] %>

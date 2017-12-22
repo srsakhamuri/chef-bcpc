@@ -26,9 +26,6 @@ default['bcpc']['ceph']['journal_size'] = 2048
 # The 'portion' parameters should add up to ~100 across all pools
 default['bcpc']['ceph']['default']['replicas'] = 3
 default['bcpc']['ceph']['default']['type'] = 'hdd'
-default['bcpc']['ceph']['rgw']['replicas'] = 3
-default['bcpc']['ceph']['rgw']['portion'] = 33
-default['bcpc']['ceph']['rgw']['type'] = 'hdd'
 default['bcpc']['ceph']['images']['replicas'] = 3
 default['bcpc']['ceph']['images']['portion'] = 33
 # Set images to hdd instead of sdd

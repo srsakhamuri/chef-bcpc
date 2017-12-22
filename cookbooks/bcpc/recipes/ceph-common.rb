@@ -29,16 +29,9 @@ end
 
 # configure an apt preference to prefer hammer packages
 apt_preference 'ceph' do
-  glob 'radosgw python-rbd python-rados python-cephfs python-ceph librbd1 libradosstriper1 librados2 libcephfs1 ceph-mds ceph-fuse ceph-fs-common ceph-common ceph'
+  glob 'python-rbd python-rados python-cephfs python-ceph librbd1 libradosstriper1 librados2 libcephfs1 ceph-mds ceph-fuse ceph-fs-common ceph-common ceph'
   pin 'version 0.94.10-1trusty'
   pin_priority '900'
-end
-
-# delete the compromised Ceph signing key (17ED316D)
-# if the new Ceph release key is installed (460F3994)
-bash "remove-old-ceph-key" do
-  code "apt-key del 17ED316D"
-  only_if "apt-key list | grep -q 460F3994 && apt-key list | grep -q 17ED316D"
 end
 
 if platform?("debian", "ubuntu")
@@ -119,3 +112,5 @@ bash "wait-for-pgs-creating" do
     user "root"
     code "sleep 1; while ceph -s | grep -v mdsmap | grep creating >/dev/null 2>&1; do echo Waiting for new pgs to create...; sleep 1; done"
 end
+
+include_recipe 'bcpc::ceph-cleanup'

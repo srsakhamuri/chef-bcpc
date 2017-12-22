@@ -70,27 +70,3 @@
     admin socket = /var/run/ceph/guests/$cluster-$type.$id.$pid.$cctid.asok # must be writable by QEMU and allowed by SELinux or AppArmor
     log file = /var/log/qemu/qemu-guest-$pid.log
     rbd concurrent management ops = 20
-
-[client.radosgw.gateway]
-    host = <%=node['hostname']%>
-    keyring = /var/lib/ceph/radosgw/$cluster-$id/keyring
-    log file = /var/log/radosgw/radosgw.log
-    rgw data = /var/lib/ceph/radosgw/$cluser-$id
-    rgw enable ops log = false
-    rgw enable usage log = false
-    rgw print continue = false
-    rgw socket path = /var/lib/ceph/radosgw/rgw.sock
-    rgw frontends = civetweb port=<%= node['bcpc']['ports']['radosgw'] %>
-    # Increased to 1 to log HTTP return codes
-    # http://tracker.ceph.com/issues/12432
-    debug rgw = 1/0
-
-<% if config_defined('keystone-admin-token') %>
-    rgw keystone url = openstack.<%=node['bcpc']['cluster_domain']%>:35358
-    rgw keystone admin token = <%=get_config('keystone-admin-token')%>
-    rgw keystone accepted roles = Admin admin Member _member_
-    rgw keystone token cache size = 1000
-    rgw keystone revocation interval = 1200
-    rgw s3 auth use keystone = true
-<% end %>
-    rgw dns name = s3.<%=node['bcpc']['cluster_domain'] %>
