@@ -13,6 +13,12 @@ default['bcpc']['ceph']['pgp_auto_adjust'] = false
 default['bcpc']['ceph']['pgs_per_node'] = 128
 default['bcpc']['ceph']['max_pgs_per_osd'] = 300
 default['bcpc']['ceph']['osd_scrub_load_threshold'] = 0.5
+# Help minimize scrub influence on cluster performance
+default['bcpc']['ceph']['osd_scrub_begin_hour'] = 21
+default['bcpc']['ceph']['osd_scrub_end_hour'] = 10
+default['bcpc']['ceph']['osd_scrub_sleep'] = 0.1
+default['bcpc']['ceph']['osd_scrub_chunk_min'] = 1
+default['bcpc']['ceph']['osd_scrub_chunk_max'] = 5
 # Set to 0 to disable. See http://tracker.ceph.com/issues/8103
 default['bcpc']['ceph']['pg_warn_max_obj_skew'] = 10
 # Journal size could be 10GB or higher in some cases
@@ -39,12 +45,6 @@ default['bcpc']['ceph']['vms']['name'] = "vms"
 # Set up crush rulesets
 default['bcpc']['ceph']['ssd']['ruleset'] = 1
 default['bcpc']['ceph']['hdd']['ruleset'] = 2
-
-# If you are about to make a big change to the ceph cluster
-# setting to true will reduce the load form the resulting
-# ceph rebalance and keep things operational.
-# See wiki for further details.
-default['bcpc']['ceph']['rebalance'] = false
 
 # Set the default niceness of Ceph OSD and monitor processes
 default['bcpc']['ceph']['osd_niceness'] = -10
@@ -79,3 +79,15 @@ default['bcpc']['ceph']['expected_tunables'] = {
   "has_v3_rules"=>0,
   "has_v4_buckets"=>1
 }
+
+# sets the max open fds at the OS level
+default['bcpc']['ceph']['max_open_files'] = 2048
+
+# set tunables for ceph osd reovery
+default['bcpc']['ceph']['paxos_propose_interval'] = 1
+default['bcpc']['ceph']['osd_recovery_max_active'] = 1
+default['bcpc']['ceph']['osd_recovery_threads'] = 1
+default['bcpc']['ceph']['osd_recovery_op_priority'] = 1
+default['bcpc']['ceph']['osd_max_backfills'] = 1
+default['bcpc']['ceph']['osd_op_threads'] = 2
+default['bcpc']['ceph']['osd_mon_report_interval_min'] = 5
