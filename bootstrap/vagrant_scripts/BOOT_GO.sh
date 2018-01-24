@@ -28,10 +28,6 @@ load_configs
 echo "Performing preflight environment validation..."
 source "$REPO_ROOT"/bootstrap/shared/shared_validate_env.sh
 
-# Test that Vagrant is really installed and of an appropriate version.
-echo "Checking VirtualBox and Vagrant..."
-source "$REPO_ROOT"/bootstrap/vagrant_scripts/vagrant_test.sh
-
 # Do prerequisite work prior to starting build, downloading files and
 # creating local directories. Proxy configuration is handled there as well.
 echo "Downloading necessary files to local cache..."
