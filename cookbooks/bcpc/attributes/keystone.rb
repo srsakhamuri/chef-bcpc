@@ -92,3 +92,5 @@ default['bcpc']['keystone']['domains'] = {
     }
   }
 }
+
+default['bcpc']['keystone']['days_to_keep_logs'] = 14

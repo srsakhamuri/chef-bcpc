@@ -661,3 +661,10 @@ end
 link '/root/adminrc' do
   to adminrc
 end
+
+template "/etc/logrotate.d/keystone" do
+    source "keystone/keystone.logrotate.conf.erb"
+    owner "root"
+    group "root"
+    mode 00644
+end

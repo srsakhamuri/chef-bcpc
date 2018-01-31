@@ -260,3 +260,10 @@ bash "glance-cirros-image" do
     EOH
     not_if ". /root/openrc-glance; glance image-list | grep 'Cirros 0.3.4 x86_64'"
 end
+
+template "/etc/logrotate.d/glance-common" do
+    source "glance/glance-common.logrotate.conf.erb"
+    owner "root"
+    group "root"
+    mode 00644
+end
