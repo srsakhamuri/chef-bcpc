@@ -36,7 +36,7 @@ import sys
 import yaml
 
 
-def to_yaml(path, cluster_name):
+def to_yaml(path, cluster_name, hardware_type, ipmi_username, ipmi_password):
     """
     Opens and reads the given file, which is assumed to be in cluster.txt
     format. Returns a string with cluster.txt converted to YAML or dies trying.
@@ -64,11 +64,11 @@ def to_yaml(path, cluster_name):
             'mac_address': mac,
             'ip_address': ip,
             'ipmi_address': ipmi,
-            'ipmi_username': None,
-            'ipmi_password': None,
+            'ipmi_username': ipmi_username,
+            'ipmi_password': ipmi_password,
             'domain': domain,
             'role': role,
-            'hardware_type': None,
+            'hardware_type': hardware_type,
             'cobbler_profile': 'bcpc_host',
         }
 
@@ -124,6 +124,19 @@ def main():
         "-t", "--text",
         help="convert from YAML to text (THIS WILL DISCARD DATA)",
         action="store_true")
+    parser.add_argument(
+        "-H", "--hardware_type",
+        default=None,
+        help="chef hardware role name")
+    parser.add_argument(
+        "-U", "--ipmi_username",
+        default=None,
+        help="IPMI username")
+    parser.add_argument(
+        "-P", "--ipmi_password",
+        default=None,
+        help="IPMI password")
+
     args = parser.parse_args()
 
     if not os.path.exists(args.path) or not os.access(args.path, os.R_OK):
@@ -132,7 +145,11 @@ def main():
     if args.text:
         print(to_text(args.path))
     else:
-        print(to_yaml(args.path, args.cluster_name))
+        print(to_yaml(args.path, 
+                      args.cluster_name,
+                      args.hardware_type,
+                      args.ipmi_username,
+                      args.ipmi_password))
 
 
 if __name__ == "__main__":
