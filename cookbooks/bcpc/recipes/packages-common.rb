@@ -21,7 +21,7 @@
 bash 'remove-foreign-arch' do
   user 'root'
   code 'dpkg --remove-architecture i386'
-  only_if 'dpkg --print-foreign-architecture | grep i386'
+  only_if 'dpkg --print-foreign-architectures | grep i386'
 end
 
 # run apt-get update at the start of every Chef run if so configured
