@@ -38,6 +38,7 @@ vendordata_driver = <%=node["bcpc"]["vendordata_driver"] %>
 # Nova notification settings
 notification_topics=<%= node['bcpc']['nova']['notifications']['notification_topics'] %>
 notification_driver=<%= node['bcpc']['nova']['notifications']['notification_driver'] %>
+notification_format=unversioned
 notify_on_state_change=<%= node['bcpc']['nova']['notifications']['notify_on_state_change'] %>
 <% end %>
 
