@@ -172,13 +172,13 @@ bcpc_patch 'horizon-openrc-api-versions-liberty' do
 end
 
 # fix upstream bug 1593751 - broken LDAP groups in Horizon
-bcpc_patch 'horizon-ldap-groups-liberty' do
+bcpc_patch 'horizon-ldap-groups-mitaka' do
   patch_file           'horizon-ldap-groups.patch'
   patch_root_dir       '/usr/share/openstack-dashboard'
   shasums_before_apply 'horizon-ldap-groups-BEFORE.SHASUMS'
   shasums_after_apply  'horizon-ldap-groups-AFTER.SHASUMS'
   notifies :restart, 'service[apache2]', :delayed
-  only_if "dpkg --compare-versions $(dpkg -s openstack-dashboard | egrep '^Version:' | awk '{ print $NF }') ge 2:0 && dpkg --compare-versions $(dpkg -s openstack-dashboard | egrep '^Version:' | awk '{ print $NF }') lt 2:9"
+  only_if "dpkg --compare-versions $(dpkg -s openstack-dashboard | egrep '^Version:' | awk '{ print $NF }') ge 2:0 && dpkg --compare-versions $(dpkg -s openstack-dashboard | egrep '^Version:' | awk '{ print $NF }') le 3:0"
 end
 
 # update openrc.sh template to provide additional environment variables and user domain
