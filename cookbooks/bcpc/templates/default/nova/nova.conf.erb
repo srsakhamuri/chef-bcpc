@@ -38,6 +38,7 @@ vendordata_driver = <%=node["bcpc"]["vendordata_driver"] %>
 # Nova notification settings
 notification_topics=<%= node['bcpc']['nova']['notifications']['notification_topics'] %>
 notification_driver=<%= node['bcpc']['nova']['notifications']['notification_driver'] %>
+notification_format=unversioned
 notify_on_state_change=<%= node['bcpc']['nova']['notifications']['notify_on_state_change'] %>
 <% end %>
 
@@ -73,7 +74,7 @@ use_project_ca=True
 cnt_vpn_clients=5
 
 # Misc other settings
-log-dir=/var/log/nova
+log_dir=/var/log/nova
 state_path=/var/lib/nova
 rootwrap_config=/etc/nova/rootwrap.conf
 debug=<%= node['bcpc']['nova']['debug'] %>
@@ -105,7 +106,7 @@ vif_plugging_timeout = 0
 
 [neutron]
 url = <%= node['bcpc']['protocol']['neutron'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:9696
-admin_tenant_name = <%= node['bcpc']['admin_tenant'] %>
+admin_tenant_name = <%= node['bcpc']['keystone']['admin']['project_name'] %>
 auth_strategy = keystone
 admin_auth_url = <%= node['bcpc']['protocol']['keystone'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:35357/v2.0/
 admin_username = <%= get_config('keystone-admin-user') %>
