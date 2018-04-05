@@ -27,10 +27,19 @@ if node['bcpc']['enabled']['dns']
     owner "root"
     group "root"
     mode 00644
+
+    reversed_zones = []
+    reverse_fixed_zone = node['bcpc']['fixed']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['fixed']['cidr']).first
+    reversed_zones.push(reverse_fixed_zone)
+
+    node['bcpc'].fetch('additional_fixed',{}).each{ |id,network|
+      reversed_zones.push(calc_reverse_dns_zone(network['cidr']).first)
+    }
+
     variables({
       :database_name      => node['bcpc']['dbname']['pdns'],
       :cluster_domain     => node['bcpc']['cluster_domain'],
-      :reverse_fixed_zone => (node['bcpc']['fixed']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['fixed']['cidr']).first)
+      :reverse_fixed_zones => reversed_zones.collect{ |rz| "'#{rz}'" }.join(',')
     })
     notifies :run, 'ruby_block[powerdns-load-fixed-records]', :immediately
   end
