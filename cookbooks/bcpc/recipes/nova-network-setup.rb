@@ -85,3 +85,20 @@ bash "nova-fixed-add" do
     EOH
     only_if ". /root/openrc-nova; nova-manage network list | grep \"No networks found\""
 end
+
+node['bcpc'].fetch('additional_fixed',{}).each{ |id,network|
+  bash "create #{id} fixed nova network" do
+    code <<-EOH
+      . /root/adminrc
+      nova-manage network create \
+        --label #{id} \
+        --fixed_range_v4=#{network['cidr']} \
+        --num_networks=#{network['num_networks']} \
+        --multi_host=T \
+        --network_size=#{network['network_size']} \
+        --vlan_start=#{network['vlan_start']} \
+        --bridge_interface=#{node['bcpc']['fixed']['vlan_interface']}
+    EOH
+    not_if ". /root/adminrc; nova network-list | awk '{print $4}' | egrep '^#{id}_[0-9]+$'"
+  end
+}
