@@ -165,6 +165,6 @@ download_file requests-aws-0.1.6.tar.gz https://pypi.python.org/packages/source/
 download_file pyzabbix-0.7.3.tar.gz https://pypi.python.org/packages/source/p/pyzabbix/pyzabbix-0.7.3.tar.gz
 download_file pagerduty-zabbix-proxy.py https://gist.githubusercontent.com/ryanhoskin/202a1497c97b0072a83a/raw/96e54cecdd78e7990bb2a6cc8f84070599bdaf06/pd-zabbix-proxy.py
 
-download_file carbon-${VER_GRAPHITE_CARBON}.tar.gz http://pypi.python.org/packages/source/c/carbon/carbon-${VER_GRAPHITE_CARBON}.tar.gz
-download_file whisper-${VER_GRAPHITE_WHISPER}.tar.gz http://pypi.python.org/packages/source/w/whisper/whisper-${VER_GRAPHITE_WHISPER}.tar.gz
-download_file graphite-web-${VER_GRAPHITE_WEB}.tar.gz http://pypi.python.org/packages/source/g/graphite-web/graphite-web-${VER_GRAPHITE_WEB}.tar.gz
+download_file carbon-${VER_GRAPHITE_CARBON}.tar.gz https://pypi.python.org/packages/source/c/carbon/carbon-${VER_GRAPHITE_CARBON}.tar.gz
+download_file whisper-${VER_GRAPHITE_WHISPER}.tar.gz https://pypi.python.org/packages/source/w/whisper/whisper-${VER_GRAPHITE_WHISPER}.tar.gz
+download_file graphite-web-${VER_GRAPHITE_WEB}.tar.gz https://pypi.python.org/packages/source/g/graphite-web/graphite-web-${VER_GRAPHITE_WEB}.tar.gz

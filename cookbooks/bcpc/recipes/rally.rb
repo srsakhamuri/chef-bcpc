@@ -42,6 +42,7 @@ rally_version = node['bcpc']['rally']['version']
 end
 
 bash 'create virtual env for rally' do
+  environment ({'REQUESTS_CA_BUNDLE' => '/etc/ssl/certs/ca-certificates.crt'})
   code <<-EOH
     mkdir "#{rally_install_dir}"
     pip install --user --upgrade virtualenv
@@ -51,6 +52,7 @@ bash 'create virtual env for rally' do
 end
 
 bash 'install-rally' do
+  environment ({'REQUESTS_CA_BUNDLE' => '/etc/ssl/certs/ca-certificates.crt'})
   code <<-EOH
     #{rally_venv_dir}/bin/pip install pbr cffi
     #{rally_venv_dir}/bin/pip install rally==#{rally_version}
