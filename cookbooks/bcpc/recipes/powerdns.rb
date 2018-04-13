@@ -114,7 +114,10 @@ if node['bcpc']['enabled']['dns'] then
     }
   end
 
+  reverse_fixed_zones = []
   reverse_fixed_zone = node['bcpc']['fixed']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['fixed']['cidr']).first
+  reverse_fixed_zones.push(reverse_fixed_zone)
+
   reverse_float_zone = node['bcpc']['floating']['reverse_dns_zone'] || calc_reverse_dns_zone(node['bcpc']['floating']['cidr'])
   management_zone = calc_reverse_dns_zone(node['bcpc']['management']['cidr'])
 
@@ -132,6 +135,27 @@ if node['bcpc']['enabled']['dns'] then
       %x[ MYSQL_PWD=#{get_config('mysql-root-password')} mysql -B --skip-column-names -uroot -e 'SELECT count(*) FROM pdns.domains WHERE name = \"#{ reverse_fixed_zone }\"' ].to_i.zero?
     }
   end
+
+  node['bcpc'].fetch('additional_fixed',{}).each{ |id,network|
+
+    reversed_zone = calc_reverse_dns_zone(network['cidr']).first
+    reverse_fixed_zones.push(reversed_zone)
+
+    ruby_block "powerdns reverse #{id} zone" do
+      block do
+        %x[ export MYSQL_PWD=#{get_config('mysql-root-password')};
+            mysql -uroot #{node['bcpc']['dbname']['pdns']} <<-EOH
+            INSERT INTO domains (name, type) values ('#{ reversed_zone }', 'NATIVE');
+        ]
+        self.notifies :restart, resources(:service => "pdns"), :delayed
+        self.resolve_notification_references
+      end
+      only_if {
+        %x[ MYSQL_PWD=#{get_config('mysql-root-password')} mysql -B --skip-column-names -uroot -e 'SELECT count(*) FROM pdns.domains WHERE name = \"#{ reversed_zone }\"' ].to_i.zero?
+      }
+    end
+
+  }
 
   reverse_float_zone.each do |zone|
     ruby_block "powerdns-table-domains-reverse-float-zone-#{zone}" do
@@ -296,7 +320,7 @@ if node['bcpc']['enabled']['dns'] then
           :cluster_domain      => node['bcpc']['cluster_domain'],
           :management_vip      => node['bcpc']['management']['vip'],
           :monitoring_vip      => node['bcpc']['monitoring']['vip'],
-          :reverse_fixed_zone  => reverse_fixed_zone,
+          :reverse_fixed_zones => reverse_fixed_zones,
           :reverse_float_zone  => reverse_float_zone,
           :management_zone     => management_zone,
           :mgmt_octets         => mgmt_octets,
