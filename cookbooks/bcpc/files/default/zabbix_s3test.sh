@@ -16,7 +16,7 @@ filename="$script-$(hostname -s)-$fqdn-$start_time"
 file_content="$(uuidgen) $date"
 content_type='application/x-compressed-tar'
 acl="x-amz-acl:private"
-curl_cmd='curl -q -f --max-time 10'
+curl_cmd='curl -q -f --max-time 25'
 [[ $proto == 'https' ]] && curl_cmd="$curl_cmd -k"
 
 function get_signature()
