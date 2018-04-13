@@ -47,6 +47,7 @@ directory "#{rally_install_dir}" do
 end
 
 bash 'create virtual env for rally' do
+  environment ({'REQUESTS_CA_BUNDLE' => '/etc/ssl/certs/ca-certificates.crt'})
   code <<-EOH
     pip install --user --upgrade virtualenv
     #{rally_home_dir}/.local/bin/virtualenv "#{rally_venv_dir}"
@@ -55,6 +56,7 @@ bash 'create virtual env for rally' do
 end
 
 bash 'install-rally' do
+  environment ({'REQUESTS_CA_BUNDLE' => '/etc/ssl/certs/ca-certificates.crt'})
   code <<-EOH
     #{rally_venv_dir}/bin/pip install pbr cffi
     #{rally_venv_dir}/bin/pip install rally==#{rally_version}
