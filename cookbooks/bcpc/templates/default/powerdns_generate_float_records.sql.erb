@@ -9,7 +9,7 @@ INSERT INTO <%=@database_name%>.records (domain_id, name, type, content, bcpc_re
 -- MySQL does not allow deleting from a table and selecting from that same table in a subquery, so ids of old SOA records are written to a temporary table, records are deleted,
 -- then the temporary table is cleaned up
 CREATE TEMPORARY TABLE soa_records_to_delete_<%=get_config('powerdns-update-timestamp')%> (id int);
-<% [@cluster_domain, @reverse_float_zone, @reverse_fixed_zone, @management_zone].flatten.each do |zone| %>
+<% [@cluster_domain, @reverse_float_zone, @reverse_fixed_zones, @management_zone].flatten.each do |zone| %>
 
 -- delete malformed NS record where the content is the management VIP instead of cluster domain
 DELETE FROM <%= @database_name %>.records WHERE type='NS' and content='<%= @management_vip %>';
