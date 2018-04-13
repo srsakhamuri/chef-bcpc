@@ -213,7 +213,7 @@ end
         code <<-EOH
             ifup #{node['bcpc'][iface]['interface']}
         EOH
-        not_if "ip link show up | grep #{node['bcpc'][iface]['interface']}"
+        not_if "ip -4 -o addr show dev #{node['bcpc'][iface]['interface']} | grep 'inet '"
     end
 
     if node['bcpc'][iface]['mtu']
