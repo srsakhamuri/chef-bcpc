@@ -79,5 +79,20 @@ default['bcpc']['catalog'] = {
       'internal' => '',
       'public' => ''
     }
+  },
+  'network' => {
+    'name' => 'Network Service',
+    'project' => 'neutron',
+    'description' => 'OpenStack Network Service',
+    'ports' => {
+      'admin' => 9696,
+      'internal' => 9696,
+      'public' => 9696
+    },
+    'uris' => {
+      'admin' => '',
+      'internal' => '',
+      'public' => ''
+    }
   }
 }

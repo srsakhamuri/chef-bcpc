@@ -59,7 +59,7 @@ OPENSTACK_API_VERSIONS = {
 
 # Overrides the default domain used when running on single-domain model
 # with Keystone V3. All entities will be created in the default domain.
-# OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'Default'
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "<%= node['bcpc']['keystone']['default_domain'] %>"
 
 # Set Console type:
 # valid options would be "AUTO", "VNC", "SPICE" or "RDP"
@@ -114,6 +114,7 @@ SECRET_KEY = '<%=get_config('horizon-secret-key')%>'
 # We recommend you use memcached for development; otherwise after every reload
 # of the django development server, you will have to login again. To use
 # memcached set CACHES to something like
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 CACHES = {
    'default': {
        'BACKEND' : 'django.core.cache.backends.memcached.MemcachedCache',

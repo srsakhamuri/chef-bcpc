@@ -25,6 +25,7 @@ ruby_block "initialize-neutron-config" do
   block do
     make_config('mysql-neutron-user', "neutron")
     make_config('mysql-neutron-password', secure_password)
+    make_config('keystone-neutron-password', secure_password)
   end
 end
 
@@ -42,7 +43,7 @@ end
 end
 
 template '/etc/neutron/neutron.conf' do
-  source 'neutron.conf.erb'
+  source 'neutron/neutron.conf.erb'
   owner 'neutron'
   group 'neutron'
   mode 00600
@@ -50,14 +51,22 @@ template '/etc/neutron/neutron.conf' do
     lazy {
       {
         :headnodes => get_head_nodes,
-        :servers   => get_all_nodes
+        :servers   => get_all_nodes,
+        :partials  => {
+          'keystone/keystone_authtoken.snippet.erb' => {
+            'variables' => {
+              username: node['bcpc']['neutron']['user'],
+              password: get_config('keystone-neutron-password')
+            }
+          }
+        }
       }
     }
   )
 end
 
 template '/etc/neutron/plugins/ml2/ml2_conf.ini' do
-  source 'neutron.ml2_conf.ini.erb'
+  source 'neutron/neutron.ml2_conf.ini.erb'
   owner 'neutron'
   group 'neutron'
   mode 00600

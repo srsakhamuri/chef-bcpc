@@ -65,10 +65,6 @@ default['bcpc']['nova']['notifications']['notification_topics'] = 'notifications
 default['bcpc']['nova']['notifications']['notification_driver'] = 'messagingv2'
 default['bcpc']['nova']['notifications']['notify_on_state_change'] = 'vm_state'
 
-default['bcpc']['nova']['ephemeral'] = false
-default['bcpc']['nova']['ephemeral_vg_name'] = 'nova_disk'
-default['bcpc']['nova']['ephemeral_disks'] = [default['bcpc']['software_raid']['md_device']]
-
 default['bcpc']['nova']['quota'] = {
   "cores" => 4,
   "floating_ips" => 10,
@@ -77,20 +73,11 @@ default['bcpc']['nova']['quota'] = {
   "ram" => 8192
 }
 
-default['bcpc']['nova']['ephemeral'] = false
-default['bcpc']['nova']['ephemeral_vg_name'] = 'nova_disk'
-default['bcpc']['nova']['ephemeral_disks'] = [default['bcpc']['software_raid']['md_device']]
-
-default['bcpc']['nova']['quota'] = {
-  "cores" => 4,
-  "floating_ips" => 10,
-  "gigabytes"=> 1000,
-  "instances" => -1,
-  "ram" => 8192
-}
 # Conditionally forwards queries to external DNS servers.
 # When false, all DNS queries will be resolved via nameservers defined in
 # /etc/resolv.conf.
 # When true, all DNS queries will be forwarded to external DNS servers
 # by each tenant's dnsmasq instance, except fixed zone PTRs.
 default['bcpc']['nova']['conditional_dns'] = false
+
+default['bcpc']['nova']['days_to_keep_logs'] = 14

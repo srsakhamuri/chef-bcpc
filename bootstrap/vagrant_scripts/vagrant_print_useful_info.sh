@@ -11,9 +11,9 @@ cd "$REPO_ROOT"/bootstrap/vagrant_scripts
 
 KNIFE=/opt/opscode/embedded/bin/knife
 # Dump the data bag contents to a variable.
-DATA_BAG=$(vagrant ssh vm-bootstrap -c "$KNIFE data bag show configs $BOOTSTRAP_CHEF_ENV -F yaml")
+DATA_BAG=$(vagrant ssh bootstrap -c "$KNIFE data bag show configs $BOOTSTRAP_CHEF_ENV -F yaml")
 # Get the management VIP.
-MANAGEMENT_VIP=$(vagrant ssh vm-bootstrap -c "$KNIFE environment show $BOOTSTRAP_CHEF_ENV -a override_attributes.bcpc.management.vip | tail -n +2 | awk '{ print \$2 }'")
+MANAGEMENT_VIP=$(vagrant ssh bootstrap -c "$KNIFE environment show $BOOTSTRAP_CHEF_ENV -a override_attributes.bcpc.management.vip | tail -n +2 | awk '{ print \$2 }'")
 
 # this is highly naive for obvious reasons (will break on multi-line keys, spaces)
 # but is sufficient for the items to be extracted here
@@ -35,7 +35,14 @@ KEYSTONE_ADMIN_PASSWORD=$(extract_value 'keystone-admin-password')
 echo "------------------------------------------------------------"
 echo "Everything looks like it's been installed successfully!"
 echo
-echo "Access the BCPC landing page at https://$MANAGEMENT_VIP"
+echo "Setup SSH tunnel to access BCPC sites:"
+echo "./vagrant_tunnel.sh"
+echo
+echo "Sites are reachable via tunnel at:"
+echo "Horizon: https://localhost:8443/horizon/"
+echo "HAProxy: https://localhost:8443/haproxy/"
+echo "RabbitMQ: https://localhost:8443/rabbitmq/"
+echo
 echo "Use these users and passwords to access the different resources:"
 echo
 echo "Horizon: $KEYSTONE_ADMIN_USER / $KEYSTONE_ADMIN_PASSWORD"

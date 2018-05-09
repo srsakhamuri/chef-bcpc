@@ -27,7 +27,6 @@
     "recipe[bcpc::checks-head]",
     "recipe[bcpc::flavors]",
     "recipe[bcpc::flavor_access]",
-    "recipe[bcpc::rgw-quota]",
     "recipe[bcpc::os-quota]",
     "recipe[bcpc::upgrade-cleanup]",
     "recipe[bcpc::extra-headnode]"

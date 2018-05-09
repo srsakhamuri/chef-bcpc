@@ -56,22 +56,3 @@ vrrp_instance VI1_<%=node['bcpc']['region_name']%> {
   notify_fault "/usr/local/bin/vip_lost"
   notify_master "/usr/local/bin/vip_won"
 }
-
-vrrp_instance VI2_<%=node['bcpc']['region_name']%> {
-  virtual_router_id <%= get_config('keepalived-router-id').to_i+1 %>
-
-  # for electing MASTER, highest priority wins.
-  priority  <%= 255-node['bcpc']['node_number'].to_i %>
-  state     BACKUP
-  nopreempt
-
-  interface <%= node['bcpc']['floating']['interface'] %>
-
-  virtual_ipaddress {
-    <%="#{node['bcpc']['floating']['vip']}/#{(node['bcpc']['floating']['cidr'].match /\d+\.\d+\.\d+\.\d+\/(\d+)/)[1].to_i}"%>
-  }
-  authentication {
-    auth_type PASS
-    auth_pass <%=get_config('keepalived-password')%>
-  }
-}

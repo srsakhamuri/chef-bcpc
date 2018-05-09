@@ -48,7 +48,7 @@ service 'neutron-dhcp-agent' do
 end
 
 template '/etc/neutron/metadata_agent.ini' do
-  source 'neutron.metadata_agent.ini.erb'
+  source 'neutron/neutron.metadata_agent.ini.erb'
   owner  'root'
   group  'root'
   mode   '00644'
@@ -56,7 +56,7 @@ template '/etc/neutron/metadata_agent.ini' do
 end
 
 template '/etc/neutron/dhcp_agent.ini' do
-  source 'neutron.dhcp_agent.ini.erb'
+  source 'neutron/neutron.dhcp_agent.ini.erb'
   owner  'root'
   group  'root'
   mode   '00644'

@@ -121,7 +121,7 @@ default['bcpc']['zabbix']['php_settings'] = {
 # https://www.zabbix.com/documentation/2.4/manual/api/reference/usermedia/object
 default['bcpc']['zabbix']['severity'] = 63
 # Timeout for Zabbix agentd
-default['bcpc']['zabbix']['agentd_timeout'] = 10
+default['bcpc']['zabbix']['agentd_timeout'] = 25
 # Zabbix cache sizes
 default['bcpc']['zabbix']['server_cachesize'] = '16M'
 default['bcpc']['zabbix']['server_historycachesize'] = '8M'

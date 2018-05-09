@@ -20,7 +20,7 @@ mkdir -p "$BOOTSTRAP_CACHE_DIR"
 ubuntu_url="http://us.archive.ubuntu.com/ubuntu/dists/trusty-updates"
 
 chef_url="https://packages.chef.io/files/stable"
-chef_client_ver=12.9.41
+chef_client_ver=12.19.36
 chef_server_ver=12.6.0
 CHEF_CLIENT_DEB=${CHEF_CLIENT_DEB:-chef_${chef_client_ver}-1_amd64.deb}
 CHEF_SERVER_DEB=${CHEF_SERVER_DEB:-chef-server-core_${chef_server_ver}-1_amd64.deb}

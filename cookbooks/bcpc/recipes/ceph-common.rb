@@ -27,18 +27,11 @@ apt_repository "ceph" do
   notifies :run, "execute[apt-get update]", :immediately
 end
 
-# configure an apt preference to prefer the RedHat vendor to Canonical
+# configure an apt preference to prefer hammer packages
 apt_preference 'ceph' do
-  glob '*'
-  pin 'release o=RedHat'
+  glob 'python-rbd python-rados python-cephfs python-ceph librbd1 libradosstriper1 librados2 libcephfs1 ceph-mds ceph-fuse ceph-fs-common ceph-common ceph'
+  pin 'version 0.94.10-1trusty'
   pin_priority '900'
-end
-
-# delete the compromised Ceph signing key (17ED316D)
-# if the new Ceph release key is installed (460F3994)
-bash "remove-old-ceph-key" do
-  code "apt-key del 17ED316D"
-  only_if "apt-key list | grep -q 460F3994 && apt-key list | grep -q 17ED316D"
 end
 
 if platform?("debian", "ubuntu")
@@ -47,9 +40,6 @@ end
 
 %w{librados2 librbd1 libcephfs1 python-ceph ceph ceph-common ceph-fs-common ceph-mds ceph-fuse}.each do |pkg|
   package pkg do
-    # use Ceph repository instead of UCA
-    # UCA release looks like "trusty-proposed" or "trusty-updates"
-    default_release 'trusty'
     action :upgrade
   end
 end
@@ -116,39 +106,11 @@ directory "/var/log/qemu/" do
   mode  "0755"
 end
 
-bcpc_cephconfig 'paxos_propose_interval' do
-  value node["bcpc"]["ceph"]["rebalance"] ? "60" : "1"
-  target "ceph-mon*"
-end
-
-bcpc_cephconfig 'osd_recovery_max_active' do
-  value node["bcpc"]["ceph"]["rebalance"] ? "1" : "15"
-  target "ceph-osd*"
-end
-
-bcpc_cephconfig 'osd_max_backfills' do
-  value node["bcpc"]["ceph"]["rebalance"] ? "1" : "10"
-  target "ceph-osd*"
-end
-
-bcpc_cephconfig 'osd_op_threads' do
-  value node["bcpc"]["ceph"]["rebalance"] ? "10" : "2"
-  target "ceph-osd*"
-end
-
-bcpc_cephconfig 'osd_recovery_op_priority' do
-  value node["bcpc"]["ceph"]["rebalance"] ? "1" : "10"
-  target "ceph-osd*"
-end
-
-bcpc_cephconfig 'osd_mon_report_interval_min' do
-  value node["bcpc"]["ceph"]["rebalance"] ? "30" : "5"
-  target "ceph-osd*"
-end
-
 # Script looks for mdsmap and if MDS is removed later then this script will need to be changed.
 bash "wait-for-pgs-creating" do
     action :nothing
     user "root"
     code "sleep 1; while ceph -s | grep -v mdsmap | grep creating >/dev/null 2>&1; do echo Waiting for new pgs to create...; sleep 1; done"
 end
+
+include_recipe 'bcpc::ceph-cleanup'

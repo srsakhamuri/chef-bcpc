@@ -47,17 +47,46 @@ ip rule del pref 0
 <% if node['bcpc']['enabled']['secure_fixed_networks'] -%>
 # Prevent any fixed network traffic from seeing our management and storage
 # by skipping past the local table and using the main routing table
-ip rule del pref 100
-ip rule del pref 200
-ip rule add from <%=@node["bcpc"]["fixed"]["cidr"]%> to <%=@node["bcpc"]["management"]["cidr"]%> pref 100 table main
-ip rule add from <%=@node["bcpc"]["fixed"]["cidr"]%> to <%=@node["bcpc"]["storage"]["cidr"]%> pref 200 table main
+<% @mgm_pref = 100 %>
+<% @stg_pref = 200 %>
+ip rule del pref <%= @mgm_pref %>
+ip rule del pref <%= @stg_pref %>
+ip rule add from <%=@node["bcpc"]["fixed"]["cidr"]%> to <%=@node["bcpc"]["management"]["cidr"]%> pref <%= @mgm_pref %> table main
+ip rule add from <%=@node["bcpc"]["fixed"]["cidr"]%> to <%=@node["bcpc"]["storage"]["cidr"]%> pref <%= @stg_pref %> table main
+  <% if node["bcpc"]["additional_fixed"] -%>
+    <% @pref = 200 %>
+    <% @node["bcpc"]["additional_fixed"].each do |id,network| %>
+# Prevent any <%= id %> network traffic from seeing our management and storage
+# by skipping past the local table and using the main routing table
+      <% @pref += 1 %>
+ip rule del pref <%= @pref %>
+ip rule add from <%= network["cidr"] %> to <%= @node["bcpc"]["management"]["cidr"] %> pref <%= @pref %> table main
+      <% @pref += 1 %>
+ip rule del pref <%= @pref %>
+ip rule add from <%= network["cidr"] %> to <%= @node["bcpc"]["storage"]["cidr"] %> pref <%= @pref %> table main
+    <% end %>
+  <% end -%>
 <% end -%>
 
 # Let traffic to/from fixed IPs route via main table
-ip rule del pref 9000
-ip rule del pref 9001
-ip rule add from <%=@node["bcpc"]["fixed"]["cidr"]%> pref 9000 table main
-ip rule add to <%=@node["bcpc"]["fixed"]["cidr"]%> pref 9001 table main
+<% @fixed_from_pref = 9000 %>
+<% @fixed_to_pref = 9001 %>
+ip rule del pref <%= @fixed_from_pref %>
+ip rule del pref <%= @fixed_to_pref %>
+ip rule add from <%= @node["bcpc"]["fixed"]["cidr"] %> pref <%= @fixed_from_pref %> table main
+ip rule add to <%= @node["bcpc"]["fixed"]["cidr"] %> pref <%= @fixed_to_pref %> table main
+<% if node["bcpc"]["additional_fixed"] -%>
+  <% @fixed_pref = 9001 %>
+  <% @node["bcpc"]["additional_fixed"].each do |id,network| %>
+# Let traffic to/from <%= id %> IPs route via main table
+    <% @fixed_pref += 1 %>
+ip rule del pref <%= @fixed_pref %>
+ip rule add from <%= network["cidr"] %> pref <%= @fixed_pref %> table main
+    <% @fixed_pref += 1 %>
+ip rule del pref <%= @fixed_pref %>
+ip rule add to <%= network["cidr"] %> pref <%= @fixed_pref %> table main
+  <% end %>
+<% end -%>
 
 # Activate this routing table for management traffic
 ip rule del pref 10000

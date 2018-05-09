@@ -11,9 +11,18 @@ import json
 import keystoneclient
 from keystoneclient import exceptions as kc_exceptions
 import MySQLdb as mdb
+import platform
 import re
+import requests
 import subprocess
 import syslog
+
+if platform.python_version() == '2.7.6':
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning, \
+        InsecurePlatformWarning, SNIMissingWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+    requests.packages.urllib3.disable_warnings(SNIMissingWarning)
 
 
 class dns_popper(object):
@@ -25,14 +34,18 @@ class dns_popper(object):
             'password': config['OS_PASSWORD'],
             'insecure': True
         }
-        auth_params['auth_url'] = config['OS_AUTH_URL'] + \
-            "/%s/" % self.api_version
+        auth_params['auth_url'] = config['OS_AUTH_URL']
         if self.api_version == 'v2.0':
             from keystoneclient.v2_0 import client as kclient
             auth_params['tenant_name'] = config['OS_PROJECT_NAME']
         else:
             from keystoneclient.v3 import client as kclient
-            auth_params['project_name'] = config['OS_PROJECT_NAME']
+            if 'OS_PROJECT_NAME' in config:
+                auth_params['project_name'] = config['OS_PROJECT_NAME']
+            elif 'OS_DOMAIN_NAME' in config:
+                auth_params['domain_name'] = config['OS_DOMAIN_NAME']
+            auth_params['project_domain_name'] = config['OS_PROJECT_DOMAIN_NAME']
+            auth_params['user_domain_name'] = config['OS_USER_DOMAIN_NAME']
         self.keystone = kclient.Client(**auth_params)
 
         dbc = self.config["db"]

@@ -83,11 +83,23 @@ template "/etc/udev/rules.d/99-readahead.rules" do
     mode 00644
 end
 
-ruby_block "set-nf_conntrack-hashsize" do
-    block do
-        %x[ echo $((#{node['bcpc']['system']['parameters']['net.nf_conntrack_max']}/8)) > /sys/module/nf_conntrack/parameters/hashsize ]
-    end
-    not_if { system "grep -q ^$((#{node['bcpc']['system']['parameters']['net.nf_conntrack_max']}/8))$ /sys/module/nf_conntrack/parameters/hashsize" }
+begin
+  sys_params = node['bcpc']['system']['parameters']
+  nf_conntrack_max = sys_params['net.nf_conntrack_max']
+  hashsize = nf_conntrack_max / 8
+
+  template '/etc/modprobe.d/nf_conntrack.conf' do
+    source 'modprobe.d/nf_conntrack.conf.erb'
+    variables(
+      :hashsize => hashsize
+    )
+  end
+
+  execute 'set nf conntrack hashsize' do
+    hashsize_fp = '/sys/module/nf_conntrack/parameters/hashsize'
+    command "echo #{hashsize} > #{hashsize_fp}"
+    not_if "grep -w #{hashsize} #{hashsize_fp}"
+  end
 end
 
 ruby_block "swap-toggle" do

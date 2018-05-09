@@ -8,8 +8,7 @@ default['bcpc']['state'] = "NY"
 default['bcpc']['location'] = "New York"
 default['bcpc']['organization'] = "Bloomberg"
 default['bcpc']['openstack_release'] = "mitaka"
-# Can be "updates" or "proposed"
-default['bcpc']['openstack_branch'] = "proposed"
+default['bcpc']['openstack_branch'] = "updates"
 # Should be kvm (or qemu if testing in VMs that don't support VT-x)
 default['bcpc']['virt_type'] = "kvm"
 # Define the kernel to be installed. By default, track latest LTS kernel
@@ -31,10 +30,6 @@ default['bcpc']['hypervisor_domain'] = "hypervisor-bcpc.example.com"
 default['bcpc']['ssl_certificate'] = nil
 default['bcpc']['ssl_private_key'] = nil
 default['bcpc']['ssl_intermediate_certificate'] = nil
-# custom SSL certificate for Rados Gateway (S3)
-default['bcpc']['s3_ssl_certificate'] = nil
-default['bcpc']['s3_ssl_private_key'] = nil
-default['bcpc']['s3_ssl_intermediate_certificate'] = nil
 
 ###########################################
 #
@@ -147,7 +142,6 @@ default['bcpc']['storage']['interface'] = nil
 # to be set properly
 default['bcpc']['storage']['interface-parent'] = nil
 
-default['bcpc']['floating']['vip'] = "192.168.43.15"
 default['bcpc']['floating']['netmask'] = "255.255.255.0"
 default['bcpc']['floating']['cidr'] = "192.168.43.0/24"
 default['bcpc']['floating']['gateway'] = "192.168.43.2"
@@ -186,7 +180,7 @@ default['bcpc']['repos']['erlang'] = "http://packages.erlang-solutions.com/ubunt
 default['bcpc']['repos']['ceph'] = "http://download.ceph.com/debian-hammer"
 default['bcpc']['repos']['zabbix'] = "http://repo.zabbix.com/zabbix/2.4/ubuntu"
 default['bcpc']['repos']['mitaka-staging'] = "http://ppa.launchpad.net/ubuntu-cloud-archive/mitaka-staging/ubuntu"
-default['bcpc']['repos']['calico'] = "http://ppa.launchpad.net/project-calico/felix-2.1-testing/ubuntu"
+default['bcpc']['repos']['calico'] = "http://ppa.launchpad.net/project-calico/calico-2.6/ubuntu"
 default['bcpc']['repos']['bird'] = "http://ppa.launchpad.net/cz.nic-labs/bird/ubuntu"
 
 ###########################################
@@ -206,20 +200,8 @@ default['bcpc']['dbname']['graphite'] = "graphite"
 default['bcpc']['dbname']['pdns'] = "pdns"
 default['bcpc']['dbname']['zabbix'] = "zabbix"
 
-default['bcpc']['admin_tenant'] = "AdminTenant"
-default['bcpc']['admin_role'] = "Admin"
-default['bcpc']['admin_username'] = "admin"
-default['bcpc']['member_role'] = "Member"
-default['bcpc']['admin_email'] = "admin@localhost.com"
-
 default['bcpc']['zabbix']['user'] = "zabbix"
 default['bcpc']['zabbix']['group'] = "adm"
-
-# General ports for Civetweb backend and HAProxy frontend
-default['bcpc']['ports']['radosgw'] = 8088
-default['bcpc']['ports']['radosgw_https'] = 443
-default['bcpc']['ports']['haproxy']['radosgw'] = 80
-default['bcpc']['ports']['haproxy']['radosgw_https'] = 443
 
 # Can be set to 'http' or 'https'
 default['bcpc']['protocol']['keystone'] = "https"
@@ -253,17 +235,9 @@ default['bcpc']['horizon']['disable_panels'] = ['containers']
 
 ###########################################
 #
-#  Misc storage Settings
+#  Metadata Settings
 #
 ###########################################
-#
-# settings pertaining to ephemeral storage via mdadm/LVM
-# (software RAID settings are here for logical grouping)
-default['bcpc']['software_raid']['enabled'] = false
-# define devices to RAID together in the hardware role for a type (e.g., BCPC-Hardware-Virtual)
-default['bcpc']['software_raid']['devices'] = []
-default['bcpc']['software_raid']['md_device'] = '/dev/md/md0'
-default['bcpc']['software_raid']['chunk_size'] = 512
 
 # load a custom vendor driver,
 # e.g. "nova.api.metadata.bcpc_metadata.BcpcMetadata",
@@ -359,19 +333,6 @@ default['bcpc']['bootstrap']['mirror_path'] = "/ubuntu"
 
 ###########################################
 #
-# Rally settings
-#
-###########################################
-#
-# Package versions
-# None needed at this time
-if node.chef_environment == "Test-Laptop-Vagrant"
-   default['bcpc']['rally']['user'] = 'vagrant'
-else
-   default['bcpc']['rally']['user'] = 'operations'
-end
-###########################################
-#
 # Openstack Flavors
 #
 ###########################################
@@ -382,7 +343,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 512,
     "disk_gb" => 1,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -391,7 +351,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 2048,
     "disk_gb" => 20,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -400,7 +359,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 4096,
     "disk_gb" => 40,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -409,7 +367,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 8192,
     "disk_gb" => 40,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -418,7 +375,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 16384,
     "disk_gb" => 40,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -427,68 +383,7 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 32768,
     "disk_gb" => 40,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
-    }
-  },
-  "nondurable1.tiny" => {
-    "vcpus" => 1,
-    "memory_mb" => 512,
-    "disk_gb" => 1,
-    "ephemeral_gb" => 5,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable1.small" => {
-    "vcpus" => 1,
-    "memory_mb" => 2048,
-    "disk_gb" => 20,
-    "ephemeral_gb" => 20,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable1.medium" => {
-    "vcpus" => 2,
-    "memory_mb" => 4096,
-    "disk_gb" => 40,
-    "ephemeral_gb" => 40,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable1.large" => {
-    "vcpus" => 4,
-    "memory_mb" => 8192,
-    "disk_gb" => 40,
-    "ephemeral_gb" => 80,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable1.xlarge" => {
-    "vcpus" => 8,
-    "memory_mb" => 16384,
-    "disk_gb" => 40,
-    "ephemeral_gb" => 160,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable1.2xlarge" => {
-    "vcpus" => 16,
-    "memory_mb" => 32768,
-    "disk_gb" => 40,
-    "ephemeral_gb" => 320,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
     }
   },
   "generic2.small" => {
@@ -496,7 +391,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 6144,
     "disk_gb" => 50,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -505,7 +399,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 12288,
     "disk_gb" => 100,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -514,7 +407,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 24576,
     "disk_gb" => 100,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -523,7 +415,6 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 49152,
     "disk_gb" => 100,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
     }
   },
@@ -532,58 +423,7 @@ default['bcpc']['flavors'] = {
     "memory_mb" => 98304,
     "disk_gb" => 100,
     "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "no",
       "aggregate_instance_extra_specs:general_compute" => "yes",
-    }
-  },
-  "nondurable2.small" => {
-    "vcpus" => 1,
-    "memory_mb" => 6144,
-    "disk_gb" => 50,
-    "ephemeral_gb" => 50,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable2.medium" => {
-    "vcpus" => 2,
-    "memory_mb" => 12288,
-    "disk_gb" => 100,
-    "ephemeral_gb" => 100,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable2.large" => {
-    "vcpus" => 4,
-    "memory_mb" => 24576,
-    "disk_gb" => 100,
-    "ephemeral_gb" => 200,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable2.xlarge" => {
-    "vcpus" => 8,
-    "memory_mb" => 49152,
-    "disk_gb" => 100,
-    "ephemeral_gb" => 320,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
-    }
-  },
-  "nondurable2.2xlarge" => {
-    "vcpus" => 16,
-    "memory_mb" => 98304,
-    "disk_gb" => 100,
-    "ephemeral_gb" => 320,
-    "extra_specs" => {
-      "aggregate_instance_extra_specs:ephemeral_compute" => "yes",
-      "aggregate_instance_extra_specs:general_compute" => "no",
     }
   }
 }
@@ -597,18 +437,11 @@ default['bcpc']['flavor_access'] = { }
 
 default['bcpc']['host_aggregates'] = {
   "general_compute" => {
-    "ephemeral_compute" => "no",
     "general_compute" => "yes",
-    "maintenance" => "no"
-  },
-  "ephemeral_compute" => {
-    "ephemeral_compute" => "yes",
-    "general_compute" => "no",
     "maintenance" => "no"
   },
   "maintenance" => {
     "general_compute" => "no",
-    "ephemeral_compute" => "no",
     "maintenance" => "yes"
   }
 }
@@ -617,25 +450,12 @@ default['bcpc']['aggregate_membership'] = []
 
 ###########################################
 #
-# RadosGW Quotas
-#
-###########################################
-default['bcpc']['rgw_quota'] = {
-    'user' => {
-        'default' => {
-           'max_size' => 10737418240
-        }
-    }
-}
-
-###########################################
-#
 # Openstack Project Quotas
 #
 ###########################################
 default['bcpc']['quota'] = {
     'nova' => {
-        'AdminTenant' => {
+        'admin' => {
            'cores'        => -1,
            'ram'          => -1,
            'floating_ips' => -1

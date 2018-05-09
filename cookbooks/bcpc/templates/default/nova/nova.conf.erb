@@ -15,7 +15,6 @@
 # Nova API settings
 auth_strategy=keystone
 api_paste_config=/etc/nova/api-paste.ini
-s3_host=<%=node['bcpc']['management']['vip']%>
 osapi_compute_listen=<%= node['bcpc']['management']['ip'] %>
 osapi_compute_workers=<%=node['bcpc']['nova']['workers']%>
 <% if node['bcpc']['enabled']['neutron'] %>
@@ -39,6 +38,7 @@ vendordata_driver = <%=node["bcpc"]["vendordata_driver"] %>
 # Nova notification settings
 notification_topics=<%= node['bcpc']['nova']['notifications']['notification_topics'] %>
 notification_driver=<%= node['bcpc']['nova']['notifications']['notification_driver'] %>
+notification_format=unversioned
 notify_on_state_change=<%= node['bcpc']['nova']['notifications']['notify_on_state_change'] %>
 <% end %>
 
@@ -74,7 +74,7 @@ use_project_ca=True
 cnt_vpn_clients=5
 
 # Misc other settings
-log-dir=/var/log/nova
+log_dir=/var/log/nova
 state_path=/var/lib/nova
 rootwrap_config=/etc/nova/rootwrap.conf
 debug=<%= node['bcpc']['nova']['debug'] %>
@@ -106,7 +106,7 @@ vif_plugging_timeout = 0
 
 [neutron]
 url = <%= node['bcpc']['protocol']['neutron'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:9696
-admin_tenant_name = <%= node['bcpc']['admin_tenant'] %>
+admin_tenant_name = <%= node['bcpc']['keystone']['admin']['project_name'] %>
 auth_strategy = keystone
 admin_auth_url = <%= node['bcpc']['protocol']['keystone'] %>://openstack.<%= node['bcpc']['cluster_domain'] %>:35357/v2.0/
 admin_username = <%= get_config('keystone-admin-user') %>
@@ -208,10 +208,6 @@ api_insecure=True
 
 [libvirt]
 # Always boot nova VMs from RBD
-<% if node['bcpc']['nova']['ephemeral'] %>
-images_type=lvm
-images_volume_group=<%= node['bcpc']['nova']['ephemeral_vg_name'] %>
-<% else %>
 images_type=rbd
 images_rbd_pool=<%=node['bcpc']['ceph']['vms']['name']%>
 images_rbd_ceph_conf=/etc/ceph/ceph.conf
@@ -224,7 +220,6 @@ inject_key=false
 inject_partition=-2
 # Set flags for libvirt live migration
 live_migration_flag="VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE,VIR_MIGRATE_PERSIST_DEST,VIR_MIGRATE_TUNNELLED"
-<% end %>
 virt_type=<%=node['bcpc']['virt_type']%>
 use_virtio_for_bridges=True
 hw_disk_discard = unmap
@@ -242,6 +237,7 @@ cpu_model = <%= node['bcpc']['nova']['cpu_config']['cpu_model'] %>
 <% end %>
 <% end %>
 
-[oslo_cache]
+[cache]
 enabled = true
-memcached_servers=<%=@servers.map{|x| x['bcpc']['management']['ip'] + ":11211"}.join(",")%>
+backend = oslo_cache.memcache_pool
+memcache_servers=<%=@servers.map{|x| x['bcpc']['management']['ip'] + ":11211"}.join(",")%>
