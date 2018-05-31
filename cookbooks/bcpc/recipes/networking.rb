@@ -231,6 +231,13 @@ bash "disable-noninteractive-pam-logging" do
     only_if "grep -e '^session\\s*required\\s*pam_unix.so' /etc/pam.d/common-session-noninteractive"
 end
 
+cookbook_file '/etc/default/ebtables' do
+  source 'etc-default-ebtables'
+  owner  'root'
+  group  'root'
+  mode   '0644'
+end
+
 unless search_nodes('role', 'BCPC-Bootstrap').include?(node)
   include_recipe 'bcpc::networking_functions'
 end
