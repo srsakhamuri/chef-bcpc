@@ -90,6 +90,7 @@ end
 
 service "cinder-api" do
     restart_command "service cinder-api restart; sleep 5"
+    action :restart
 end
 
 template "/etc/cinder/cinder.conf" do
