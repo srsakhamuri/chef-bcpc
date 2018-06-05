@@ -276,6 +276,10 @@ default['bcpc']['mysql-head']['innodb_io_capacity'] = 200
 default['bcpc']['mysql-head']['innodb_log_buffer_size'] = '8M'
 default['bcpc']['mysql-head']['innodb_flush_method'] = 'O_DIRECT'
 default['bcpc']['mysql-head']['wsrep_slave_threads'] = 4
+default['bcpc']['mysql-head']['max_heap_table_size'] = '16M'
+default['bcpc']['mysql-head']['join_buffer_size'] = '256K'
+default['bcpc']['mysql-head']['sort_buffer_size'] = '256K'
+default['bcpc']['mysql-head']['tmp_table_size'] = '16M'
 # slow query log settings
 default['bcpc']['mysql-head']['slow_query_log'] = true
 default['bcpc']['mysql-head']['slow_query_log_file'] = '/var/log/mysql/slow.log'

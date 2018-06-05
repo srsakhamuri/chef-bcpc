@@ -28,8 +28,8 @@ default['bcpc']['nova']['database']['max_pool_size'] = 5
 # set soft/hard ulimits in upstart unit file for nova-compute
 # as number of OSDs in cluster increases, soft limit needs to increase to avoid
 # nova-compute deadlocks
-default['bcpc']['nova']['compute']['limits']['nofile']['soft'] = 1024
-default['bcpc']['nova']['compute']['limits']['nofile']['hard'] = 4096
+default['bcpc']['nova']['compute']['limits']['nofile']['soft'] = 16384
+default['bcpc']['nova']['compute']['limits']['nofile']['hard'] = 16384
 # frequency of syncing power states between hypervisor and database
 default['bcpc']['nova']['sync_power_state_interval'] = 600
 # automatically restart guests that were running when hypervisor was rebooted
