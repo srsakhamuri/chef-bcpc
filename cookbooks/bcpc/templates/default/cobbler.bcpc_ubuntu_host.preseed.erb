@@ -98,6 +98,8 @@ d-i     debian-installer/exit/poweroff  boolean false
 d-i     pkgsel/include string openssh-server
 
 d-i     preseed/late_command string true && \
+        in-target dpkg --remove-architecture i386 ;\
+        in-target sed -i s/^deb-src/\# deb-src/g /etc/apt/sources.list ;\
         <%# known meta packages that automatically pull in linux-image-extra are linux-server, linux-image-generic-lts-*, linux-image-generic %>
         <% unless ['linux-server', 'linux-image-generic'].include?(@node['bcpc']['preseed']['kernel']) or @node['bcpc']['preseed']['kernel'].start_with?('linux-image-generic-lts-') %>
         in-target apt-get -y install <%= @node['bcpc']['preseed']['kernel'].gsub('linux-image', 'linux-image-extra') %> ;\
