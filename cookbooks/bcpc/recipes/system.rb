@@ -123,6 +123,7 @@ cookbook_file '/usr/local/bin/mm-thp-madvise.sh' do
   owner  'root'
   group  'root'
   mode   '0755'
+  notifies :run, 'bash[mm-tuning]', :delayed
 end
 
 cookbook_file '/usr/local/bin/mm-disable-ksm-merge-across-nodes.sh' do
@@ -130,6 +131,7 @@ cookbook_file '/usr/local/bin/mm-disable-ksm-merge-across-nodes.sh' do
   owner  'root'
   group  'root'
   mode   '0755'
+  notifies :run, 'bash[mm-tuning]', :delayed
 end
 
 bash 'mm-tuning' do
@@ -137,6 +139,7 @@ bash 'mm-tuning' do
     /usr/local/bin/mm-thp-madvise.sh
     /usr/local/bin/mm-disable-ksm-merge-across-nodes.sh
   EOH
+  action :nothing
 end
 
 ruby_block "swap-toggle" do
