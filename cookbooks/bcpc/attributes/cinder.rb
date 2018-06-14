@@ -21,3 +21,5 @@ default['bcpc']['cinder']['quota'] = {
 # Identity
 default['bcpc']['cinder']['user'] = 'cinder'
 default['bcpc']['cinder']['days_to_keep_logs'] = 14
+# rpc timeout
+default['bcpc']['cinder']['rpc_response_timeout'] = 120
