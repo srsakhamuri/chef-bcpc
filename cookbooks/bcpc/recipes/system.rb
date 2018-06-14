@@ -37,12 +37,21 @@ end
 
 package "linux-image-extra-#{node['kernel']['release']}"
 
-# after installing linux-image-extra:
 # ensure ipmi_devintf module is inserted to create /dev/ipmi0 for monitoring
 # (on platforms without IPMI, the module will load but not create the dev node)
 bash 'modprobe-ipmi_devintf' do
   code 'modprobe ipmi_devintf'
   not_if 'lsmod | grep ipmi_devintf'
+end
+
+bash 'add-ipmi_devintf-module' do
+    code 'echo "ipmi_devintf" >> /etc/modules'
+    not_if 'grep -e "^ipmi_devintf$" /etc/modules'
+end
+
+bash 'add-ipmi_si-module' do
+    code 'echo "ipmi_si" >> /etc/modules'
+    not_if 'grep -e "^ipmi_si$" /etc/modules'
 end
 
 template "/etc/default/grub" do
@@ -100,6 +109,34 @@ begin
     command "echo #{hashsize} > #{hashsize_fp}"
     not_if "grep -w #{hashsize} #{hashsize_fp}"
   end
+end
+
+cookbook_file '/etc/rc.local' do
+  source 'system.etc_rc.local'
+  owner  'root'
+  group  'root'
+  mode   '0755'
+end
+
+cookbook_file '/usr/local/bin/mm-thp-madvise.sh' do
+  source 'system.mm-thp-madvise.sh'
+  owner  'root'
+  group  'root'
+  mode   '0755'
+end
+
+cookbook_file '/usr/local/bin/mm-disable-ksm-merge-across-nodes.sh' do
+  source 'system.mm-disable-ksm-merge-across-nodes.sh'
+  owner  'root'
+  group  'root'
+  mode   '0755'
+end
+
+bash 'mm-tuning' do
+  code <<-EOH
+    /usr/local/bin/mm-thp-madvise.sh
+    /usr/local/bin/mm-disable-ksm-merge-across-nodes.sh
+  EOH
 end
 
 ruby_block "swap-toggle" do
