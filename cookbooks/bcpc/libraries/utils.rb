@@ -357,6 +357,7 @@ end
 
 # We do not have net/ping, so just call out to system and check err value.
 def ping_node(list_name, ping_node)
+    sleep 3
     Open3.popen3("ping -c1 #{ping_node}") { |stdin, stdout, stderr, wait_thr|
         rv = wait_thr.value
         if rv == 0
@@ -369,6 +370,7 @@ def ping_node(list_name, ping_node)
 end
 
 def ping_node_list(list_name, ping_list, fast_exit=true)
+    sleep 3
     success = false
     ping_list.each do |ping_node|
         Open3.popen3("ping -c1 #{ping_node}") { |stdin, stdout, stderr, wait_thr|
