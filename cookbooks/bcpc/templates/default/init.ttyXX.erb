@@ -11,4 +11,4 @@ start on runlevel [23] and (
 stop on runlevel [!23]
 
 respawn
-exec /sbin/getty -8 38400 <%= @ttyname %>
+exec /sbin/getty -8 115200 <%= @ttyname %>
