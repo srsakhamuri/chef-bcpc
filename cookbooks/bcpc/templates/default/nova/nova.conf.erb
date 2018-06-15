@@ -81,7 +81,7 @@ debug=<%= node['bcpc']['nova']['debug'] %>
 <% if not node['bcpc']['nova']['default_log_levels'].nil? %>
 default_log_levels="<%= node['bcpc']['nova']['default_log_levels'] %>"
 <% end %>
-#rpc_response_timeout=120
+rpc_response_timeout=<%= node['bcpc']['nova']['rpc_response_timeout'] %>
 
 # ca_file = /etc/ssl/certs/ssl-bcpc.pem
 # cinder_ca_certificates_file = /etc/ssl/certs/ssl-bcpc.pem

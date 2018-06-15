@@ -69,7 +69,7 @@ log_file = <%= node['bcpc']['keystone']['log_file'] %>
 #matchmaker_heartbeat_ttl = 600
 #rpc_thread_pool_size = 64
 #notification_topics = notifications
-#rpc_response_timeout = 60
+rpc_response_timeout=<%= node['bcpc']['keystone']['rpc_response_timeout'] %>
 #transport_url = <None>
 #rpc_backend = rabbit
 #control_exchange = keystone

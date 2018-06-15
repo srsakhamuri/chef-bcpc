@@ -25,6 +25,8 @@ default['bcpc']['nova']['workers'] = 5
 # configure SQLAlchemy overflow/QueuePool sizes
 default['bcpc']['nova']['database']['max_overflow'] = 10
 default['bcpc']['nova']['database']['max_pool_size'] = 5
+# rpc timeout
+default['bcpc']['nova']['rpc_response_timeout'] = 120
 # set soft/hard ulimits in upstart unit file for nova-compute
 # as number of OSDs in cluster increases, soft limit needs to increase to avoid
 # nova-compute deadlocks
