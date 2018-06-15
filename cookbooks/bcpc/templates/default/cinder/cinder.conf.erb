@@ -26,11 +26,7 @@ osapi_volume_listen=<%=node['bcpc']['management']['ip']%>
 osapi_volume_workers=<%= node['bcpc']['cinder']['workers'] %>
 
 rpc_backend = rabbit
-# If using qpid...
-#rpc_backend=cinder.openstack.common.rpc.impl_qpid
-#qpid_hostname=<%=node['bcpc']['management']['vip']%>
-#qpid_username=admin
-#qpid_password=<%=get_config('rabbitmq-password')%>
+rpc_response_timeout=<%= node['bcpc']['cinder']['rpc_response_timeout'] %>
 
 # Other service endpoints
 glance_api_servers=<%=node['bcpc']['protocol']['glance']%>://openstack.<%=node['bcpc']['cluster_domain']%>:9292
