@@ -24,8 +24,12 @@ if [ ! -f $LOCK_FILE ]; then
   rm -f $LOCK_FILE
 fi
 
-# Restart local OpenStack services
-/usr/local/bin/hup_openstack
+# Restart local OpenStack services when vip_lost. This forces existing
+# connections to reconnect to new vip. Don't restart on vip_won, as that causes
+# connections to new vip to fail.
+if [ "${0}" == "/usr/local/bin/vip_lost" ] ; then
+  /usr/local/bin/hup_openstack
+fi
 
 # Generate an upstart event to notify anything that needs
 # to take action on a vip change
