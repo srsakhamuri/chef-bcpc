@@ -38,8 +38,8 @@ innodb_io_capacity=<%= @innodb_io_capacity %>
 innodb_buffer_pool_dump_at_shutdown=ON
 innodb_buffer_pool_load_at_startup=ON
 
-# Write to disk on each commit, but only flush once per second
-innodb_flush_log_at_trx_commit=2
+# Write to disk and flush once per second
+innodb_flush_log_at_trx_commit=0
 
 # Put each table in it's own file
 innodb_file_per_table=1
