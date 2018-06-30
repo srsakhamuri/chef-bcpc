@@ -34,6 +34,12 @@ apt_repository "erlang" do
     key "erlang.key"
 end
 
+apt_preference 'erlang' do
+  glob 'erlang*'
+  pin 'version 1:20.3-1'
+  pin_priority '900'
+end
+
 apt_repository "rabbitmq" do
     uri node['bcpc']['repos']['rabbitmq']
     distribution 'testing'
