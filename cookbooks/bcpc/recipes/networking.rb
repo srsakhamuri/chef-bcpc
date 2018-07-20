@@ -222,7 +222,14 @@ end
             not_if  "ifconfig #{node['bcpc'][iface]['interface']} | grep MTU:#{node['bcpc'][iface]['mtu']}"
         end
     end
+end
 
+bash 'kill-dhclient-and-update-resolvconf' do
+    code <<-EOH
+       killall -9 dhclient
+       resolvconf -u
+    EOH
+    ignore_failure true
 end
 
 bash "disable-noninteractive-pam-logging" do
