@@ -106,22 +106,43 @@ bash "setup-interfaces-source" do
     not_if "grep '^source /etc/network/interfaces.d/iface-' /etc/network/interfaces"
 end
 
-[['management', 100], ['storage', 300]].each do |net, metric|
-    template "/etc/network/interfaces.d/iface-#{node['bcpc'][net]['interface']}" do
-        source "network.iface.erb"
-        owner "root"
-        group "root"
-        mode 00644
-        variables(
-            :interface => node['bcpc'][net]['interface'],
-            :ip => node['bcpc'][net]['ip'],
-            :netmask => node['bcpc'][net]['netmask'],
-            :gateway => node['bcpc'][net]['gateway'],
-            :mtu => node['bcpc'][net]['mtu'],
-            :metric => metric
-        )
-    end
+# set up the DNS resolvers
+# we want the VIP which will be running powerdns to be first on the list
+# but the first entry in our master list is also the only one in pdns,
+# so make that the last entry to minimize double failures when upstream dies.
+resolvers=node['bcpc']['dns_servers'].dup
+resolvers.push resolvers.shift
+resolvers.unshift node['bcpc']['management']['vip']
 
+template "/etc/network/interfaces.d/iface-#{node['bcpc']['management']['interface']}" do
+    source "network.iface.erb"
+    owner "root"
+    group "root"
+    mode 00644
+    variables(
+        :interface => node['bcpc']['management']['interface'],
+        :ip => node['bcpc']['management']['ip'],
+        :netmask => node['bcpc']['management']['netmask'],
+        :gateway => node['bcpc']['management']['gateway'],
+        :dns => resolvers,
+        :mtu => node['bcpc']['management']['mtu'],
+        :metric => 100
+    )
+end
+
+template "/etc/network/interfaces.d/iface-#{node['bcpc']['storage']['interface']}" do
+    source "network.iface.erb"
+    owner "root"
+    group "root"
+    mode 00644
+    variables(
+        :interface => node['bcpc']['storage']['interface'],
+        :ip => node['bcpc']['storage']['ip'],
+        :netmask => node['bcpc']['storage']['netmask'],
+        :gateway => node['bcpc']['storage']['gateway'],
+        :mtu => node['bcpc']['storage']['mtu'],
+        :metric => 300
+    )
 end
 
 %w{ storage floating }.each do |net|
@@ -146,14 +167,6 @@ end
   end
 end
 
-# set up the DNS resolvers
-# we want the VIP which will be running powerdns to be first on the list
-# but the first entry in our master list is also the only one in pdns,
-# so make that the last entry to minimize double failures when upstream dies.
-resolvers=node['bcpc']['dns_servers'].dup
-resolvers.push resolvers.shift
-resolvers.unshift node['bcpc']['management']['vip']
-
 template "/etc/network/interfaces.d/iface-#{node['bcpc']['floating']['interface']}" do
     source "network.iface.erb"
     owner "root"
@@ -164,7 +177,6 @@ template "/etc/network/interfaces.d/iface-#{node['bcpc']['floating']['interface'
         :ip => node['bcpc']['floating']['ip'],
         :netmask => node['bcpc']['floating']['netmask'],
         :gateway => node['bcpc']['floating']['gateway'],
-        :dns => resolvers,
         :mtu => node['bcpc']['floating']['mtu'],
         :metric => 200
     )
