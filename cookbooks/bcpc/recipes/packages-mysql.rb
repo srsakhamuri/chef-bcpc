@@ -31,6 +31,6 @@ end
 # xtrabackup versions without reflecting that in package deps
 %w(percona-xtrabackup percona-xtradb-cluster-56).each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
   end
 end

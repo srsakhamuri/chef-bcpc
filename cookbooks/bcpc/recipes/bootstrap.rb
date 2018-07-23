@@ -40,7 +40,7 @@ include_recipe "bcpc::packages-openstack"
     python-openstackclient
 }.each do |pkg|
     package pkg do
-        action :upgrade
+        action :install
     end
 end
 

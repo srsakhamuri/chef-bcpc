@@ -36,7 +36,7 @@ ruby_block "neutron-database-creation" do
 end
 
 package 'neutron-server' do
-  action :upgrade
+  action :install
 end
 
 service 'neutron-server' do

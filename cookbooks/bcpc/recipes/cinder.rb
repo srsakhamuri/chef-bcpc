@@ -66,12 +66,12 @@ node['bcpc']['ceph']['enabled_pools'].each do |type|
 end
 
 package 'cinder-common' do
-  action :upgrade
+  action :install
 end
 
 %w{cinder-api cinder-volume cinder-scheduler}.each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
   end
 
   service pkg do

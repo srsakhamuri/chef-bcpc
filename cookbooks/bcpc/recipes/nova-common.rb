@@ -38,11 +38,11 @@ ruby_block "initialize-nova-config" do
 end
 
 package "nova-common" do
-  action :upgrade
+  action :install
 end
 
 package "qemu-system-common" do
-  action :upgrade
+  action :install
 end
 
 template "/etc/nova/nova.conf" do
