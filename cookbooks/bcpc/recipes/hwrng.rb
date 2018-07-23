@@ -46,7 +46,7 @@ template "/etc/default/rng-tools" do
 end
 
 package "rng-tools" do
-  action :upgrade
+  action :install
 end
 
 service "rng-tools" do

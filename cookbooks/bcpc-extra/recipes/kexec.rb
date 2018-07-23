@@ -18,7 +18,7 @@
 #
 
 package 'kexec-tools' do
-  action :upgrade
+  action :install
 end
 
 cookbook_file 'etc-default-kexec' do

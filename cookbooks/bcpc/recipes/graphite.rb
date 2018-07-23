@@ -32,7 +32,7 @@ if node['bcpc']['enabled']['metrics']
   end
 
   package 'percona-xtradb-cluster-client-5.6' do
-    action :upgrade
+    action :install
   end
 
   ruby_block 'initialize-graphite-config' do
@@ -57,7 +57,7 @@ if node['bcpc']['enabled']['metrics']
     package pkg do
       provider Chef::Provider::Package::Dpkg
       source deb_full_path
-      action :upgrade
+      action :install
       notifies :restart, 'service[carbon-cache]', :delayed
       notifies :restart, 'service[carbon-relay]', :delayed
     end
@@ -67,7 +67,7 @@ if node['bcpc']['enabled']['metrics']
       python-twisted python-memcache memcached python-mysqldb
       python-tz ).each do |pkg|
     package pkg do
-      action :upgrade
+      action :install
     end
   end
 

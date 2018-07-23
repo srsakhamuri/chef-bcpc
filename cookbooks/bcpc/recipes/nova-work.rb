@@ -22,11 +22,11 @@ include_recipe "bcpc::nova-common"
 # see https://specs.openstack.org/openstack/nova-specs/specs/juno/implemented/virt-driver-numa-placement.html
 # for information about NUMA in OpenStack
 package 'numactl' do
-  action :upgrade
+  action :install
 end
 
 package "nova-compute-#{node['bcpc']['virt_type']}" do
-  action :upgrade
+  action :install
   notifies :restart, 'service[nova-compute]', :immediately
 end
 
@@ -34,7 +34,7 @@ nova_services = %w(nova-api nova-compute nova-novncproxy)
 nova_services += ['nova-network'] unless node['bcpc']['enabled']['neutron']
 nova_services.each do |pkg|
     package pkg do
-        action :upgrade
+        action :install
     end
     service pkg do
         action [:enable, :start]
@@ -69,7 +69,7 @@ end
 
 %w{novnc pm-utils memcached sysfsutils}.each do |pkg|
     package pkg do
-        action :upgrade
+        action :install
     end
 end
 

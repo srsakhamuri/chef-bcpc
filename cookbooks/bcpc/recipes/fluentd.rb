@@ -43,7 +43,7 @@ if node['bcpc']['enabled']['logging'] then
     end
 
     package "td-agent" do
-        action :upgrade
+        action :install
     end
 
     # list instead of hash to guarantee iteration in insertion order

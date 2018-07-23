@@ -31,7 +31,7 @@ end
 
 # options specified to keep dpkg from complaining that the config file exists already
 package "openstack-dashboard" do
-  action :upgrade
+  action :install
   notifies :run, "bash[dpkg-reconfigure-openstack-dashboard]", :delayed
   notifies :run, 'bash[clean-old-dashboard-pyc-files]', :immediately
 end
@@ -155,7 +155,7 @@ end
 # troveclient gets installed by something and can blow up Horizon startup
 # if not upgraded when moving from Kilo to Liberty
 package 'python-troveclient' do
-  action :upgrade
+  action :install
   notifies :restart, "service[apache2]", :immediately
 end
 

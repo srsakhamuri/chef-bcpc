@@ -30,7 +30,7 @@ if node['bcpc']['enabled']['logging'] then
     end
 
     package 'kibana' do
-        action :upgrade
+        action :install
     end
 
     template "/opt/kibana/config/kibana.yml" do

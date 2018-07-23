@@ -54,11 +54,11 @@ begin
 end
 
 package 'python-ldappool' do
-  action :upgrade
+  action :install
 end
 
 package 'keystone' do
-  action :upgrade
+  action :install
   notifies :run, 'bash[flush-memcached]', :immediately
 end
 
@@ -72,7 +72,7 @@ end
 # these packages need to be updated in Liberty but are not upgraded when Keystone is upgraded
 %w( python-oslo.i18n python-oslo.serialization python-pyasn1 ).each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
     notifies :restart, "service[apache2]", :immediately
   end
 end

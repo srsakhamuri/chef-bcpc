@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 package "xinetd" do
-    action :upgrade
+    action :install
 end
 
 service "xinetd" do

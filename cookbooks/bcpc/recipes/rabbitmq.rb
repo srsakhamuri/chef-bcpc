@@ -48,7 +48,7 @@ apt_repository "rabbitmq" do
 end
 
 package "rabbitmq-server" do
-    action :upgrade
+    action :install
     notifies :stop, "service[rabbitmq-server]", :immediately
 end
 

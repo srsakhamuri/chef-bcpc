@@ -20,7 +20,7 @@
 include_recipe "bcpc::default"
 
 package "keepalived" do
-    action :upgrade
+    action :install
 end
 
 service "keepalived" do

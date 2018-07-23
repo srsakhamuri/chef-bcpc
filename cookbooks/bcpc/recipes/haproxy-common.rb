@@ -34,7 +34,7 @@ apt_repository "haproxy" do
 end
 
 package "haproxy" do
-    action :upgrade
+    action :install
 end
 
 bash "enable-defaults-haproxy" do
