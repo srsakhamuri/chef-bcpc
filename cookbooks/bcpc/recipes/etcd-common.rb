@@ -24,7 +24,7 @@ include_recipe 'bcpc::packages-calico'
 # installs etcd from calico repo
 %w(etcd python-etcd).each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
   end
 end
 

@@ -36,7 +36,7 @@ if node['bcpc']['enabled']['monitoring'] then
     # Enable PHP for zabbix-server
     %w( php5 libapache2-mod-php5 ).each do |pkg|
       package pkg do
-        action :upgrade
+        action :install
       end
     end
 
@@ -49,12 +49,12 @@ if node['bcpc']['enabled']['monitoring'] then
 
     # Package is a soft dependency of zabbix-server
     package "snmp-mibs-downloader" do
-        action :upgrade
+        action :install
     end
 
     %w{zabbix-server-mysql zabbix-frontend-php}.each do |zabbix_package|
       package zabbix_package do
-        action :upgrade
+        action :install
         # no-install-recommends used here because zabbix-server-mysql wants to remove
         # Percona packages in favor of non-clustered Oracle MySQL otherwise
         options '--no-install-recommends'
@@ -131,7 +131,7 @@ if node['bcpc']['enabled']['monitoring'] then
 
     %w{traceroute php5-mysql php5-gd python-requests}.each do |pkg|
         package pkg do
-            action :upgrade
+            action :install
         end
     end
 
@@ -195,7 +195,7 @@ if node['bcpc']['enabled']['monitoring'] then
     package "python-pyzabbix" do
         provider Chef::Provider::Package::Dpkg
         source "/tmp/python-pyzabbix_0.7.3_all.deb"
-        action :upgrade
+        action :install
     end
 
     %w( linux_active bcpc s3 ).each do |zt|

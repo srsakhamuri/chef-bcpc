@@ -96,7 +96,7 @@ if node['bcpc']['enabled']['logging'] then
     end
 
     package "curl" do
-        action :upgrade
+        action :install
     end
 
     bash "set-elasticsearch-replicas" do

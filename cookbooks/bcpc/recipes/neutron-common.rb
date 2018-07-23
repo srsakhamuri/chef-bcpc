@@ -30,7 +30,7 @@ ruby_block "initialize-neutron-config" do
 end
 
 package 'neutron-common' do
-  action :upgrade
+  action :install
 end
 
 %w(etc/neutron /etc/neutron/plugins/ml2).each do |d|

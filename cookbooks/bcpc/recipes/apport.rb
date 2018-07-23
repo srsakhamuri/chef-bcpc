@@ -18,7 +18,7 @@
 #
 
 package "apport" do
-  action :upgrade
+  action :install
 end
 
 template "/etc/default/apport" do

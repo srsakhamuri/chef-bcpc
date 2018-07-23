@@ -20,7 +20,7 @@
 etckeeper_packages = ['git', 'etckeeper']
 
 package etckeeper_packages do
-  action :upgrade
+  action :install
 end
 
 cookbook_file 'etckeeper.conf' do

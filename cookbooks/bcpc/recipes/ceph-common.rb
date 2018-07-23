@@ -40,7 +40,7 @@ end
 
 %w{librados2 librbd1 libcephfs1 python-ceph ceph ceph-common ceph-fs-common ceph-mds ceph-fuse}.each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
   end
 end
 
@@ -91,7 +91,7 @@ directory "/var/run/ceph/" do
 end
 
 package 'libvirt-bin' do
-  action :upgrade
+  action :install
 end
 
 directory "/var/run/ceph/guests/" do

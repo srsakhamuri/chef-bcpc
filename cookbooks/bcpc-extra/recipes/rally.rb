@@ -35,7 +35,7 @@ rally_version = node['bcpc-extra']['rally']['version']
      libxslt1-dev
 }.each do |pkg|
     package pkg do
-        action :upgrade
+        action :install
     end
 end
 

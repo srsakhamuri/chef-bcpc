@@ -72,7 +72,7 @@ end
 
 %w{nova-scheduler nova-cert nova-consoleauth nova-conductor}.each do |pkg|
     package pkg do
-        action :upgrade
+        action :install
     end
     service pkg do
         action [:enable, :start]

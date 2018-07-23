@@ -18,7 +18,7 @@
 #
 
 package 'memcached' do
-  action :upgrade
+  action :install
 end
 
 file '/var/log/memcached.log' do

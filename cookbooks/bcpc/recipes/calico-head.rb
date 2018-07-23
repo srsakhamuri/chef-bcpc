@@ -24,7 +24,7 @@ include_recipe 'bcpc::neutron-head'
 
 %w(dnsmasq-base dnsmasq-utils calico-control).each do |pkg|
   package pkg do
-    action :upgrade
+    action :install
     notifies :restart, 'service[neutron-server]', :delayed
   end
 end

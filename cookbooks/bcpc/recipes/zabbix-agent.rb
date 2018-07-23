@@ -23,7 +23,7 @@ if node['bcpc']['enabled']['monitoring'] then
 
     %w{zabbix-agent zabbix-get zabbix-sender}.each do |zabbix_package|
       package zabbix_package do
-        action :upgrade
+        action :install
       end
     end
 

@@ -22,7 +22,7 @@ return unless node['bcpc']['enabled']['neutron']
 include_recipe 'bcpc::packages-bird'
 
 package "bird" do
-  action :upgrade
+  action :install
 end
 
 service "bird" do

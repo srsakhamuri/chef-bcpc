@@ -30,7 +30,7 @@ if node['bcpc']['enabled']['heat']
 
   %w{heat-common heat-api heat-api-cfn heat-engine}.each do |pkg|
     package pkg do
-      action :upgrade
+      action :install
     end
   end
 

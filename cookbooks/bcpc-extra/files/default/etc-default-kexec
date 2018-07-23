@@ -12,4 +12,4 @@ INITRD="/initrd.img"
 APPEND=""
 
 # Load the default kernel from grub config (true/false)
-USE_GRUB_CONFIG=false
+USE_GRUB_CONFIG=true

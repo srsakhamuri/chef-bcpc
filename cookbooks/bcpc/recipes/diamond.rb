@@ -30,14 +30,14 @@ if node['bcpc']['enabled']['metrics'] then
 
     %w{python-support python-configobj python-pip python-httplib2}.each do |pkg|
         package pkg do
-            action :upgrade
+            action :install
         end
     end
 
     package "diamond" do
         provider Chef::Provider::Package::Dpkg
         source "/tmp/diamond.deb"
-        action :upgrade
+        action :install
     end
 
     bcpc_patch '/usr/share/diamond/collectors/powerdns/powerdns.py' do
@@ -50,10 +50,10 @@ if node['bcpc']['enabled']['metrics'] then
 
     if node['bcpc']['virt_type'] == "kvm"
         package "ipmitool" do
-            action :upgrade
+            action :install
         end
         package "smartmontools" do
-            action :upgrade
+            action :install
         end
     end
 

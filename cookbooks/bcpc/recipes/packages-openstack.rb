@@ -18,7 +18,7 @@
 #
 
 package "ubuntu-cloud-keyring" do
-  action :upgrade
+  action :install
 end
 
 apt_repository "openstack" do

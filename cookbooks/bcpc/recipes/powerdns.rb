@@ -31,7 +31,7 @@ if node['bcpc']['enabled']['dns'] then
 
   %w{pdns-server pdns-backend-mysql}.each do |pkg|
     package pkg do
-      action :upgrade
+      action :install
     end
   end
 
