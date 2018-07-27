@@ -140,6 +140,7 @@ template "/etc/network/interfaces.d/iface-#{node['bcpc']['storage']['interface']
         :ip => node['bcpc']['storage']['ip'],
         :netmask => node['bcpc']['storage']['netmask'],
         :gateway => node['bcpc']['storage']['gateway'],
+        :dns => resolvers,
         :mtu => node['bcpc']['storage']['mtu'],
         :metric => 300
     )
