@@ -61,6 +61,7 @@ resume_guests_state_on_host_boot=<%= node['bcpc']['nova']['resume_guests_state_o
 <% if node['bcpc']['nova']['cpu_config']['vcpu_pin_set'] %>
 vcpu_pin_set = <%= node['bcpc']['nova']['cpu_config']['vcpu_pin_set'] %>
 <% end %>
+force_config_drive=true
 
 # Nova Volume settings
 volume_api_class=nova.volume.cinder.API
@@ -82,6 +83,7 @@ debug=<%= node['bcpc']['nova']['debug'] %>
 default_log_levels="<%= node['bcpc']['nova']['default_log_levels'] %>"
 <% end %>
 rpc_response_timeout=<%= node['bcpc']['nova']['rpc_response_timeout'] %>
+enable_new_services=<%= node['bcpc']['nova']['enable_new_services'] %>
 
 # ca_file = /etc/ssl/certs/ssl-bcpc.pem
 # cinder_ca_certificates_file = /etc/ssl/certs/ssl-bcpc.pem
