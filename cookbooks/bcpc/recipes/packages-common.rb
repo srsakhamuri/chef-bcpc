@@ -53,6 +53,7 @@ package 'patch'
 package 'sshpass'  # GitHub #112 -- required for nodessh.sh
 # logtail is used for some zabbix checks
 package 'logtail'
+package 'crudini'
 
 # Remove spurious logging failures from this package
 package "powernap" do

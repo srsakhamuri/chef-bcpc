@@ -134,10 +134,10 @@ flat_network_dns=<%=node['bcpc']['management']['vip']%>
 <% end %>
 dhcpbridge_flagfile=/etc/nova/nova.conf
 dhcpbridge=/usr/bin/nova-dhcpbridge
-force_dhcp_release=False
+force_dhcp_release=True
 share_dhcp_address=True
 teardown_unused_network_gateway=True
-fixed_ip_disassociate_timeout=30
+fixed_ip_disassociate_timeout=0
 dhcp_lease_time=<%=node['bcpc']['fixed']['dhcp_lease_time']%>
 send_arp_for_ha=True
 my_ip=<%=node['bcpc']['management']['ip']%>
@@ -145,6 +145,9 @@ routing_source_ip=<%=node['bcpc']['floating']['ip']%>
 dhcp_domain=<%=node['bcpc']['cluster_domain']%>
 default_availability_zone=
 default_floating_pool = <%= node['bcpc']['region_name'] %>
+ebtables_exec_attempts=30
+ebtables_retry_interval=2
+network_allocate_retries=3
 <% end %>
 
 [vnc]
