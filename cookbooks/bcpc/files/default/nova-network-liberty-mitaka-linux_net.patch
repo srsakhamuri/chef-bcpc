@@ -27,11 +27,10 @@
      if len(hostname) > 63:
          LOG.warning(_LW('hostname %s too long, truncating.') % (hostname))
          hostname = fixedip.instance.hostname[:2] + '-' +\
-@@ -1756,6 +1756,8 @@ def _exec_ebtables(*cmd, **kwargs):
+@@ -1756,6 +1756,7 @@ def _exec_ebtables(*cmd, **kwargs):
      # List of error strings to re-try.
      retry_strings = (
          'Multiple ebtables programs',
-+        'Trying to obtain lock',
 +        'Unable to create lock file',
      )
  
@@ -41,7 +40,7 @@
              if any(error in exc.stderr for error in retry_strings):
                  if count > attempts and check_exit_code:
 -                    LOG.warning(_LW('%s failed. Not Retrying.'), ' '.join(cmd))
-+                    LOG.warning(_LW('%s failed (stderr=%s). Not Retrying.'),
++                    LOG.warning(_LW('%s failed too many times (stderr=%s). Not Retrying.'),
 +                                ' '.join(cmd), exc.stderr)
                      raise
                  else:
