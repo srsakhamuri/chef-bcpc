@@ -57,22 +57,8 @@ template "/etc/mysql/debian.cnf" do
     notifies :reload, "service[mysql]", :immediately
 end
 
-template "/etc/mysql/conf.d/wsrep.cnf" do
-    source "mysql-wsrep.cnf.erb"
-    mode 00644
-    variables(
-      lazy {
-        {
-          :servers => get_head_nodes,
-          :wsrep_cluster_name => node['bcpc']['region_name'],
-          :wsrep_port => 4567,
-          :galera_user_key => "mysql-galera-user",
-          :galera_pass_key => "mysql-galera-password",
-          :wsrep_slave_threads => node['bcpc']['mysql-head']['wsrep_slave_threads']
-        }
-      }
-    )
-    notifies :restart, "service[mysql]", :immediately
+file '/etc/mysql/conf.d/wsrep.cnf' do
+    action :delete
 end
 
 template "/etc/mysql/conf.d/bcc.cnf" do
@@ -95,7 +81,13 @@ template "/etc/mysql/conf.d/bcc.cnf" do
           :slow_query_log => node['bcpc']['mysql-head']['slow_query_log'],
           :slow_query_log_file => node['bcpc']['mysql-head']['slow_query_log_file'],
           :long_query_time => node['bcpc']['mysql-head']['long_query_time'],
-          :log_queries_not_using_indexes => node['bcpc']['mysql-head']['log_queries_not_using_indexes']
+          :log_queries_not_using_indexes => node['bcpc']['mysql-head']['log_queries_not_using_indexes'],
+          :servers => get_head_nodes,
+          :wsrep_cluster_name => node['bcpc']['region_name'],
+          :wsrep_port => 4567,
+          :galera_user_key => "mysql-galera-user",
+          :galera_pass_key => "mysql-galera-password",
+          :wsrep_slave_threads => node['bcpc']['mysql-head']['wsrep_slave_threads']
         }
       }
     )
