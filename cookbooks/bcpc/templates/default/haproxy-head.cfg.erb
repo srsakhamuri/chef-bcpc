@@ -48,7 +48,7 @@ listen mysql-galera
 listen keystone-api
   bind <%=node['bcpc']['management']['vip']%>:5000 <%= (node['bcpc']['protocol']['keystone'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
 <% @servers.each do |server| -%>
@@ -57,12 +57,12 @@ listen keystone-api
 
 frontend keystone-admin
   bind <%=node['bcpc']['management']['vip']%>:35357 <%= (node['bcpc']['protocol']['keystone'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
-  option tcplog
+  option httplog
   default_backend keystone-admin-backend
 
 frontend keystone-admin-httponly
   bind <%=node['bcpc']['management']['vip']%>:35358
-  option tcplog
+  option httplog
   default_backend keystone-admin-backend
 
 backend keystone-admin-backend
@@ -76,7 +76,7 @@ backend keystone-admin-backend
 listen glance-api
   bind <%=node['bcpc']['management']['vip']%>:9292 <%= (node['bcpc']['protocol']['glance'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
 <% @servers.each do |server| -%>
@@ -86,7 +86,7 @@ listen glance-api
 listen glance-registry
   bind <%=node['bcpc']['management']['vip']%>:9191 <%= (node['bcpc']['protocol']['glance'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 401
 <% @servers.each do |server| -%>
@@ -96,7 +96,7 @@ listen glance-registry
 listen cinder-api
   bind <%=node['bcpc']['management']['vip']%>:8776 <%= (node['bcpc']['protocol']['cinder'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
 <% if is_liberty? %>
   http-check expect status 200
@@ -110,7 +110,7 @@ listen cinder-api
 listen nova-api
   bind <%=node['bcpc']['management']['vip']%>:8774 <%= (node['bcpc']['protocol']['nova'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 200
 <% @servers.each do |server| -%>
@@ -121,7 +121,7 @@ listen nova-api
 listen neutron-api
   bind <%=node['bcpc']['management']['vip']%>:9696 <%= (node['bcpc']['protocol']['neutron'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 200
 <% @servers.each do |server| -%>
@@ -132,7 +132,7 @@ listen neutron-api
 listen heat-api
   bind <%=node['bcpc']['management']['vip']%>:8004 <%= (node['bcpc']['protocol']['heat'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
 <% @servers.each do |server| -%>
@@ -142,7 +142,7 @@ listen heat-api
 listen heat-api-cfn
   bind <%=node['bcpc']['management']['vip']%>:8000 <%= (node['bcpc']['protocol']['heat'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
 <% @servers.each do |server| -%>
@@ -152,7 +152,7 @@ listen heat-api-cfn
 listen novnc
   bind <%=node['bcpc']['management']['vip']%>:6080 ssl crt /etc/haproxy/haproxy.pem
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /vnc_auto.html
   http-check expect status 200
 <% @servers.each do |server| -%>
@@ -161,12 +161,12 @@ listen novnc
 
 frontend http
   bind <%=node['bcpc']['management']['vip']%>:80
-  option tcplog
+  option httplog
   default_backend http-backend
 
 frontend https
   bind <%=node['bcpc']['management']['vip']%>:443 ssl crt /etc/haproxy/haproxy.pem
-  option tcplog
+  option httplog
   stats enable
   stats uri /haproxy
   stats hide-version
