@@ -48,27 +48,31 @@ listen mysql-galera
 listen keystone-api
   bind <%=node['bcpc']['management']['vip']%>:5000 <%= (node['bcpc']['protocol']['keystone'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:5000 check inter 5s rise 1 fall 1" %>
 <% end -%>
 
 frontend keystone-admin
   bind <%=node['bcpc']['management']['vip']%>:35357 <%= (node['bcpc']['protocol']['keystone'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
-  option tcplog
+  option httplog
+  option forwardfor
   default_backend keystone-admin-backend
 
 frontend keystone-admin-httponly
   bind <%=node['bcpc']['management']['vip']%>:35358
-  option tcplog
+  option httplog
+  option forwardfor
   default_backend keystone-admin-backend
 
 backend keystone-admin-backend
   balance source
   option httpchk GET /
   http-check expect status 300
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:35357 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -76,9 +80,10 @@ backend keystone-admin-backend
 listen glance-api
   bind <%=node['bcpc']['management']['vip']%>:9292 <%= (node['bcpc']['protocol']['glance'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:9292 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -86,9 +91,10 @@ listen glance-api
 listen glance-registry
   bind <%=node['bcpc']['management']['vip']%>:9191 <%= (node['bcpc']['protocol']['glance'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 401
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:9191 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -96,13 +102,10 @@ listen glance-registry
 listen cinder-api
   bind <%=node['bcpc']['management']['vip']%>:8776 <%= (node['bcpc']['protocol']['cinder'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
-<% if is_liberty? %>
-  http-check expect status 200
-<% else %>
   http-check expect status 300
-<% end %>
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8776 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -110,9 +113,10 @@ listen cinder-api
 listen nova-api
   bind <%=node['bcpc']['management']['vip']%>:8774 <%= (node['bcpc']['protocol']['nova'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 200
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8774 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -121,9 +125,10 @@ listen nova-api
 listen neutron-api
   bind <%=node['bcpc']['management']['vip']%>:9696 <%= (node['bcpc']['protocol']['neutron'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 200
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:9696 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -132,9 +137,10 @@ listen neutron-api
 listen heat-api
   bind <%=node['bcpc']['management']['vip']%>:8004 <%= (node['bcpc']['protocol']['heat'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8004 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -142,9 +148,10 @@ listen heat-api
 listen heat-api-cfn
   bind <%=node['bcpc']['management']['vip']%>:8000 <%= (node['bcpc']['protocol']['heat'] == 'https') ? "ssl crt /etc/haproxy/haproxy.pem" : "" %>
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /
   http-check expect status 300
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:8000 check inter 5s rise 1 fall 1" %>
 <% end -%>
@@ -152,21 +159,22 @@ listen heat-api-cfn
 listen novnc
   bind <%=node['bcpc']['management']['vip']%>:6080 ssl crt /etc/haproxy/haproxy.pem
   balance source
-  option tcplog
+  option httplog
   option httpchk GET /vnc_auto.html
   http-check expect status 200
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:6080 check inter 5s rise 1 fall 1" %>
 <% end -%>
 
 frontend http
   bind <%=node['bcpc']['management']['vip']%>:80
-  option tcplog
+  option httplog
   default_backend http-backend
 
 frontend https
   bind <%=node['bcpc']['management']['vip']%>:443 ssl crt /etc/haproxy/haproxy.pem
-  option tcplog
+  option httplog
   stats enable
   stats uri /haproxy
   stats hide-version
@@ -193,6 +201,7 @@ backend horizon-backend
   balance source
   option httpchk GET /
   http-check expect status 200
+  option forwardfor
 <% @servers.each do |server| -%>
   <%= "server #{server['hostname']} #{server['bcpc']['management']['ip']}:9999 check inter 5s rise 1 fall 1" %>
 <% end -%>
