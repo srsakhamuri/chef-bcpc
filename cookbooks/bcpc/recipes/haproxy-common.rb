@@ -35,6 +35,11 @@ end
 
 package "haproxy" do
     action :install
+    notifies :restart, 'service[rsyslog]', :immediately
+end
+
+service 'rsyslog' do
+    action :nothing
 end
 
 bash "enable-defaults-haproxy" do
