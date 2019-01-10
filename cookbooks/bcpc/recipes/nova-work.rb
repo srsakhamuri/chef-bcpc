@@ -27,7 +27,6 @@ end
 
 package "nova-compute-#{node['bcpc']['virt_type']}" do
   action :install
-  notifies :restart, 'service[nova-compute]', :immediately
 end
 
 nova_services = %w(nova-api nova-compute nova-novncproxy)
