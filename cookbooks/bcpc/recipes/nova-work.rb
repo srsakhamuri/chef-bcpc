@@ -238,7 +238,7 @@ unless node['bcpc']['enabled']['neutron']
   end
 
   # patches nova-network with BCPC hostname style and dnsmasq fix
-  bcpc_patch "nova-network-linux_net-mitaka" do
+  bcpc_patch 'nova-network-linux_net-mitaka' do
     patch_file           'nova-network-linux_net-mitaka.patch'
     patch_root_dir       '/usr/lib/python2.7/dist-packages'
     shasums_before_apply 'nova-network-linux_net-mitaka-BEFORE.SHASUMS'
@@ -248,12 +248,23 @@ unless node['bcpc']['enabled']['neutron']
   end
 
   # patches nova-network to teardown bridges
-  bcpc_patch "nova-network-manager-mitaka" do
+  bcpc_patch 'nova-network-manager-mitaka' do
     patch_file           'nova-network-manager-mitaka.patch'
     patch_root_dir       '/usr/lib/python2.7/dist-packages'
     shasums_before_apply 'nova-network-manager-mitaka-BEFORE.SHASUMS'
     shasums_after_apply  'nova-network-manager-mitaka-AFTER.SHASUMS'
     notifies :restart, 'service[nova-network]', :immediately
+    only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:13.1.1 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:14.0.0"
+  end
+
+  # patches python-nova to stop multiple fixed addresses being associated
+  # with an instance if the initial build has issues
+  # https://review.openstack.org/#/c/393805/
+  bcpc_patch 'python-nova-objects-instance-mitaka' do
+    patch_file           'python-nova-objects-instance-mitaka.patch'
+    patch_root_dir       '/usr/lib/python2.7/dist-packages'
+    shasums_before_apply 'python-nova-objects-instance-mitaka-BEFORE.SHASUMS'
+    shasums_after_apply  'python-nova-objects-instance-mitaka-AFTER.SHASUMS'
     only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:13.1.1 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:14.0.0"
   end
 end
