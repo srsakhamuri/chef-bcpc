@@ -228,19 +228,8 @@ end
 # these patches only apply to nova-network so do not apply if Neutron+Calico is on
 unless node['bcpc']['enabled']['neutron']
   # patches metadata service with BCPC hostname style
-  bcpc_patch 'nova-api-metadata-base-liberty-12.0.1-plus' do
-    patch_file           'nova-api-metadata-base.patch'
-    patch_root_dir       '/usr/lib/python2.7/dist-packages'
-    shasums_before_apply 'nova-api-metadata-base-liberty-12.0.1-plus-BEFORE.SHASUMS'
-    shasums_after_apply  'nova-api-metadata-base-liberty-12.0.1-plus-AFTER.SHASUMS'
-    notifies :restart, 'service[nova-api]', :immediately
-    only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:12.0.1-0ubuntu1~cloud0 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:13.0.0"
-  end
-
-  # This patches the stock nova-network linux_net.py with BCPC hostname
-  # change and dnsmasq fix
   bcpc_patch 'nova-api-metadata-base-mitaka' do
-    patch_file           'nova-api-metadata-base.patch'
+    patch_file           'nova-api-metadata-base-mitaka.patch'
     patch_root_dir       '/usr/lib/python2.7/dist-packages'
     shasums_before_apply 'nova-api-metadata-base-mitaka-BEFORE.SHASUMS'
     shasums_after_apply  'nova-api-metadata-base-mitaka-AFTER.SHASUMS'
@@ -248,22 +237,12 @@ unless node['bcpc']['enabled']['neutron']
     only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:13.1.1 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:14.0.0"
   end
 
-  bcpc_patch "nova-network-liberty-linux_net-12.0.4" do
-    patch_file           'nova-network-liberty-mitaka-linux_net.patch'
+  # patches nova-network with BCPC hostname style and dnsmasq fix
+  bcpc_patch "nova-network-linux_net-mitaka" do
+    patch_file           'nova-network-linux_net-mitaka.patch'
     patch_root_dir       '/usr/lib/python2.7/dist-packages'
-    shasums_before_apply 'nova-network-liberty-linux_net-12.0.4-BEFORE.SHASUMS'
-    shasums_after_apply  'nova-network-liberty-linux_net-12.0.4-AFTER.SHASUMS'
-    notifies :restart, 'service[nova-network]', :immediately
-    only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:12.0.4 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:13.0.0"
-  end
-
-  # Liberty patch also works on all Mitaka versions
-  # (checksums are for 13.1.1/13.1.2 only)
-  bcpc_patch "nova-network-mitaka-linux_net" do
-    patch_file           'nova-network-liberty-mitaka-linux_net.patch'
-    patch_root_dir       '/usr/lib/python2.7/dist-packages'
-    shasums_before_apply 'nova-network-mitaka-linux_net-BEFORE.SHASUMS'
-    shasums_after_apply  'nova-network-mitaka-linux_net-AFTER.SHASUMS'
+    shasums_before_apply 'nova-network-linux_net-mitaka-BEFORE.SHASUMS'
+    shasums_after_apply  'nova-network-linux_net-mitaka-AFTER.SHASUMS'
     notifies :restart, 'service[nova-network]', :immediately
     only_if "dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') ge 2:13.1.1 && dpkg --compare-versions $(dpkg -s python-nova | egrep '^Version:' | awk '{ print $NF }') lt 2:14.0.0"
   end
