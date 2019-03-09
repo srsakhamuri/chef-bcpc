@@ -35,7 +35,7 @@ cloud_img_box="trusty-server-cloudimg-amd64-vagrant-disk1.box"
 netboot_iso="ubuntu-14.04-mini.iso"
 pypi_url="https://pypi.python.org/packages/source"
 pxe_rom="gpxe-1.0.1-80861004.rom"
-ruby_gem_url="https://rubygems.global.ssl.fastly.net/gems"
+ruby_gem_url="https://rubygems.org/downloads"
 
 vbox_version="5.0.36"
 vbox_additions="VBoxGuestAdditions_$vbox_version.iso"
