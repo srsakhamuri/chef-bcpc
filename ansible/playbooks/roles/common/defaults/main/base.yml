@@ -170,9 +170,9 @@ assets_files:
     filename: consul_1.4.0_linux_amd64.zip
 
   - name: chef_client
-    url: https://packages.chef.io/files/stable/chef/14.6.47/ubuntu/18.04/chef_14.6.47-1_amd64.deb
-    checksum: sha256:81dc8634609493a8e9c9dbcb027855027812c902db95e1884b18fe368acbd047
-    filename: chef_14.6.47-1_amd64.deb
+    url: https://packages.chef.io/files/stable/chef/14.13.11/ubuntu/18.04/chef_14.13.11-1_amd64.deb
+    checksum: sha256:9ddcd5ceef19c95ecc1f34bef080c23d9cb42ae8ebc69fd41dcf1c768a6a708f
+    filename: chef_14.13.11-1_amd64.deb
 
   - name: chef_server
     url: https://packages.chef.io/files/stable/chef-server/12.17.33/ubuntu/16.04/chef-server-core_12.17.33-1_amd64.deb
