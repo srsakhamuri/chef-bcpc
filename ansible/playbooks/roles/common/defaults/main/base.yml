@@ -121,7 +121,6 @@ chef_client:
 chef_extra_cookbooks:
   - file_asset: logrotate
   - file_asset: hostsfile
-  - file_asset: cron
 
 # all chef extra cookbooks
 all_chef_extra_cookbooks: "{{ chef_extra_cookbooks +
@@ -188,11 +187,6 @@ assets_files:
     url: https://supermarket.chef.io/cookbooks/hostsfile/versions/3.0.1/download
     checksum: sha256:dfac48893dfdd15461740a1fe00a4445191261e7ec9f6f6708974b017bf7f660
     filename: hostsfile-3.0.1.tar.gz
-
-  - name: cron
-    url: https://supermarket.chef.io/cookbooks/cron/versions/5.1.0/download
-    checksum: sha256:7c2157550e8e4bd784580ec2bf127be44327333554f9bb7a37bd17ae4bd21dfe
-    filename: cron-5.1.0.tar.gz
 
   - name: etcd3gw
     url: https://files.pythonhosted.org/packages/08/02/63d5eb103943ce18c38dd1b11a2d63e6ff7260d44067458e7faa092c2b9e/etcd3gw-0.2.4.tar.gz
