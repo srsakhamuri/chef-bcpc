@@ -121,7 +121,6 @@ chef_client:
 chef_extra_cookbooks:
   - file_asset: logrotate
   - file_asset: hostsfile
-  - file_asset: cron
 
 # all chef extra cookbooks
 all_chef_extra_cookbooks: "{{ chef_extra_cookbooks +
