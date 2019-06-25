@@ -285,5 +285,5 @@ execute 'set ceph backend properties' do
   command <<-DOC
     openstack volume type set ceph --property volume_backend_name=ceph
   DOC
-  not_if "openstack volume type show ceph -c properties -f value | grep ceph"
+  not_if 'openstack volume type show ceph -c properties -f value | grep ceph'
 end
